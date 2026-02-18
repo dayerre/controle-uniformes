@@ -98,17 +98,6 @@
 </head>
 <body>
 
-<!-- IFRAME + FORM de comunicação (anti-CORS) -->
-<iframe id="gasFrame" name="gasFrame" style="position:absolute; left:-9999px; top:-9999px; width:1px; height:1px; border:0;"></iframe>
-<form id="gasForm" target="gasFrame" method="POST" style="position:absolute; left:-9999px; top:-9999px;">
-  <input name="action" />
-  <input name="login" />
-  <input name="pin" />
-  <input name="devLogin" />
-  <input name="devPin" />
-  <input name="name" />
-</form>
-
 <!-- Login -->
 <div class="overlay" id="loginOverlay" style="display:none;">
   <div class="loginBox">
@@ -172,7 +161,6 @@
     <button type="button" class="navBtn devOnly hide" data-screen="log">Acessos <span class="tag">DEV</span></button>
   </aside>
 
-  <!-- (restante das telas = igual ao seu arquivo atual) -->
   <section id="screen-mov" class="card">
     <div class="hd">
       <div><h2>Movimentação</h2><p>Observação aparece somente em devolução.</p></div>
@@ -276,7 +264,6 @@
           <tbody></tbody>
         </table>
       </div>
-
     </div>
   </section>
 
@@ -364,8 +351,6 @@
   // ==============================
 
   const DB_KEY="uniformes_db_site";
-  const QUEUE_KEY="uniformes_queue_site";
-
   const CATALOG=[
     { categoria:"Camisa masculina manga longa", tamanhos:["P","M","G","GG","XG"] },
     { categoria:"Camisa masculina manga curta", tamanhos:["P","M","G","GG","XG"] },
@@ -384,14 +369,14 @@
   function getFuncById(db,id){ return db.funcionarios.find(f=>f.id===id)||null; }
 
   // ===== sessão
-  const SESSION_KEY="uniformes_session_sheet_v1";
+  const SESSION_KEY="uniformes_session_sheet_v2_jsonp";
   function loadSession(){ try{ return JSON.parse(localStorage.getItem(SESSION_KEY))||null; }catch{ return null; } }
   function saveSession(s){ localStorage.setItem(SESSION_KEY, JSON.stringify(s)); }
   function clearSession(){ localStorage.removeItem(SESSION_KEY); }
   function getCurrentUser(){ const s=loadSession(); if(!s||!s.login) return null; return s; }
   function isDevSession(){ const s=getCurrentUser(); return !!(s && s.isDev); }
 
-  // ===== Status
+  // ===== Status chip
   function setSheetsStatus(mode, msg){
     const dot=document.getElementById("dotSheets");
     const txt=document.getElementById("txtSheets");
@@ -400,68 +385,55 @@
     txt.textContent=msg;
   }
 
-  // ====== GAS via FORM/IFRAME (anti-CORS)
-  const gasFrame = document.getElementById("gasFrame");
-  const gasForm  = document.getElementById("gasForm");
-
-  function gasCall(params, timeoutMs=12000){
+  // ===== JSONP call (sem CORS) [web:33]
+  function apiJsonp(params, timeoutMs=12000){
     return new Promise((resolve, reject)=>{
-      // monta o form
-      gasForm.action = SHEETS_URL;
-      [...gasForm.elements].forEach(el=>{
-        if(!el.name) return;
-        el.value = (params[el.name] ?? "");
-      });
+      const cbName = "cb_" + Math.random().toString(16).slice(2);
+      const u = new URL(SHEETS_URL);
+      Object.entries(params).forEach(([k,v])=>u.searchParams.set(k, v));
+      u.searchParams.set("callback", cbName);
+      u.searchParams.set("_ts", String(Date.now()));
 
+      const s = document.createElement("script");
       let done=false;
-      const timer=setTimeout(()=>{
+
+      window[cbName] = (data)=>{
         if(done) return;
         done=true;
+        cleanup();
+        resolve(data);
+      };
+
+      const t = setTimeout(()=>{
+        if(done) return;
+        done=true;
+        cleanup();
         reject(new Error("Timeout ao comunicar com o Sheets."));
       }, timeoutMs);
 
-      const onLoad = ()=>{
+      function cleanup(){
+        clearTimeout(t);
+        try{ delete window[cbName]; }catch{ window[cbName]=undefined; }
+        s.remove();
+      }
+
+      s.onerror = ()=>{
         if(done) return;
         done=true;
-        clearTimeout(timer);
-        try{
-          // tenta ler o conteúdo retornado (mesma origem pode bloquear; então tratamos com fallback)
-          // Muitas vezes não dá para acessar DOM do iframe por cross-origin, então usamos um truque:
-          // retornamos sucesso "cego" apenas quando a ação não precisa resposta.
-          resolve({ ok:true, opaque:true });
-        }catch(err){
-          resolve({ ok:true, opaque:true });
-        }finally{
-          gasFrame.removeEventListener("load", onLoad);
-        }
+        cleanup();
+        reject(new Error("Falha ao carregar resposta do servidor."));
       };
 
-      gasFrame.addEventListener("load", onLoad, { once:true });
-      gasForm.submit();
+      s.src = u.toString();
+      document.head.appendChild(s);
     });
   }
 
-  // Para ações que PRECISAM do JSON (login/listUsers etc.), usamos uma alternativa:
-  // abrir a URL em uma janela popup e ler pela query? Não é bom.
-  // Então: vamos usar fetch SOMENTE para GET simples quando permitido, mas sem quebrar:
-  async function tryFetchJson(url){
-    const res = await fetch(url, { method:"GET", cache:"no-store" });
-    const txt = await res.text();
-    return JSON.parse(txt);
-  }
-
-  async function apiJson(params){
-    const u = new URL(SHEETS_URL);
-    Object.entries(params).forEach(([k,v])=>u.searchParams.set(k, v));
-    u.searchParams.set("_ts", String(Date.now()));
-    try{
-      const j = await tryFetchJson(u.toString());
-      if(!j.ok) throw new Error(j.error || "Erro.");
-      return j;
-    }catch(err){
-      // Se fetch falhar por CORS, avisamos claramente (login precisa JSON)
-      throw new Error("Bloqueio do navegador (CORS). Abra o sistema pelo mesmo domínio (Google Sites/Drive) ou use um proxy. Mensagem: " + (err.message||err));
-    }
+  async function api(params){
+    const j = await apiJsonp(params);
+    if(!j || typeof j !== "object") throw new Error("Resposta inválida do servidor.");
+    if(!j.ok) throw new Error(j.error || "Erro.");
+    return j;
   }
 
   // ===== login UI
@@ -498,14 +470,15 @@
   async function doLogin(){
     const login=String(loginUser.value||"").trim().toLowerCase();
     const pin=String(loginPass.value||"").trim();
-
     if(!login){ loginErr.textContent="Informe o usuário."; loginErr.style.display="block"; return; }
     if(!/^\d{6}$/.test(pin)){ loginErr.textContent="Senha inválida (6 dígitos)."; loginErr.style.display="block"; return; }
 
     try{
       setSheetsStatus("warn","Sheets: validando login...");
-      const j = await apiJson({ action:"login", login, pin });
+      const j = await api({ action:"login", login, pin });
+
       saveSession({ login: j.login, isDev: !!j.isDev, at: new Date().toLocaleString("pt-BR") });
+
       hideLogin();
       refreshUserChip();
       applyDevVisibility();
@@ -547,7 +520,7 @@
   }
   navBtns.forEach(b=>b.addEventListener("click",()=>setScreen(b.dataset.screen)));
 
-  // ===== app refs
+  // ===== refs
   const elTipo=document.getElementById("tipoMov");
   const elData=document.getElementById("dataMov");
   const boxFunc=document.getElementById("boxFunc");
@@ -581,7 +554,7 @@
   const elNovoNome=document.getElementById("novoNome");
   const btnAddFunc=document.getElementById("btnAddFunc");
 
-  // ===== DEV users UI (listUsers precisa JSON também => usa apiJson)
+  // ===== DEV users UI
   const devPin=document.getElementById("devPin");
   const btnLoadUsers=document.getElementById("btnLoadUsers");
   const newUserLogin=document.getElementById("newUserLogin");
@@ -605,7 +578,7 @@
     if(!requireDev()) return;
     const s=getCurrentUser();
     try{
-      const j=await apiJson({ action:"listUsers", devLogin:s.login, devPin:String(devPin.value||"").trim() });
+      const j=await api({ action:"listUsers", devLogin:s.login, devPin:String(devPin.value||"").trim() });
       renderUsersTable(j.users||[]);
     }catch(err){
       alert(String(err.message||err));
@@ -631,7 +604,7 @@
   window.toggleUserSheet = async (login)=>{
     if(!requireDev()) return;
     const s=getCurrentUser();
-    await apiJson({ action:"toggleUser", login, devLogin:s.login, devPin:String(devPin.value||"").trim() });
+    await api({ action:"toggleUser", login, devLogin:s.login, devPin:String(devPin.value||"").trim() });
     loadUsersFromSheet();
   };
   window.resetPinSheet = async (login)=>{
@@ -640,14 +613,14 @@
     if(np===null) return;
     if(!/^\d{6}$/.test(np)) return alert("Precisa ser 6 dígitos.");
     const s=getCurrentUser();
-    await apiJson({ action:"resetPin", login, pin:np, devLogin:s.login, devPin:String(devPin.value||"").trim() });
+    await api({ action:"resetPin", login, pin:np, devLogin:s.login, devPin:String(devPin.value||"").trim() });
     loadUsersFromSheet();
   };
   window.removeUserSheet = async (login)=>{
     if(!requireDev()) return;
     if(!confirm("Remover usuário?")) return;
     const s=getCurrentUser();
-    await apiJson({ action:"removeUser", login, devLogin:s.login, devPin:String(devPin.value||"").trim() });
+    await api({ action:"removeUser", login, devLogin:s.login, devPin:String(devPin.value||"").trim() });
     loadUsersFromSheet();
   };
 
@@ -662,16 +635,20 @@
     if(!/^\d{6}$/.test(pin)) return alert("Senha deve ter 6 dígitos.");
 
     const s=getCurrentUser();
-    await apiJson({ action:"createUser", login, name, pin, devLogin:s.login, devPin:String(devPin.value||"").trim() });
+    await api({ action:"createUser", login, name, pin, devLogin:s.login, devPin:String(devPin.value||"").trim() });
 
     newUserLogin.value=""; newUserName.value=""; newUserPin.value="";
     loadUsersFromSheet();
   });
 
-  // ===== restante (local) igual ao seu
+  // ===== resto (local)
   function upsertEstoque(db,c,t,delta){ const k=keyItem(c,t); db.estoque[k]=Number(db.estoque[k]??0)+delta; }
   function fillCategorias(){ elCat.innerHTML=CATALOG.map(c=>`<option value="${escapeHtml(c.categoria)}">${escapeHtml(c.categoria)}</option>`).join(""); }
-  function fillTamanhos(){ const found=CATALOG.find(x=>x.categoria===elCat.value); const ts=found?found.tamanhos:[]; elTam.innerHTML=ts.map(t=>`<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join(""); }
+  function fillTamanhos(){
+    const found=CATALOG.find(x=>x.categoria===elCat.value);
+    const ts=found?found.tamanhos:[];
+    elTam.innerHTML=ts.map(t=>`<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join("");
+  }
   function fillRelFuncionarios(){
     const db=loadDB();
     const todos=db.funcionarios.slice().sort((a,b)=>a.nome.localeCompare(b.nome));
@@ -741,11 +718,12 @@
     }).join("") || `<tr><td colspan="10" class="note">Sem movimentações.</td></tr>`;
   }
 
+  // ===== hooks
   document.getElementById("btnCarregarSheetsUrl").addEventListener("click", async ()=>{
     if(!requireLogin()) return;
     try{
       setSheetsStatus("warn","Sheets: testando...");
-      await apiJson({ action:"ping" });
+      await api({ action:"ping" });
       setSheetsStatus("ok","Sheets: conectado");
       alert("Sheets OK.");
     }catch(err){
@@ -754,14 +732,10 @@
     }
   });
 
-  const btnImprimirRel=document.getElementById("btnImprimirRel");
-  const btnGerarRel=document.getElementById("btnGerarRel");
-  const btnLimparRel=document.getElementById("btnLimparRel");
-  const btnImprimirTermoDia=document.getElementById("btnImprimirTermoDia");
-  const relFuncSel=document.getElementById("relFuncSel");
-  const printArea=document.getElementById("printArea");
-  const printHeader=document.getElementById("printHeader");
-  const printBody=document.getElementById("printBody");
+  btnGerarRel.addEventListener("click", ()=>{ if(!requireLogin()) return; gerarRelatorioFuncionario(); });
+  btnLimparRel.addEventListener("click", ()=>{ relFuncSel.value=""; limparRelatorioUI(); });
+  relFuncSel.addEventListener("change", ()=>{ if(!relFuncSel.value) limparRelatorioUI(); });
+  btnImprimirRel.addEventListener("click", ()=>{ if(!requireLogin()) return; if(printArea.style.display==="none") gerarRelatorioFuncionario(); if(printArea.style.display==="none") return; window.print(); });
 
   function limparRelatorioUI(){
     printHeader.style.display="flex";
@@ -811,11 +785,6 @@
     printArea.scrollIntoView({behavior:"smooth", block:"start"});
   }
 
-  btnGerarRel.addEventListener("click", ()=>{ if(!requireLogin()) return; gerarRelatorioFuncionario(); });
-  btnLimparRel.addEventListener("click", ()=>{ relFuncSel.value=""; limparRelatorioUI(); });
-  relFuncSel.addEventListener("change", ()=>{ if(!relFuncSel.value) limparRelatorioUI(); });
-  btnImprimirRel.addEventListener("click", ()=>{ if(!requireLogin()) return; if(printArea.style.display==="none") gerarRelatorioFuncionario(); if(printArea.style.display==="none") return; window.print(); });
-
   function gerarTermosDoDia(){
     const db=loadDB();
     const hoje=todayISO();
@@ -856,13 +825,16 @@
               Autorizo desde já, o desconto de seus respectivos valores em folha de pagamento/rescisão, quando por extravio e/ou danificação por uso inadequado,
               conforme previsto no artigo 462 §1º da CLT.
             </p>
+
             <div class="tableWrap" style="max-height:none;">
               <table style="width:100%; border-collapse:collapse; font-size: 13.5px;">
                 <thead><tr><th>Material entregue</th><th>Tam.</th><th class="right">Qtd</th></tr></thead>
                 <tbody>${linhas}</tbody>
               </table>
             </div>
+
             <div style="margin-top:18px; text-align:right;">${escapeHtml(TERMO_LOCAL)}, ${escapeHtml(hojeBR)}</div>
+
             <div style="margin-top:30px;">
               <div style="height:60px;"></div>
               <div style="border-top:1px solid #000; padding-top:6px; text-align:center;">${escapeHtml(nome)}</div>
@@ -881,6 +853,7 @@
 
   btnSalvar.addEventListener("click", ()=>{
     if(!requireLogin()) return;
+
     const db=loadDB();
     const tipo=elTipo.value;
     if(!elData.value) return alert("Informe a data.");
@@ -957,22 +930,27 @@
   window.hideMovimento=hideMovimento;
 
   function boot(){
-    fillCategorias(); fillTamanhos(); fillRelFuncionarios();
+    fillCategorias();
+    fillTamanhos();
+    fillRelFuncionarios();
     elData.value=todayISO();
     updateMovUI();
-    renderMov(); renderEstoque();
+    renderMov();
+    renderEstoque();
     setScreen("mov");
     document.getElementById("cfgUrl").value=SHEETS_URL;
 
-    refreshUserChip(); applyDevVisibility();
+    // Sempre exigir login ao abrir
+    clearSession();
+    refreshUserChip();
+    applyDevVisibility();
+    showLogin();
 
-    // ping inicial (pode falhar por CORS; não bloqueia o app)
+    // status inicial (não bloqueia)
     setSheetsStatus("warn","Sheets: verificando...");
-    apiJson({ action:"ping" })
+    api({ action:"ping" })
       .then(()=>setSheetsStatus("ok","Sheets: conectado"))
-      .catch(()=>setSheetsStatus("warn","Sheets: bloqueado (CORS)"));
-
-    if(!getCurrentUser()) showLogin();
+      .catch(()=>setSheetsStatus("warn","Sheets: offline"));
 
     elTipo.addEventListener("change", updateMovUI);
     elEstado.addEventListener("change", updateMovUI);
