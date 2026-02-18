@@ -5,73 +5,100 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Controle de Uniformes</title>
   <style>
-    :root{--bg:#f3f4f6;--panel:#fff;--panel2:#f9fafb;--text:#111827;--muted:#6b7280;--line:rgba(17,24,39,.12);--line2:rgba(17,24,39,.08);--shadow:0 12px 28px rgba(17,24,39,.10);--radius:14px;--primary:#111827;--danger:#b91c1c;--ok:#059669;--warn:#b45309;--focus: rgba(17,24,39,.18)}
-    *{box-sizing:border-box}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);background:linear-gradient(180deg,#f3f4f6 0%,#eef2f7 100%)}
-    header{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-    .topbar{max-width:1300px;margin:0 auto;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-    .title{display:flex;flex-direction:column;gap:2px}
-    .title h1{font-size:16px;margin:0;font-weight:750;letter-spacing:.2px}
-    .title small{color:var(--muted)}
-    .chip{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:12px;background:rgba(255,255,255,.9);white-space:nowrap}
-    .dot{width:8px;height:8px;border-radius:999px;background:var(--muted)}
-    .dot.ok{background:var(--ok)} .dot.err{background:var(--danger)} .dot.warn{background:var(--warn)}
-    .app{max-width:1300px;margin:0 auto;padding:16px;display:grid;grid-template-columns:260px 1fr;gap:14px}
-    @media (max-width:980px){.app{grid-template-columns:1fr}}
-    .nav{border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);box-shadow:var(--shadow);padding:10px;position:sticky;top:66px;height:fit-content}
-    .nav button{width:100%;text-align:left;border:1px solid transparent;background:transparent;color:var(--text);padding:10px 12px;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px}
-    .nav button:hover{background:rgba(17,24,39,.04)}
-    .nav button.active{background:rgba(17,24,39,.07);border-color:rgba(17,24,39,.12)}
-    .tag{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);font-size:12px;background:var(--panel2)}
-    .card{border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);box-shadow:var(--shadow);overflow:hidden}
-    .card .hd{padding:14px 14px 10px;border-bottom:1px solid var(--line2);display:flex;align-items:flex-end;justify-content:space-between;gap:12px;background:linear-gradient(180deg, rgba(249,250,251,.95), rgba(255,255,255,.95))}
-    .card .hd h2{margin:0;font-size:14px;font-weight:750}
-    .card .hd p{margin:0;color:var(--muted);font-size:12px}
-    .card .bd{padding:14px}
-    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-    @media (max-width:780px){.grid2,.grid3{grid-template-columns:1fr}}
-    label{display:block;font-size:12px;color:var(--muted);margin:10px 0 6px}
-    input,select{width:100%;padding:10px 12px;border:1px solid rgba(17,24,39,.16);border-radius:12px;outline:none;background:#fff;color:var(--text)}
-    input:focus,select:focus{border-color:rgba(17,24,39,.35);box-shadow:0 0 0 4px var(--focus)}
-    .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-    button.btn{border:1px solid rgba(17,24,39,.16);background:#fff;color:var(--text);padding:10px 12px;border-radius:12px;cursor:pointer;font-size:13px}
-    button.btn:hover{background:rgba(17,24,39,.03)}
-    button.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
-    button.btn.primary:hover{background:#000;border-color:#000}
-    button.btn.danger{background:#fff;border-color:rgba(185,28,28,.35);color:var(--danger)}
-    button.btn.danger:hover{background:rgba(185,28,28,.05)}
-    button.btn:disabled{opacity:.55;cursor:not-allowed}
-    .sep{height:1px;background:var(--line2);margin:14px 0}
-    .tableWrap{border:1px solid var(--line);border-radius:14px;overflow:auto;max-height:520px;background:#fff}
-    table{width:100%;border-collapse:collapse}
-    th,td{padding:10px 10px;border-bottom:1px solid rgba(17,24,39,.08);font-size:13px;vertical-align:top}
-    th{position:sticky;top:0;background:#f9fafb;color:#374151;font-weight:700;text-align:left;font-size:12px;border-bottom:1px solid rgba(17,24,39,.10)}
-    td.right,th.right{text-align:right}
-    .hide{display:none !important}
-    .note{color:var(--muted);font-size:12px;margin:8px 0 0}
-    .errText{color:#991b1b;font-size:12px;margin-top:10px}
-    .overlay{position:fixed;inset:0;z-index:9999;background:rgba(17,24,39,.55);display:flex;align-items:center;justify-content:center;padding:16px}
-    .loginBox{width:min(640px,100%);border:1px solid rgba(255,255,255,.18);border-radius:16px;background:#fff;box-shadow:0 18px 50px rgba(0,0,0,.35);overflow:hidden}
-    .brandBar{background:#111;color:#fff;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-    .brandLogo{display:flex;align-items:center;gap:8px;font-weight:900;letter-spacing:.6px;font-size:14px;user-select:none}
-    .brandLogo .mark{display:inline-block;padding:4px 8px;background:#fff;color:#111;border-radius:4px;line-height:1;font-weight:950;letter-spacing:.8px}
-    .brandBar small{opacity:.9;font-weight:600}
-    .loginBody{padding:16px}
-    .loginTitle{margin:0;font-size:16px;font-weight:900;letter-spacing:.2px}
-    .loginSub{margin:6px 0 0;color:#4b5563;font-size:13px;line-height:1.35}
-    @media print{
-      body *{visibility:hidden !important}
-      #printArea,#printArea *{visibility:visible !important}
-      #printArea{display:block !important;position:absolute !important;left:0 !important;top:0 !important;width:100% !important;margin:0 !important}
-      body{background:#fff !important;color:#000 !important}
-      .card,.tableWrap{box-shadow:none !important;border:0 !important;background:transparent !important}
-      th{position:static !important;background:transparent !important;color:#000 !important}
+    :root{
+      --bg:#f3f4f6; --panel:#fff; --panel2:#f9fafb; --text:#111827; --muted:#6b7280;
+      --line:rgba(17,24,39,.12); --line2:rgba(17,24,39,.08);
+      --shadow:0 12px 28px rgba(17,24,39,.10); --radius:14px;
+      --primary:#111827; --danger:#b91c1c; --ok:#059669; --warn:#b45309; --focus: rgba(17,24,39,.18);
+    }
+    *{ box-sizing:border-box; }
+    body{ margin:0; font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; color:var(--text);
+      background: linear-gradient(180deg,#f3f4f6 0%,#eef2f7 100%);
+    }
+    header{ position:sticky; top:0; z-index:10; background: rgba(255,255,255,.85); backdrop-filter: blur(10px); border-bottom:1px solid var(--line); }
+    .topbar{ max-width:1300px; margin:0 auto; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .title{ display:flex; flex-direction:column; gap:2px; }
+    .title h1{ font-size:16px; margin:0; font-weight:750; letter-spacing:.2px; }
+    .title small{ color:var(--muted); }
+
+    .chip{ display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border:1px solid var(--line);
+      border-radius:999px; color:var(--muted); font-size:12px; background: rgba(255,255,255,.9); white-space:nowrap;
+    }
+    .dot{ width:8px; height:8px; border-radius:999px; background: var(--muted); }
+    .dot.ok{ background: var(--ok); } .dot.err{ background: var(--danger); } .dot.warn{ background: var(--warn); }
+
+    .app{ max-width:1300px; margin:0 auto; padding:16px; display:grid; grid-template-columns:260px 1fr; gap:14px; }
+    @media (max-width:980px){ .app{ grid-template-columns:1fr; } }
+
+    .nav{ border:1px solid var(--line); border-radius:var(--radius); background: var(--panel); box-shadow:var(--shadow);
+      padding:10px; position:sticky; top:66px; height:fit-content;
+    }
+    .nav button{ width:100%; text-align:left; border:1px solid transparent; background:transparent; color:var(--text);
+      padding:10px 12px; border-radius:12px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:13px;
+    }
+    .nav button:hover{ background: rgba(17,24,39,.04); }
+    .nav button.active{ background: rgba(17,24,39,.07); border-color: rgba(17,24,39,.12); }
+    .tag{ display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid var(--line); color:var(--muted); font-size:12px; background: var(--panel2); }
+
+    .card{ border:1px solid var(--line); border-radius:var(--radius); background: var(--panel); box-shadow:var(--shadow); overflow:hidden; }
+    .card .hd{ padding:14px 14px 10px; border-bottom:1px solid var(--line2); display:flex; align-items:flex-end; justify-content:space-between; gap:12px;
+      background: linear-gradient(180deg, rgba(249,250,251,.95), rgba(255,255,255,.95));
+    }
+    .card .hd h2{ margin:0; font-size:14px; font-weight:750; }
+    .card .hd p{ margin:0; color:var(--muted); font-size:12px; }
+    .card .bd{ padding:14px; }
+
+    .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .grid3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+    @media (max-width:780px){ .grid2,.grid3{ grid-template-columns:1fr; } }
+
+    label{ display:block; font-size:12px; color:var(--muted); margin:10px 0 6px; }
+    input,select{ width:100%; padding:10px 12px; border:1px solid rgba(17,24,39,.16); border-radius:12px; outline:none; background:#fff; color:var(--text); }
+    input:focus,select:focus{ border-color: rgba(17,24,39,.35); box-shadow: 0 0 0 4px var(--focus); }
+
+    .btns{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    button.btn{ border:1px solid rgba(17,24,39,.16); background:#fff; color:var(--text); padding:10px 12px; border-radius:12px; cursor:pointer; font-size:13px; }
+    button.btn:hover{ background: rgba(17,24,39,.03); }
+    button.btn.primary{ background: var(--primary); border-color: var(--primary); color:#fff; }
+    button.btn.primary:hover{ background:#000; border-color:#000; }
+    button.btn.danger{ background:#fff; border-color: rgba(185,28,28,.35); color: var(--danger); }
+    button.btn.danger:hover{ background: rgba(185,28,28,.05); }
+    button.btn:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .sep{ height:1px; background: var(--line2); margin:14px 0; }
+    .tableWrap{ border:1px solid var(--line); border-radius:14px; overflow:auto; max-height:520px; background:#fff; }
+    table{ width:100%; border-collapse:collapse; }
+    th,td{ padding:10px 10px; border-bottom:1px solid rgba(17,24,39,.08); font-size:13px; vertical-align:top; }
+    th{ position:sticky; top:0; background:#f9fafb; color:#374151; font-weight:700; text-align:left; font-size:12px; border-bottom:1px solid rgba(17,24,39,.10); }
+    td.right,th.right{ text-align:right; }
+    .hide{ display:none !important; }
+    .note{ color:var(--muted); font-size:12px; margin:8px 0 0; }
+    .errText{ color:#991b1b; font-size:12px; margin-top:10px; }
+
+    /* Login */
+    .overlay{ position:fixed; inset:0; z-index:9999; background: rgba(17,24,39,.55); display:flex; align-items:center; justify-content:center; padding:16px; }
+    .loginBox{ width:min(640px,100%); border:1px solid rgba(255,255,255,.18); border-radius:16px; background:#fff; box-shadow:0 18px 50px rgba(0,0,0,.35); overflow:hidden; }
+    .brandBar{ background:#111; color:#fff; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .brandLogo{ display:flex; align-items:center; gap:8px; font-weight:900; letter-spacing:.6px; font-size:14px; user-select:none; }
+    .brandLogo .mark{ display:inline-block; padding:4px 8px; background:#fff; color:#111; border-radius:4px; line-height:1; font-weight:950; letter-spacing:.8px; }
+    .brandBar small{ opacity:.9; font-weight:600; }
+    .loginBody{ padding:16px; }
+    .loginTitle{ margin:0; font-size:16px; font-weight:900; letter-spacing:.2px; }
+    .loginSub{ margin:6px 0 0; color:#4b5563; font-size:13px; line-height:1.35; }
+
+    @media print {
+      body * { visibility: hidden !important; }
+      #printArea, #printArea * { visibility: visible !important; }
+      #printArea{ display:block !important; position:absolute !important; left:0 !important; top:0 !important; width:100% !important; margin:0 !important; }
+      body { background:#fff !important; color:#000 !important; }
+      .card, .tableWrap { box-shadow:none !important; border: 0 !important; background: transparent !important; }
+      th { position: static !important; background: transparent !important; color:#000 !important; }
     }
   </style>
 </head>
 <body>
 
+<!-- Login -->
 <div class="overlay" id="loginOverlay" style="display:none;">
   <div class="loginBox">
     <div class="brandBar">
@@ -129,11 +156,11 @@
     <button type="button" class="navBtn active" data-screen="mov">Movimentar <span class="tag">principal</span></button>
     <button type="button" class="navBtn" data-screen="func">Funcionários <span class="tag">cadastro</span></button>
     <button type="button" class="navBtn" data-screen="est">Estoque <span class="tag">saldo</span></button>
+
     <button type="button" class="navBtn devOnly hide" data-screen="cfg">Config <span class="tag">DEV</span></button>
     <button type="button" class="navBtn devOnly hide" data-screen="log">Acessos <span class="tag">DEV</span></button>
   </aside>
 
-  <!-- telas (iguais) -->
   <section id="screen-mov" class="card">
     <div class="hd">
       <div><h2>Movimentação</h2><p>Observação aparece somente em devolução.</p></div>
@@ -209,11 +236,15 @@
       </div>
 
       <div id="printArea" class="card" style="margin-top:12px; display:none;">
-        <div class="hd" id="printHeader"><div><h2>Relatório</h2><p>—</p></div></div>
+        <div class="hd" id="printHeader">
+          <div><h2>Relatório</h2><p>—</p></div>
+        </div>
         <div class="bd" id="printBody">
           <div class="tableWrap" style="max-height:none;">
             <table id="tblRelFunc">
-              <thead><tr><th>Data</th><th>Tipo</th><th>Item</th><th>Tam.</th><th class="right">Qtd</th><th>Estado</th><th>Motivo</th><th>Obs.</th></tr></thead>
+              <thead>
+                <tr><th>Data</th><th>Tipo</th><th>Item</th><th>Tam.</th><th class="right">Qtd</th><th>Estado</th><th>Motivo</th><th>Obs.</th></tr>
+              </thead>
               <tbody><tr><td colspan="8" class="note">—</td></tr></tbody>
             </table>
           </div>
@@ -284,11 +315,22 @@
       <div class="sep"></div>
 
       <div class="grid3">
-        <div><label for="newUserLogin">Novo login</label><input id="newUserLogin" type="text" placeholder="ex.: maria" /></div>
-        <div><label for="newUserName">Nome (opcional)</label><input id="newUserName" type="text" placeholder="ex.: Maria Silva" /></div>
-        <div><label for="newUserPin">Senha (6 dígitos)</label><input id="newUserPin" type="password" inputmode="numeric" placeholder="ex.: 123456" /></div>
+        <div>
+          <label for="newUserLogin">Novo login</label>
+          <input id="newUserLogin" type="text" placeholder="ex.: maria" />
+        </div>
+        <div>
+          <label for="newUserName">Nome (opcional)</label>
+          <input id="newUserName" type="text" placeholder="ex.: Maria Silva" />
+        </div>
+        <div>
+          <label for="newUserPin">Senha (6 dígitos)</label>
+          <input id="newUserPin" type="password" inputmode="numeric" placeholder="ex.: 123456" />
+        </div>
       </div>
-      <div class="btns"><button type="button" class="btn primary" id="btnCreateUser">Criar usuário</button></div>
+      <div class="btns">
+        <button type="button" class="btn primary" id="btnCreateUser">Criar usuário</button>
+      </div>
 
       <div class="sep"></div>
 
@@ -303,12 +345,14 @@
 </main>
 
 <script>
+  // ======= CONFIG DO SITE =======
   const SHEETS_URL = "https://script.google.com/macros/s/AKfycbzef2t-ivoNG_Hu5ACUby0VStJ4ald49HU6W-2sL2ixDKfJZpEz3cfvw5PKAKeLP-lkzQ/exec";
   const DEV_EMAIL = "dayerre@gmail.com";
   const TERMO_LOCAL = "Colatina/ES";
+  // ==============================
 
   const DB_KEY="uniformes_db_site";
-  const SESSION_KEY="uniformes_session_sheet_v3_jsonp";
+  const SESSION_KEY="uniformes_session_sheet_v4_jsonp";
 
   const CATALOG=[
     { categoria:"Camisa masculina manga longa", tamanhos:["P","M","G","GG","XG"] },
@@ -341,7 +385,7 @@
     txt.textContent=msg;
   }
 
-  // JSONP
+  // JSONP (sem CORS) [web:33]
   function apiJsonp(params, timeoutMs=12000){
     return new Promise((resolve, reject)=>{
       const cbName = "cb_" + Math.random().toString(16).slice(2);
@@ -360,7 +404,7 @@
         resolve(data);
       };
 
-      const t=setTimeout(()=>{
+      const t = setTimeout(()=>{
         if(done) return;
         done=true;
         cleanup();
@@ -373,7 +417,7 @@
         s.remove();
       }
 
-      s.onerror=()=>{
+      s.onerror = ()=>{
         if(done) return;
         done=true;
         cleanup();
@@ -389,6 +433,13 @@
     const j = await apiJsonp(params);
     if(!j || typeof j !== "object") throw new Error("Resposta inválida do servidor.");
     if(!j.ok) throw new Error(j.error || "Erro.");
+    return j;
+  }
+
+  async function sendKind(kind, payload){
+    const j = await apiJsonp({ kind, payload: JSON.stringify(payload) });
+    if(!j || typeof j !== "object") throw new Error("Resposta inválida do servidor.");
+    if(!j.ok) throw new Error(j.error || "Erro ao salvar no Sheets.");
     return j;
   }
 
@@ -432,9 +483,7 @@
     try{
       setSheetsStatus("warn","Sheets: validando login...");
       const j = await api({ action:"login", login, pin });
-
       saveSession({ login: j.login, isDev: !!j.isDev, at: new Date().toLocaleString("pt-BR") });
-
       hideLogin();
       refreshUserChip();
       applyDevVisibility();
@@ -496,17 +545,14 @@
   const tblEstoqueBody=document.querySelector("#tblEstoque tbody");
   const pillTotal=document.getElementById("pillTotal");
   const pillTotal2=document.getElementById("pillTotal2");
-
   const relFuncSel=document.getElementById("relFuncSel");
   const btnGerarRel=document.getElementById("btnGerarRel");
   const btnLimparRel=document.getElementById("btnLimparRel");
   const btnImprimirRel=document.getElementById("btnImprimirRel");
   const btnImprimirTermoDia=document.getElementById("btnImprimirTermoDia");
-
   const printArea=document.getElementById("printArea");
   const printHeader=document.getElementById("printHeader");
   const printBody=document.getElementById("printBody");
-
   const elNovoNome=document.getElementById("novoNome");
   const btnAddFunc=document.getElementById("btnAddFunc");
 
@@ -589,15 +635,13 @@
     if(!login) return alert("Informe o login.");
     if(login===DEV_EMAIL.toLowerCase()) return alert("Login reservado ao DEV.");
     if(!/^\d{6}$/.test(pin)) return alert("Senha deve ter 6 dígitos.");
-
     const s=getCurrentUser();
     await api({ action:"createUser", login, name, pin, devLogin:s.login, devPin:String(devPin.value||"").trim() });
-
     newUserLogin.value=""; newUserName.value=""; newUserPin.value="";
     loadUsersFromSheet();
   });
 
-  // Local + catálogo
+  // local
   function upsertEstoque(db,c,t,delta){ const k=keyItem(c,t); db.estoque[k]=Number(db.estoque[k]??0)+delta; }
   function fillCategorias(){ elCat.innerHTML=CATALOG.map(c=>`<option value="${escapeHtml(c.categoria)}">${escapeHtml(c.categoria)}</option>`).join(""); }
   function fillTamanhos(){ const found=CATALOG.find(x=>x.categoria===elCat.value); const ts=found?found.tamanhos:[]; elTam.innerHTML=ts.map(t=>`<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join(""); }
@@ -670,7 +714,7 @@
     }).join("") || `<tr><td colspan="10" class="note">Sem movimentações.</td></tr>`;
   }
 
-  // ====== IMPORTANTE: Carregar do Sheets (snapshot)
+  // ===== Sheets snapshot
   document.getElementById("btnCarregarSheetsUrl").addEventListener("click", async ()=>{
     if(!requireLogin()) return;
     try{
@@ -679,7 +723,7 @@
 
       const db = loadDB();
       db.funcionarios = Array.isArray(j.funcionarios) ? j.funcionarios : [];
-      db.movimentos  = Array.isArray(j.movimentos) ? j.movimentos : [];
+      db.movimentos = Array.isArray(j.movimentos) ? j.movimentos : [];
       db.estoque = {};
 
       for(const m of db.movimentos){
@@ -708,12 +752,13 @@
     }
   });
 
-  // manter: salvar local (não manda ao Sheets aqui; se você quiser, eu ligo depois)
-  btnSalvar.addEventListener("click", ()=>{
+  // ===== salvar movimento (Sheets + local)
+  btnSalvar.addEventListener("click", async ()=>{
     if(!requireLogin()) return;
 
     const db=loadDB();
     const tipo=elTipo.value;
+
     if(!elData.value) return alert("Informe a data.");
     const qtd=Number(elQtd.value);
     if(!Number.isFinite(qtd)||qtd<=0) return alert("Quantidade inválida.");
@@ -742,6 +787,17 @@
       if(saldo+delta<0) return alert("Saldo insuficiente.");
     }
 
+    try{
+      setSheetsStatus("warn","Sheets: salvando...");
+      const funcionarioNome = mov.funcionarioId ? (getFuncById(db, mov.funcionarioId)?.nome || "") : "";
+      await sendKind("movimento", { ...mov, funcionarioNome });
+      setSheetsStatus("ok","Sheets: salvo");
+    }catch(err){
+      setSheetsStatus("erro","Sheets: erro");
+      alert("Não foi possível salvar no Sheets: " + String(err.message||err));
+      return;
+    }
+
     if(delta!==0) upsertEstoque(db,mov.categoria,mov.tamanho,delta);
     db.movimentos.push(mov);
     saveDB(db);
@@ -762,14 +818,30 @@
     updateMovUI();
   });
 
-  btnAddFunc.addEventListener("click", ()=>{
+  // ===== salvar funcionário (Sheets + local)
+  btnAddFunc.addEventListener("click", async ()=>{
     if(!requireLogin()) return;
     const nome=String(elNovoNome.value||"").trim();
     if(!nome) return alert("Informe o nome.");
+
     const db=loadDB();
     if(db.funcionarios.some(f=>f.nome.toLowerCase()===nome.toLowerCase())) return alert("Já existe.");
-    db.funcionarios.push({ id:makeId(), nome, ativo:true });
+
+    const func = { id: makeId(), nome, ativo: true, evento: "ADD" };
+
+    try{
+      setSheetsStatus("warn","Sheets: salvando...");
+      await sendKind("funcionario", func);
+      setSheetsStatus("ok","Sheets: salvo");
+    }catch(err){
+      setSheetsStatus("erro","Sheets: erro");
+      alert("Não foi possível salvar no Sheets: " + String(err.message||err));
+      return;
+    }
+
+    db.funcionarios.push({ id: func.id, nome: func.nome, ativo: true });
     saveDB(db);
+
     elNovoNome.value="";
     renderFuncionariosSelect();
     alert("Funcionário cadastrado.");
@@ -787,24 +859,29 @@
   }
   window.hideMovimento=hideMovimento;
 
+  // DEV (carregar users)
+  btnLoadUsers.addEventListener("click", loadUsersFromSheet);
+
+  function fillCategorias(){ elCat.innerHTML=CATALOG.map(c=>`<option value="${escapeHtml(c.categoria)}">${escapeHtml(c.categoria)}</option>`).join(""); }
   function boot(){
-    fillCategorias(); fillTamanhos(); fillRelFuncionarios();
+    fillCategorias();
+    fillTamanhos();
     elData.value=todayISO();
     updateMovUI();
-    renderMov(); renderEstoque();
+    renderMov();
+    renderEstoque();
     setScreen("mov");
     document.getElementById("cfgUrl").value=SHEETS_URL;
 
-    // Exigir login sempre
+    // Exigir login sempre para testes
     clearSession();
     refreshUserChip();
     applyDevVisibility();
     showLogin();
 
     setSheetsStatus("warn","Sheets: verificando...");
-    api({ action:"ping" })
-      .then(()=>setSheetsStatus("ok","Sheets: conectado"))
-      .catch(()=>setSheetsStatus("warn","Sheets: offline"));
+    api({ action:"ping" }).then(()=>setSheetsStatus("ok","Sheets: conectado"))
+                          .catch(()=>setSheetsStatus("warn","Sheets: offline"));
 
     elTipo.addEventListener("change", updateMovUI);
     elEstado.addEventListener("change", updateMovUI);
