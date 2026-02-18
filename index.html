@@ -27,9 +27,10 @@
 
     .app{ max-width:1300px; margin:0 auto; padding:16px; display:grid; grid-template-columns:260px 1fr; gap:14px; }
     @media (max-width:980px){ .app{ grid-template-columns:1fr; } }
-    .nav{ border:1px solid var(--line); border-radius:var(--radius);
+
+    .nav{ border:1px solid var(--line); border-radius:14px;
       background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-      box-shadow:var(--shadow); padding:10px; position:sticky; top:66px; height:fit-content;
+      box-shadow:0 10px 30px rgba(0,0,0,.35); padding:10px; position:sticky; top:66px; height:fit-content;
     }
     .nav button{ width:100%; text-align:left; border:1px solid transparent; background:transparent; color:var(--text);
       padding:10px 12px; border-radius:12px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:13px;
@@ -37,12 +38,13 @@
     .nav button:hover{ background: rgba(255,255,255,.04); }
     .nav button.active{ background: rgba(96,165,250,.12); border-color: rgba(96,165,250,.25); }
 
-    .card{ border:1px solid var(--line); border-radius:var(--radius);
+    .card{ border:1px solid var(--line); border-radius:14px;
       background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-      box-shadow:var(--shadow); overflow:hidden;
+      box-shadow:0 10px 30px rgba(0,0,0,.35); overflow:hidden;
     }
     .card .hd{ padding:14px 14px 10px; border-bottom:1px solid var(--line); display:flex; align-items:flex-end; justify-content:space-between; gap:12px; }
-    .card .hd h2{ margin:0; font-size:14px; } .card .hd p{ margin:0; color:var(--muted); font-size:12px; }
+    .card .hd h2{ margin:0; font-size:14px; }
+    .card .hd p{ margin:0; color:var(--muted); font-size:12px; }
     .card .bd{ padding:14px; }
 
     .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
@@ -60,17 +62,39 @@
     button.btn:hover{ background: rgba(255,255,255,.05); }
     button.btn.primary{ background: rgba(96,165,250,.18); border-color: rgba(96,165,250,.35); }
     button.btn.danger{ background: rgba(248,113,113,.12); border-color: rgba(248,113,113,.35); color:#fee2e2; }
+    button.btn:disabled{ opacity:.5; cursor:not-allowed; }
 
     .sep{ height:1px; background: var(--line); margin:14px 0; }
     .tableWrap{ border:1px solid var(--line); border-radius:14px; overflow:auto; max-height:520px; background: rgba(10,15,28,.55); }
     table{ width:100%; border-collapse:collapse; }
-    th,td{ padding:10px 10px; border-bottom:1px solid rgba(255,255,255,.08); font-size:13px; }
+    th,td{ padding:10px 10px; border-bottom:1px solid rgba(255,255,255,.08); font-size:13px; vertical-align:top; }
     th{ position:sticky; top:0; background: rgba(9,13,24,.95); color:var(--muted); font-weight:600; text-align:left; font-size:12px; }
     td.right,th.right{ text-align:right; }
 
     .hide{ display:none !important; }
     .note{ color:var(--muted); font-size:12px; margin:8px 0 0; }
     .tag{ display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.12); color:var(--muted); font-size:12px; background: rgba(255,255,255,.03); }
+
+    /* Login overlay */
+    .overlay{
+      position:fixed; inset:0; z-index:9999;
+      background: rgba(0,0,0,.55);
+      display:flex; align-items:center; justify-content:center;
+      padding:16px;
+    }
+    .loginBox{
+      width:min(560px, 100%);
+      border:1px solid var(--line);
+      border-radius:14px;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      box-shadow:0 10px 30px rgba(0,0,0,.35);
+      overflow:hidden;
+    }
+    .loginBox .hd{ padding:14px; border-bottom:1px solid var(--line); }
+    .loginBox .hd h2{ margin:0; font-size:14px; }
+    .loginBox .hd p{ margin:6px 0 0; color:var(--muted); font-size:12px; }
+    .loginBox .bd{ padding:14px; }
+    .errText{ color:#fecaca; font-size:12px; margin-top:10px; }
 
     /* impressão: imprime somente #printArea */
     @media print {
@@ -94,8 +118,40 @@
 </head>
 <body>
 
-<!-- IFRAME fixo para envio ao Apps Script sem abrir abas -->
 <iframe id="sheetsSink" name="sheetsSink" style="display:none;width:0;height:0;border:0;"></iframe>
+
+<!-- Login -->
+<div class="overlay" id="loginOverlay" style="display:none;">
+  <div class="loginBox">
+    <div class="hd">
+      <h2>Login</h2>
+      <p>Somente usuários cadastrados pelo DEV conseguem entrar. (Controle local neste navegador.)</p>
+    </div>
+    <div class="bd">
+      <div class="grid2">
+        <div>
+          <label for="loginUser">Usuário</label>
+          <input id="loginUser" type="text" placeholder="Ex.: maria" autocomplete="username" />
+        </div>
+        <div>
+          <label for="loginPass">Senha (6 dígitos)</label>
+          <input id="loginPass" type="password" inputmode="numeric" placeholder="Ex.: 123456" autocomplete="current-password" />
+        </div>
+      </div>
+
+      <div class="btns">
+        <button type="button" class="btn primary" id="btnLogin">Entrar</button>
+      </div>
+
+      <div class="errText" id="loginErr" style="display:none;"></div>
+
+      <div class="sep"></div>
+      <p class="note">
+        Primeiro acesso: faça login como DEV usando o usuário <b>dayerre@gmail.com</b> e o PIN mestre do DEV (6 dígitos), depois cadastre os usuários na aba “Acessos”.
+      </p>
+    </div>
+  </div>
+</div>
 
 <header>
   <div class="topbar">
@@ -103,9 +159,16 @@
       <h1>Controle de Uniformes</h1>
       <small>Entrada • Saída • Devolução</small>
     </div>
-    <div class="chip">
-      <span class="dot warn" id="dotSheets"></span>
-      <span id="txtSheets">Sheets: configurado</span>
+    <div style="display:flex; gap:10px; align-items:center;">
+      <div class="chip" id="chipUser" title="Usuário atual">
+        <span class="dot ok"></span>
+        <span id="txtUser">Não logado</span>
+      </div>
+      <div class="chip">
+        <span class="dot warn" id="dotSheets"></span>
+        <span id="txtSheets">Sheets: configurado</span>
+      </div>
+      <button type="button" class="btn" id="btnLogout" style="padding:8px 10px;">Sair</button>
     </div>
   </div>
 </header>
@@ -116,6 +179,7 @@
     <button type="button" class="navBtn" data-screen="func">Funcionários <span class="tag">cadastro</span></button>
     <button type="button" class="navBtn" data-screen="est">Estoque <span class="tag">saldo</span></button>
     <button type="button" class="navBtn" data-screen="cfg">Config <span class="tag">Sheets</span></button>
+    <button type="button" class="navBtn" data-screen="log">Acessos <span class="tag">log</span></button>
   </aside>
 
   <!-- MOV -->
@@ -126,22 +190,8 @@
     </div>
     <div class="bd">
 
-      <!-- Sheets view -->
-      <div class="card no-print" style="margin-bottom:12px;">
-        <div class="hd">
-          <div>
-            <h2>Sheets</h2>
-            <p>URL fixa (não precisa configurar).</p>
-          </div>
-          <div class="chip"><span class="dot ok" id="dotSheets2"></span><span id="txtSheets2">Sheets: configurado</span></div>
-        </div>
-        <div class="bd">
-          <label for="movSheetsUrl">URL do Web App (/exec)</label>
-          <input id="movSheetsUrl" type="text" readonly />
-          <div class="btns">
-            <button type="button" class="btn primary" id="btnCarregarSheetsUrl">Carregar Sheets</button>
-          </div>
-        </div>
+      <div class="btns no-print" style="margin-top:0; margin-bottom:12px;">
+        <button type="button" class="btn primary" id="btnCarregarSheetsUrl">Carregar Sheets</button>
       </div>
 
       <div class="grid3">
@@ -192,7 +242,6 @@
         </div>
       </div>
 
-      <!-- Observação: só em devolução -->
       <div id="boxObs" class="hide">
         <label for="obs">Observação</label>
         <input id="obs" type="text" />
@@ -205,7 +254,6 @@
 
       <div class="sep no-print"></div>
 
-      <!-- Relatório por funcionário -->
       <div class="grid2 no-print">
         <div>
           <label for="relFuncSel">Relatório por funcionário</label>
@@ -215,18 +263,18 @@
           <button type="button" class="btn" id="btnGerarRel">Gerar relatório</button>
           <button type="button" class="btn" id="btnLimparRel">Limpar relatório</button>
           <button type="button" class="btn primary" id="btnImprimirRel">Imprimir</button>
-          <button type="button" class="btn primary" id="btnImprimirTermoDia">Imprimir termo do dia</button>
+          <button type="button" class="btn primary" id="btnImprimirTermoDia" disabled>Imprimir termo do dia</button>
         </div>
       </div>
 
       <div id="printArea" class="card" style="margin-top:12px; display:none;">
-        <div class="hd">
+        <div class="hd" id="printHeader">
           <div>
             <h2 id="relTitulo">Relatório</h2>
             <p id="relSub">—</p>
           </div>
         </div>
-        <div class="bd">
+        <div class="bd" id="printBody">
           <div class="tableWrap" style="max-height:none;">
             <table id="tblRelFunc">
               <thead>
@@ -235,7 +283,7 @@
                   <th class="right">Qtd</th><th>Estado</th><th>Motivo</th><th>Obs.</th>
                 </tr>
               </thead>
-              <tbody></tbody>
+              <tbody><tr><td colspan="8" class="note">—</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -296,7 +344,84 @@
         <button type="button" class="btn primary" id="btnReenviar">Reenviar pendentes</button>
         <button type="button" class="btn danger" id="btnLimparEnviados">Limpar enviados</button>
       </div>
-      <p class="note">O envio automático roda a cada 30s se houver pendências.</p>
+    </div>
+  </section>
+
+  <!-- LOG + USERS -->
+  <section id="screen-log" class="card hide">
+    <div class="hd">
+      <div><h2>Acessos e alterações</h2><p>Log e controle de usuários (DEV).</p></div>
+      <div class="chip"><span class="dot warn"></span><span id="logCount">—</span></div>
+    </div>
+    <div class="bd">
+
+      <div class="grid2">
+        <!-- LOG -->
+        <div class="card" style="overflow:hidden;">
+          <div class="hd"><div><h2>Log</h2><p>Registro local.</p></div></div>
+          <div class="bd">
+            <div class="btns" style="margin-top:0;">
+              <button type="button" class="btn" id="btnAtualizarLog">Atualizar</button>
+              <button type="button" class="btn danger" id="btnLimparLog">Limpar log</button>
+            </div>
+            <div class="tableWrap" style="margin-top:12px; max-height:360px;">
+              <table id="tblLog">
+                <thead>
+                  <tr>
+                    <th>Quando</th><th>Usuário</th><th>Ação</th><th>Detalhe</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <p class="note">Este log fica somente neste navegador.</p>
+          </div>
+        </div>
+
+        <!-- USERS (DEV) -->
+        <div class="card" style="overflow:hidden;">
+          <div class="hd"><div><h2>Usuários (DEV)</h2><p>Somente DEV pode gerenciar.</p></div></div>
+          <div class="bd">
+            <div id="devOnlyBlock" class="note" style="margin:0;">
+              Faça login como DEV para gerenciar usuários.
+            </div>
+
+            <div id="devUsersUI" class="hide">
+              <label for="newUserLogin">Novo usuário (login)</label>
+              <input id="newUserLogin" type="text" placeholder="Ex.: maria" />
+
+              <label for="newUserName">Nome (opcional)</label>
+              <input id="newUserName" type="text" placeholder="Ex.: Maria Silva" />
+
+              <label for="newUserPin">Senha (6 dígitos)</label>
+              <input id="newUserPin" type="password" inputmode="numeric" placeholder="Ex.: 123456" />
+
+              <div class="btns">
+                <button type="button" class="btn primary" id="btnCreateUser">Criar usuário</button>
+              </div>
+
+              <div class="sep"></div>
+
+              <div class="tableWrap" style="max-height:320px;">
+                <table id="tblUsers">
+                  <thead>
+                    <tr>
+                      <th>Login</th>
+                      <th>Nome</th>
+                      <th>Status</th>
+                      <th class="right">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+
+              <p class="note">Tudo é local (neste navegador). Se mudar de PC, precisa cadastrar de novo.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </section>
 </main>
@@ -305,20 +430,18 @@
   const DB_KEY="uniformes_db_v2_layout";
   const QUEUE_KEY="uniformes_queue_v2_layout";
 
-  // URL fixa do Sheets (/exec)
-  const SHEETS_URL = "https://script.google.com/macros/s/AKfycbzef2t-ivoNG_Hu5ACUby0VStJ4ald49HU6W-2sL2ixDKfJZpEz3cfvw5PKAKeLP-lkzQ/exec";
+  const SHEETS_URL="https://script.google.com/macros/s/AKfycbzef2t-ivoNG_Hu5ACUby0VStJ4ald49HU6W-2sL2ixDKfJZpEz3cfvw5PKAKeLP-lkzQ/exec";
+  const TERMO_LOCAL="Colatina/ES";
 
-  // Local fixo do rodapé do termo
-  const TERMO_LOCAL = "Colatina/ES";
+  const DEV_EMAIL="dayerre@gmail.com";
 
-  const relFuncSel = document.getElementById("relFuncSel");
-  const btnGerarRel = document.getElementById("btnGerarRel");
-  const btnLimparRel = document.getElementById("btnLimparRel");
-  const btnImprimirRel = document.getElementById("btnImprimirRel");
-  const btnImprimirTermoDia = document.getElementById("btnImprimirTermoDia");
-  const printArea = document.getElementById("printArea");
-  const relTitulo = document.getElementById("relTitulo");
-  const relSub = document.getElementById("relSub");
+  // >>>>>> PIN MESTRE DO DEV (6 dígitos) <<<<<<
+  // Troque aqui para o seu PIN:
+  const DEV_MASTER_PIN = "123456";
+
+  const SESSION_KEY="uniformes_session_admin_v1";
+  const LOG_KEY="uniformes_auditlog_admin_v1";
+  const USERS_KEY="uniformes_users_admin_v1";
 
   const CATALOG=[
     { categoria:"Camisa masculina manga longa", tamanhos:["P","M","G","GG","XG"] },
@@ -327,317 +450,71 @@
     { categoria:"Camisa feminina babylook", tamanhos:["P","M","G","GG","XXG"] },
   ];
 
-  // ====== helpers ======
-  function todayISO(){
-    const d=new Date();
-    const pad=n=>String(n).padStart(2,"0");
-    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-  }
-  function formatBRDateFromISO(iso){
-    // iso: YYYY-MM-DD
-    if(!iso || typeof iso !== "string" || iso.length < 10) return "";
-    const [y,m,d] = iso.slice(0,10).split("-");
-    return `${d}/${m}/${y}`;
-  }
+  // ===== helpers
+  function todayISO(){ const d=new Date(); const pad=n=>String(n).padStart(2,"0"); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+  function nowISO(){ return new Date().toISOString(); }
+  function formatBRDateFromISO(iso){ if(!iso||typeof iso!=="string"||iso.length<10) return ""; const [y,m,d]=iso.slice(0,10).split("-"); return `${d}/${m}/${y}`; }
   function escapeHtml(s){
     return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
       .replaceAll('"',"&quot;").replaceAll("'","&#039;");
   }
   function makeId(){ try{ if(crypto?.randomUUID) return crypto.randomUUID(); }catch{} return String(Date.now())+"_"+Math.random().toString(16).slice(2); }
   function keyItem(c,t){ return `${c}__${t}`; }
+  function isSixDigits(pass){ return /^\d{6}$/.test(String(pass||"").trim()); }
+  function normLogin(s){ return String(s||"").trim().toLowerCase(); }
 
+  // ===== storage
   function loadDB(){ try{ return JSON.parse(localStorage.getItem(DB_KEY)) ?? {movimentos:[],estoque:{},funcionarios:[]}; }catch{ return {movimentos:[],estoque:{},funcionarios:[]}; } }
   function saveDB(db){ localStorage.setItem(DB_KEY, JSON.stringify(db)); }
   function loadQueue(){ try{ return JSON.parse(localStorage.getItem(QUEUE_KEY)) ?? []; }catch{ return []; } }
   function saveQueue(q){ localStorage.setItem(QUEUE_KEY, JSON.stringify(q)); }
-
   function getFuncById(db,id){ return db.funcionarios.find(f=>f.id===id)||null; }
 
-  // ====== status UI ======
+  function loadSession(){ try{ return JSON.parse(localStorage.getItem(SESSION_KEY)) || null; }catch{ return null; } }
+  function saveSession(s){ localStorage.setItem(SESSION_KEY, JSON.stringify(s)); }
+  function clearSession(){ localStorage.removeItem(SESSION_KEY); }
+  function getCurrentUser(){ const s=loadSession(); if(!s||!s.login) return null; return s; }
+  function isDevSession(){ const s=getCurrentUser(); return !!(s && s.isDev); }
+
+  function loadAudit(){ try{ return JSON.parse(localStorage.getItem(LOG_KEY)) ?? []; }catch{ return []; } }
+  function saveAudit(arr){ localStorage.setItem(LOG_KEY, JSON.stringify(arr)); }
+  function audit(action, detail){
+    const s=getCurrentUser();
+    const who=s ? (s.login + (s.isDev ? " (DEV)" : "")) : "SEM LOGIN";
+    const entry={ id:makeId(), at:nowISO(), user:who, action:String(action||""), detail:String(detail||"") };
+    const arr=loadAudit(); arr.push(entry);
+    const MAX=1500; if(arr.length>MAX) arr.splice(0, arr.length - MAX);
+    saveAudit(arr);
+    renderLog();
+  }
+
+  function loadUsers(){ try{ return JSON.parse(localStorage.getItem(USERS_KEY)) ?? []; }catch{ return []; } }
+  function saveUsers(arr){ localStorage.setItem(USERS_KEY, JSON.stringify(arr)); }
+  function findUserByLogin(login){
+    const ulogin=normLogin(login);
+    return loadUsers().find(u=>u.login===ulogin) || null;
+  }
+
+  // ===== status Sheets
   const dotSheets=document.getElementById("dotSheets");
   const txtSheets=document.getElementById("txtSheets");
-  const dotSheets2=document.getElementById("dotSheets2");
-  const txtSheets2=document.getElementById("txtSheets2");
-
   function setSheetsStatus(mode, msg){
-    const apply = (dot, txt) => {
-      dot.classList.remove("ok","err","warn");
-      if(mode==="ok"){ dot.classList.add("ok"); txt.textContent=msg || "Sheets: configurado"; return; }
-      if(mode==="erro"){ dot.classList.add("err"); txt.textContent=msg || "Sheets: erro"; return; }
-      dot.classList.add("warn"); txt.textContent=msg || "Sheets: não configurado";
-    };
-    apply(dotSheets, txtSheets);
-    apply(dotSheets2, txtSheets2);
+    dotSheets.classList.remove("ok","err","warn");
+    if(mode==="ok"){ dotSheets.classList.add("ok"); txtSheets.textContent=msg||"Sheets: configurado"; return; }
+    if(mode==="erro"){ dotSheets.classList.add("err"); txtSheets.textContent=msg||"Sheets: erro"; return; }
+    dotSheets.classList.add("warn"); txtSheets.textContent=msg||"Sheets: não configurado";
   }
-  function refreshSheetsStatus(){
-    if(SHEETS_URL) setSheetsStatus("ok", "Sheets: configurado");
-    else setSheetsStatus("warn", "Sheets: não configurado");
-  }
+  function refreshSheetsStatus(){ setSheetsStatus(SHEETS_URL ? "ok" : "warn", SHEETS_URL ? "Sheets: configurado" : "Sheets: não configurado"); }
 
-  // ===== Exclusão visual =====
-  function hideMovimento(id){
-    if(!confirm("Ocultar este registro? (não será apagado da origem)")) return;
-    const db = loadDB();
-    const m = db.movimentos.find(x => x.id === id);
-    if(!m) return;
-    m.hidden = true;
-    saveDB(db);
-    renderMov();
-  }
-  window.hideMovimento = hideMovimento;
-
-  // ===== Relatório por funcionário =====
-  function fillRelFuncionarios() {
-    const db = loadDB();
-    const todos = db.funcionarios.slice().sort((a,b)=>a.nome.localeCompare(b.nome));
-    relFuncSel.innerHTML = [`<option value="">(Selecione)</option>`].concat(
-      todos.map(f => `<option value="${escapeHtml(f.id)}">${escapeHtml(f.nome + (f.ativo ? "" : " [inativo]"))}</option>`)
-    ).join("");
-  }
-
-  function tipoLabel(t){ return t==="SAIDA" ? "SAÍDA" : (t==="DEVOLUCAO" ? "DEVOLUÇÃO" : t); }
-  function estadoLabel(e){
-    if(!e) return "—";
-    if(e==="EM_CONDICOES") return "Em condições";
-    if(e==="SEM_CONDICOES") return "Sem condições";
-    return e;
-  }
-
-  function limparRelatorioUI(){
-    relTitulo.textContent = "Relatório";
-    relSub.textContent = "—";
-    const bd = printArea.querySelector(".bd");
-    bd.innerHTML = `
-      <div class="tableWrap" style="max-height:none;">
-        <table id="tblRelFunc">
-          <thead>
-            <tr>
-              <th>Data</th><th>Tipo</th><th>Item</th><th>Tam.</th>
-              <th class="right">Qtd</th><th>Estado</th><th>Motivo</th><th>Obs.</th>
-            </tr>
-          </thead>
-          <tbody><tr><td colspan="8" class="note">—</td></tr></tbody>
-        </table>
-      </div>
-    `;
-    printArea.style.display = "none";
-  }
-
-  function gerarRelatorioFuncionario() {
-    const db = loadDB();
-    const id = relFuncSel.value;
-    if (!id) { limparRelatorioUI(); return; }
-
-    const f = getFuncById(db, id);
-    const movs = db.movimentos
-      .filter(m => !m.hidden && m.funcionarioId === id)
-      .slice()
-      .sort((a,b)=>String(a.data).localeCompare(String(b.data)));
-
-    relTitulo.textContent = `Relatório - ${f ? f.nome : id}`;
-    relSub.textContent = `Total de registros: ${movs.length}`;
-
-    const bd = printArea.querySelector(".bd");
-    bd.innerHTML = `
-      <div class="tableWrap" style="max-height:none;">
-        <table id="tblRelFunc">
-          <thead>
-            <tr>
-              <th>Data</th><th>Tipo</th><th>Item</th><th>Tam.</th>
-              <th class="right">Qtd</th><th>Estado</th><th>Motivo</th><th>Obs.</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    `;
-
-    const body = bd.querySelector("#tblRelFunc tbody");
-    body.innerHTML = movs.map(m => `
-      <tr>
-        <td>${escapeHtml(m.data)}</td>
-        <td>${escapeHtml(tipoLabel(m.tipo))}</td>
-        <td>${escapeHtml(m.categoria)}</td>
-        <td>${escapeHtml(m.tamanho)}</td>
-        <td class="right">${Number(m.quantidade)}</td>
-        <td>${escapeHtml(estadoLabel(m.estado))}</td>
-        <td>${escapeHtml(m.motivo || "—")}</td>
-        <td>${escapeHtml(m.obs || "")}</td>
-      </tr>
-    `).join("") || `<tr><td colspan="8" class="note">Sem registros.</td></tr>`;
-
-    printArea.style.display = "block";
-    printArea.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-
-  btnGerarRel.addEventListener("click", gerarRelatorioFuncionario);
-
-  btnLimparRel.addEventListener("click", ()=>{
-    relFuncSel.value = "";
-    limparRelatorioUI();
-  });
-
-  // ao escolher (Selecione), limpa o relatório
-  relFuncSel.addEventListener("change", ()=>{
-    if(!relFuncSel.value) limparRelatorioUI();
-  });
-
-  btnImprimirRel.addEventListener("click", () => {
-    if (printArea.style.display === "none") gerarRelatorioFuncionario();
-    if (printArea.style.display === "none") return; // nada para imprimir
-    window.print();
-  });
-
-  function gerarTermosDoDia(){
-    const db = loadDB();
-    const hoje = todayISO();
-    const hojeBR = formatBRDateFromISO(hoje);
-
-    const saidasHoje = db.movimentos.filter(m =>
-      !m.hidden &&
-      m.tipo === "SAIDA" &&
-      m.data === hoje &&
-      m.funcionarioId
-    );
-
-    if(saidasHoje.length === 0){
-      alert("Não há SAÍDAS lançadas hoje para imprimir.");
-      return;
-    }
-
-    const porFunc = new Map();
-    for(const m of saidasHoje){
-      const arr = porFunc.get(m.funcionarioId) || [];
-      arr.push(m);
-      porFunc.set(m.funcionarioId, arr);
-    }
-
-    let html = "";
-    for(const [funcId, movs] of porFunc.entries()){
-      const f = getFuncById(db, funcId);
-      const nome = f ? f.nome : funcId;
-
-      const itens = new Map();
-      for(const m of movs){
-        const k = `${m.categoria}||${m.tamanho}`;
-        itens.set(k, (itens.get(k) || 0) + Number(m.quantidade || 0));
-      }
-
-      const linhas = [...itens.entries()].map(([k,q])=>{
-        const [cat,tam] = k.split("||");
-        return `<tr>
-          <td>${escapeHtml(cat)}</td>
-          <td>${escapeHtml(tam)}</td>
-          <td class="right">${q}</td>
-        </tr>`;
-      }).join("");
-
-      html += `
-        <div style="page-break-after: always;">
-          <div style="max-width: 780px; margin: 0 auto; padding: 0 6px; font-size: 14.5px;">
-            <h2 style="margin:0 0 14px 0; text-align:center; letter-spacing:.4px; font-size: 16.5px;">
-              TERMO DE RECEBIMENTO UNIFORME
-            </h2>
-
-            <p style="margin:0 0 12px 0; text-align:justify; text-justify:inter-word; line-height:1.55;">
-              Eu, ${escapeHtml(nome)} Recebi da empresa: INTERCOL SERVIÇOS DE INTERNET LTDA
-              CNPJ: 03.879.067/0001-36, os uniformes relacionados nesta ficha, declaro tê-los recebidos gratuitamente e em perfeito estado de conservação.
-              Comprometo-me a utilizá-los diariamente durante toda a jornada de trabalho, responsabilizando-me pela guarda e conservação dos mesmos.
-              Autorizo desde já, o desconto de seus respectivos valores em folha de pagamento/rescisão, quando por extravio e/ou danificação por uso inadequado,
-              conforme previsto no artigo 462 §1º da CLT.
-            </p>
-
-            <div class="tableWrap" style="max-height:none;">
-              <table style="width:100%; border-collapse:collapse; font-size: 13.5px;">
-                <thead>
-                  <tr>
-                    <th>Material entregue</th>
-                    <th>Tam.</th>
-                    <th class="right">Qtd</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${linhas}
-                </tbody>
-              </table>
-            </div>
-
-            <div style="margin-top:18px; text-align:right;">
-              ${escapeHtml(TERMO_LOCAL)}, ${escapeHtml(hojeBR)}
-            </div>
-
-            <div style="margin-top:30px;">
-              <div style="height:60px;"></div>
-              <div style="border-top:1px solid #000; padding-top:6px; text-align:center;">
-                ${escapeHtml(nome)}
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    relTitulo.textContent = `Termos do dia (${formatBRDateFromISO(todayISO())})`;
-    relSub.textContent = `Funcionários: ${porFunc.size}`;
-
-    const bd = printArea.querySelector(".bd");
-    bd.innerHTML = html;
-
-    printArea.style.display = "block";
-    printArea.scrollIntoView({ behavior: "smooth", block: "start" });
-    window.print();
-  }
-
-  btnImprimirTermoDia.addEventListener("click", gerarTermosDoDia);
-
-  function enqueue(kind,payload){
-    const q=loadQueue();
-    q.push({qid:makeId(), kind, payload, status:"PENDENTE", tries:0, lastError:"", createdAt:new Date().toISOString()});
-    saveQueue(q);
-  }
-
-  // ====== POST via iframe fixo ======
-  function postToSheets(kind, payload){
-    if(!SHEETS_URL) throw new Error("URL /exec não configurada.");
-
-    const form=document.createElement("form");
-    form.method="POST";
-    form.action=SHEETS_URL;
-    form.target="sheetsSink";
-
-    const iKind=document.createElement("input");
-    iKind.type="hidden"; iKind.name="kind"; iKind.value=kind;
-
-    const iPayload=document.createElement("input");
-    iPayload.type="hidden"; iPayload.name="payload"; iPayload.value=JSON.stringify(payload);
-
-    form.appendChild(iKind);
-    form.appendChild(iPayload);
-    document.body.appendChild(form);
-    form.submit();
-    form.remove();
-  }
-
-  async function processQueue(limit=10){
-    const q=loadQueue();
-    let sent=0;
-    for(const item of q){
-      if(sent>=limit) break;
-      if(item.status==="ENVIADO") continue;
-      item.status="ENVIANDO"; item.tries=(item.tries||0)+1; saveQueue(q);
-      try{
-        postToSheets(item.kind, item.payload);
-        item.status="ENVIADO"; item.lastError=""; sent++; setSheetsStatus("ok", "Sheets: enviado");
-      }catch(err){
-        item.status="ERRO"; item.lastError=String(err?.message||err); setSheetsStatus("erro", "Sheets: erro");
-      }
-      saveQueue(q);
-    }
-  }
-
-  // ====== UI navigation ======
+  // ===== nav
   const navBtns=[...document.querySelectorAll(".navBtn")];
-  const screens={ mov:document.getElementById("screen-mov"), func:document.getElementById("screen-func"), est:document.getElementById("screen-est"), cfg:document.getElementById("screen-cfg") };
+  const screens={
+    mov:document.getElementById("screen-mov"),
+    func:document.getElementById("screen-func"),
+    est:document.getElementById("screen-est"),
+    cfg:document.getElementById("screen-cfg"),
+    log:document.getElementById("screen-log")
+  };
   function setScreen(name){
     Object.entries(screens).forEach(([k,el])=>el.classList.toggle("hide", k!==name));
     navBtns.forEach(b=>b.classList.toggle("active", b.dataset.screen===name));
@@ -645,10 +522,224 @@
     if(name==="func") renderFuncionariosSelect();
     if(name==="est") renderEstoque();
     if(name==="cfg") renderCfg();
+    if(name==="log"){ renderLog(); renderUsersAdminUI(); }
   }
   navBtns.forEach(b=>b.addEventListener("click",()=>setScreen(b.dataset.screen)));
 
-  // ====== refs ======
+  // ===== refs login
+  const chipUser=document.getElementById("chipUser");
+  const txtUser=document.getElementById("txtUser");
+  const btnLogout=document.getElementById("btnLogout");
+  const loginOverlay=document.getElementById("loginOverlay");
+  const loginUser=document.getElementById("loginUser");
+  const loginPass=document.getElementById("loginPass");
+  const btnLogin=document.getElementById("btnLogin");
+  const loginErr=document.getElementById("loginErr");
+
+  function showLogin(){
+    loginErr.style.display="none";
+    loginErr.textContent="";
+    loginOverlay.style.display="flex";
+    setTimeout(()=>loginUser.focus(), 50);
+  }
+  function hideLogin(){ loginOverlay.style.display="none"; }
+  function refreshUserChip(){
+    const s=getCurrentUser();
+    if(!s){ txtUser.textContent="Não logado"; chipUser.title="Sem login"; return; }
+    txtUser.textContent = `Logado: ${s.login}${s.isDev ? " (DEV)" : ""}`;
+    chipUser.title = `Desde: ${s.at || ""}`;
+  }
+  function requireLogin(){
+    const s=getCurrentUser();
+    if(!s){ showLogin(); return false; }
+    return true;
+  }
+
+  function doLogin(){
+    const login=normLogin(loginUser.value);
+    const pass=String(loginPass.value||"").trim();
+
+    if(!login){
+      loginErr.textContent="Informe o usuário.";
+      loginErr.style.display="block";
+      return;
+    }
+    if(!isSixDigits(pass)){
+      loginErr.textContent="Senha inválida. Use exatamente 6 dígitos.";
+      loginErr.style.display="block";
+      return;
+    }
+
+    const isDevAttempt = login === normLogin(DEV_EMAIL);
+    if(isDevAttempt){
+      if(pass !== DEV_MASTER_PIN){
+        loginErr.textContent="PIN do DEV incorreto.";
+        loginErr.style.display="block";
+        return;
+      }
+      const session = { login, isDev:true, at: new Date().toLocaleString("pt-BR") };
+      saveSession(session);
+      hideLogin();
+      refreshUserChip();
+      audit("LOGIN_DEV", "Entrou como DEV");
+      return;
+    }
+
+    const u = findUserByLogin(login);
+    if(!u){
+      loginErr.textContent="Usuário não cadastrado. Solicite ao DEV.";
+      loginErr.style.display="block";
+      return;
+    }
+    if(!u.active){
+      loginErr.textContent="Usuário desativado. Solicite ao DEV.";
+      loginErr.style.display="block";
+      return;
+    }
+    if(pass !== u.pin){
+      loginErr.textContent="Senha incorreta.";
+      loginErr.style.display="block";
+      return;
+    }
+
+    const session = { login, isDev:false, at: new Date().toLocaleString("pt-BR") };
+    saveSession(session);
+    hideLogin();
+    refreshUserChip();
+    audit("LOGIN", "Entrou no sistema");
+  }
+
+  btnLogin.addEventListener("click", doLogin);
+  loginPass.addEventListener("keydown", (e)=>{ if(e.key==="Enter") doLogin(); });
+  loginUser.addEventListener("keydown", (e)=>{ if(e.key==="Enter") loginPass.focus(); });
+
+  btnLogout.addEventListener("click", ()=>{
+    const s=getCurrentUser();
+    if(s) audit("LOGOUT", "Saiu do sistema");
+    clearSession();
+    refreshUserChip();
+    showLogin();
+  });
+
+  // ===== users admin UI
+  const devOnlyBlock=document.getElementById("devOnlyBlock");
+  const devUsersUI=document.getElementById("devUsersUI");
+  const newUserLogin=document.getElementById("newUserLogin");
+  const newUserName=document.getElementById("newUserName");
+  const newUserPin=document.getElementById("newUserPin");
+  const btnCreateUser=document.getElementById("btnCreateUser");
+  const tblUsersBody=document.querySelector("#tblUsers tbody");
+
+  function renderUsersAdminUI(){
+    const isDev=isDevSession();
+    devOnlyBlock.classList.toggle("hide", isDev);
+    devUsersUI.classList.toggle("hide", !isDev);
+    if(!isDev) return;
+
+    const users=loadUsers().slice().sort((a,b)=>a.login.localeCompare(b.login));
+    tblUsersBody.innerHTML = users.map(u=>`
+      <tr>
+        <td>${escapeHtml(u.login)}</td>
+        <td>${escapeHtml(u.name||"—")}</td>
+        <td>${u.active ? "Ativo" : "Inativo"}</td>
+        <td class="right">
+          <button class="btn" type="button" onclick="toggleUser('${escapeHtml(u.login)}')">${u.active ? "Desativar" : "Ativar"}</button>
+          <button class="btn" type="button" onclick="resetPin('${escapeHtml(u.login)}')">Reset senha</button>
+          <button class="btn danger" type="button" onclick="removeUser('${escapeHtml(u.login)}')">Remover</button>
+        </td>
+      </tr>
+    `).join("") || `<tr><td colspan="4" class="note">Nenhum usuário cadastrado.</td></tr>`;
+  }
+
+  function toggleUser(login){
+    if(!isDevSession()) return alert("Apenas DEV.");
+    const users=loadUsers();
+    const i=users.findIndex(u=>u.login===normLogin(login));
+    if(i<0) return;
+    users[i].active=!users[i].active;
+    saveUsers(users);
+    audit("USER_TOGGLE", `${users[i].login} => ${users[i].active ? "ATIVO" : "INATIVO"}`);
+    renderUsersAdminUI();
+  }
+  function resetPin(login){
+    if(!isDevSession()) return alert("Apenas DEV.");
+    const novo=prompt("Nova senha (6 dígitos):");
+    if(novo===null) return;
+    if(!isSixDigits(novo)) return alert("Precisa ser 6 dígitos.");
+    const users=loadUsers();
+    const i=users.findIndex(u=>u.login===normLogin(login));
+    if(i<0) return;
+    users[i].pin=String(novo).trim();
+    saveUsers(users);
+    audit("USER_RESET_PIN", `${users[i].login}`);
+    renderUsersAdminUI();
+  }
+  function removeUser(login){
+    if(!isDevSession()) return alert("Apenas DEV.");
+    if(!confirm("Remover usuário?")) return;
+    const users=loadUsers().filter(u=>u.login!==normLogin(login));
+    saveUsers(users);
+    audit("USER_REMOVE", normLogin(login));
+    renderUsersAdminUI();
+  }
+  window.toggleUser=toggleUser;
+  window.resetPin=resetPin;
+  window.removeUser=removeUser;
+
+  btnCreateUser.addEventListener("click", ()=>{
+    if(!isDevSession()) return alert("Apenas DEV.");
+    const login=normLogin(newUserLogin.value);
+    const name=String(newUserName.value||"").trim();
+    const pin=String(newUserPin.value||"").trim();
+
+    if(!login) return alert("Informe o login do usuário.");
+    if(login===normLogin(DEV_EMAIL)) return alert("Este login é reservado para o DEV.");
+    if(!isSixDigits(pin)) return alert("Senha precisa ter 6 dígitos.");
+
+    const users=loadUsers();
+    if(users.some(u=>u.login===login)) return alert("Usuário já existe.");
+
+    users.push({ login, name, pin, active:true, createdAt: nowISO() });
+    saveUsers(users);
+
+    audit("USER_CREATE", `${login}${name?(" | "+name):""}`);
+
+    newUserLogin.value="";
+    newUserName.value="";
+    newUserPin.value="";
+    renderUsersAdminUI();
+    alert("Usuário criado.");
+  });
+
+  // ===== LOG UI
+  const tblLogBody=document.querySelector("#tblLog tbody");
+  const logCount=document.getElementById("logCount");
+  const btnAtualizarLog=document.getElementById("btnAtualizarLog");
+  const btnLimparLog=document.getElementById("btnLimparLog");
+
+  function renderLog(){
+    if(screens.log.classList.contains("hide")) return;
+    const arr=loadAudit().slice().reverse();
+    logCount.textContent=`${arr.length} registro(s)`;
+    tblLogBody.innerHTML = arr.map(e=>`
+      <tr>
+        <td>${escapeHtml(new Date(e.at).toLocaleString("pt-BR"))}</td>
+        <td>${escapeHtml(e.user)}</td>
+        <td>${escapeHtml(e.action)}</td>
+        <td>${escapeHtml(e.detail)}</td>
+      </tr>
+    `).join("") || `<tr><td colspan="4" class="note">Sem registros.</td></tr>`;
+  }
+  btnAtualizarLog.addEventListener("click", ()=>{ if(!requireLogin()) return; renderLog(); });
+  btnLimparLog.addEventListener("click", ()=>{
+    if(!requireLogin()) return;
+    if(!confirm("Limpar o log deste navegador?")) return;
+    saveAudit([]);
+    audit("LOG_CLEAR", "Limpou o log");
+    renderLog();
+  });
+
+  // ===== app refs
   const elTipo=document.getElementById("tipoMov");
   const elData=document.getElementById("dataMov");
   const boxFunc=document.getElementById("boxFunc");
@@ -666,9 +757,22 @@
   const btnLimpar=document.getElementById("btnLimpar");
   const tblHistBody=document.querySelector("#tblHistorico tbody");
 
+  const relFuncSel=document.getElementById("relFuncSel");
+  const btnGerarRel=document.getElementById("btnGerarRel");
+  const btnLimparRel=document.getElementById("btnLimparRel");
+  const btnImprimirRel=document.getElementById("btnImprimirRel");
+  const btnImprimirTermoDia=document.getElementById("btnImprimirTermoDia");
+
+  const printArea=document.getElementById("printArea");
+  const printHeader=document.getElementById("printHeader");
+  const printBody=document.getElementById("printBody");
+  const relTitulo=document.getElementById("relTitulo");
+  const relSub=document.getElementById("relSub");
+
   const elNovoNome=document.getElementById("novoNome");
   const btnAddFunc=document.getElementById("btnAddFunc");
 
+  const cfgUrl=document.getElementById("cfgUrl");
   const btnReenviar=document.getElementById("btnReenviar");
   const btnLimparEnviados=document.getElementById("btnLimparEnviados");
 
@@ -676,14 +780,9 @@
   const pillTotal=document.getElementById("pillTotal");
   const pillTotal2=document.getElementById("pillTotal2");
 
-  // Mov - Sheets view
-  const movSheetsUrl=document.getElementById("movSheetsUrl");
   const btnCarregarSheetsUrl=document.getElementById("btnCarregarSheetsUrl");
 
-  // Config - view
-  const cfgUrl=document.getElementById("cfgUrl");
-
-  // ====== data/UI helpers ======
+  // ===== app functions
   function upsertEstoque(db,c,t,delta){ const k=keyItem(c,t); db.estoque[k]=Number(db.estoque[k]??0)+delta; }
 
   function fillCategorias(){
@@ -694,7 +793,6 @@
     const ts=found?found.tamanhos:[];
     elTam.innerHTML=ts.map(t=>`<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join("");
   }
-
   function renderFuncionariosSelect(){
     const db=loadDB();
     const ativos=db.funcionarios.filter(f=>f.ativo).sort((a,b)=>a.nome.localeCompare(b.nome));
@@ -703,22 +801,28 @@
     ).join("");
     fillRelFuncionarios();
   }
-
   function updateMovUI(){
     const tipo=elTipo.value;
     const precisa=(tipo==="SAIDA"||tipo==="DEVOLUCAO");
     const isDev=(tipo==="DEVOLUCAO");
     const isSem=isDev && (elEstado.value==="SEM_CONDICOES");
-
     boxFunc.classList.toggle("hide", !precisa);
     boxEstado.classList.toggle("hide", !isDev);
     boxMotivo.classList.toggle("hide", !isSem);
-
     boxObs.classList.toggle("hide", !isDev);
     if(!isDev) elObs.value="";
-
     if(!precisa) elFuncSel.value="";
     if(!isSem) elMotivo.value="";
+  }
+  function tipoLabel(t){ return t==="SAIDA" ? "SAÍDA" : (t==="DEVOLUCAO" ? "DEVOLUÇÃO" : t); }
+  function estadoLabel(e){ if(!e) return "—"; if(e==="EM_CONDICOES") return "Em condições"; if(e==="SEM_CONDICOES") return "Sem condições"; return e; }
+
+  function fillRelFuncionarios(){
+    const db=loadDB();
+    const todos=db.funcionarios.slice().sort((a,b)=>a.nome.localeCompare(b.nome));
+    relFuncSel.innerHTML=[`<option value="">(Selecione)</option>`].concat(
+      todos.map(f=>`<option value="${escapeHtml(f.id)}">${escapeHtml(f.nome + (f.ativo ? "" : " [inativo]"))}</option>`)
+    ).join("");
   }
 
   function renderEstoque(){
@@ -732,17 +836,17 @@
       total += it.s;
       rows.push(`<tr><td>${escapeHtml(it.c)}</td><td>${escapeHtml(it.t)}</td><td class="right">${it.s}</td></tr>`);
     });
-
     tblEstoqueBody.innerHTML = rows.join("") || `<tr><td colspan="3" class="note">Sem itens.</td></tr>`;
     pillTotal.textContent = `Estoque: ${total} peça(s)`;
     pillTotal2.textContent = `Total: ${total} peça(s)`;
   }
 
+  function renderCfg(){ cfgUrl.value=SHEETS_URL; }
+
   function renderMov(){
     renderFuncionariosSelect();
     renderEstoque();
     const db=loadDB();
-
     const hist=[...db.movimentos].filter(m=>!m.hidden).reverse().slice(0,250);
     tblHistBody.innerHTML = hist.map(m=>{
       const f=m.funcionarioId?getFuncById(db,m.funcionarioId):null;
@@ -763,27 +867,248 @@
     }).join("") || `<tr><td colspan="10" class="note">Sem movimentações.</td></tr>`;
   }
 
-  function renderCfg(){
-    cfgUrl.value = SHEETS_URL;
+  function limparRelatorioUI(){
+    relTitulo.textContent="Relatório";
+    relSub.textContent="—";
+    printHeader.style.display="flex";
+    printBody.innerHTML = `
+      <div class="tableWrap" style="max-height:none;">
+        <table id="tblRelFunc">
+          <thead>
+            <tr>
+              <th>Data</th><th>Tipo</th><th>Item</th><th>Tam.</th>
+              <th class="right">Qtd</th><th>Estado</th><th>Motivo</th><th>Obs.</th>
+            </tr>
+          </thead>
+          <tbody><tr><td colspan="8" class="note">—</td></tr></tbody>
+        </table>
+      </div>
+    `;
+    printArea.style.display="none";
+    btnImprimirTermoDia.disabled=true;
   }
 
-  // ====== Sheets UI ======
-  function carregarSheetsParaUI(){
-    movSheetsUrl.value = SHEETS_URL;
-    renderCfg();
+  function gerarRelatorioFuncionario(){
+    const db=loadDB();
+    const id=relFuncSel.value;
+    if(!id){ limparRelatorioUI(); return; }
+
+    btnImprimirTermoDia.disabled=false;
+
+    const f=getFuncById(db,id);
+    const movs=db.movimentos.filter(m=>!m.hidden && m.funcionarioId===id).slice()
+      .sort((a,b)=>String(a.data).localeCompare(String(b.data)));
+
+    printHeader.style.display="none";
+    printBody.innerHTML=`
+      <div style="max-width: 980px; margin: 0 auto; padding: 0 6px;">
+        <div class="tableWrap" style="max-height:none;">
+          <table style="width:100%; border-collapse:collapse;">
+            <thead>
+              <tr>
+                <th>Data</th><th>Tipo</th><th>Item</th><th>Tam.</th>
+                <th class="right">Qtd</th><th>Estado</th><th>Motivo</th><th>Obs.</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${
+                movs.length
+                  ? movs.map(m=>`
+                      <tr>
+                        <td>${escapeHtml(m.data)}</td>
+                        <td>${escapeHtml(tipoLabel(m.tipo))}</td>
+                        <td>${escapeHtml(m.categoria)}</td>
+                        <td>${escapeHtml(m.tamanho)}</td>
+                        <td class="right">${Number(m.quantidade)}</td>
+                        <td>${escapeHtml(estadoLabel(m.estado))}</td>
+                        <td>${escapeHtml(m.motivo || "—")}</td>
+                        <td>${escapeHtml(m.obs || "")}</td>
+                      </tr>
+                    `).join("")
+                  : `<tr><td colspan="8" class="note">Sem registros.</td></tr>`
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    relTitulo.textContent=`Relatório - ${f ? f.nome : id}`;
+    relSub.textContent=`Total de registros: ${movs.length}`;
+
+    printArea.style.display="block";
+    printArea.scrollIntoView({behavior:"smooth", block:"start"});
+    audit("RELATORIO_GERAR", `Funcionário: ${f?f.nome:id}, registros: ${movs.length}`);
+  }
+
+  // ===== queue
+  function enqueue(kind,payload){
+    const q=loadQueue();
+    q.push({qid:makeId(), kind, payload, status:"PENDENTE", tries:0, lastError:"", createdAt:new Date().toISOString()});
+    saveQueue(q);
+  }
+  function postToSheets(kind,payload){
+    const form=document.createElement("form");
+    form.method="POST";
+    form.action=SHEETS_URL;
+    form.target="sheetsSink";
+    const iKind=document.createElement("input"); iKind.type="hidden"; iKind.name="kind"; iKind.value=kind;
+    const iPayload=document.createElement("input"); iPayload.type="hidden"; iPayload.name="payload"; iPayload.value=JSON.stringify(payload);
+    form.appendChild(iKind); form.appendChild(iPayload);
+    document.body.appendChild(form);
+    form.submit();
+    form.remove();
+  }
+  async function processQueue(limit=10){
+    const q=loadQueue();
+    let sent=0;
+    for(const item of q){
+      if(sent>=limit) break;
+      if(item.status==="ENVIADO") continue;
+      item.status="ENVIANDO"; item.tries=(item.tries||0)+1; saveQueue(q);
+      try{
+        postToSheets(item.kind,item.payload);
+        item.status="ENVIADO"; item.lastError=""; sent++; setSheetsStatus("ok","Sheets: enviado");
+      }catch(err){
+        item.status="ERRO"; item.lastError=String(err?.message||err); setSheetsStatus("erro","Sheets: erro");
+      }
+      saveQueue(q);
+    }
+  }
+
+  // ===== actions (com login)
+  function hideMovimento(id){
+    if(!requireLogin()) return;
+    if(!confirm("Ocultar este registro? (não será apagado da origem)")) return;
+    const db=loadDB();
+    const m=db.movimentos.find(x=>x.id===id);
+    if(!m) return;
+    m.hidden=true;
+    saveDB(db);
+    audit("EXCLUIR_VISUAL", `Movimento id=${id}`);
+    renderMov();
+  }
+  window.hideMovimento=hideMovimento;
+
+  btnCarregarSheetsUrl.addEventListener("click", ()=>{
+    if(!requireLogin()) return;
     refreshSheetsStatus();
-  }
-  btnCarregarSheetsUrl.addEventListener("click", carregarSheetsParaUI);
+    processQueue(5);
+    audit("SHEETS_CARREGAR", "Atualizou status/reenvio leve");
+    alert("Sheets carregado.");
+  });
 
-  // ====== actions ======
+  btnGerarRel.addEventListener("click", ()=>{
+    if(!requireLogin()) return;
+    gerarRelatorioFuncionario();
+  });
+
+  btnLimparRel.addEventListener("click", ()=>{
+    relFuncSel.value="";
+    limparRelatorioUI();
+  });
+
+  relFuncSel.addEventListener("change", ()=>{
+    if(!relFuncSel.value) limparRelatorioUI();
+  });
+
+  btnImprimirRel.addEventListener("click", ()=>{
+    if(printArea.style.display==="none"){
+      if(!requireLogin()) return;
+      gerarRelatorioFuncionario();
+    }
+    if(printArea.style.display==="none") return;
+    audit("IMPRIMIR_RELATORIO", "Imprimiu relatório por funcionário");
+    window.print();
+  });
+
+  function gerarTermosDoDia(){
+    const db=loadDB();
+    const hoje=todayISO();
+    const hojeBR=formatBRDateFromISO(hoje);
+    const saidasHoje=db.movimentos.filter(m => !m.hidden && m.tipo==="SAIDA" && m.data===hoje && m.funcionarioId);
+    if(saidasHoje.length===0){ alert("Não há SAÍDAS lançadas hoje para imprimir."); return; }
+
+    const porFunc=new Map();
+    for(const m of saidasHoje){
+      const arr=porFunc.get(m.funcionarioId)||[];
+      arr.push(m);
+      porFunc.set(m.funcionarioId, arr);
+    }
+
+    let html="";
+    for(const [funcId, movs] of porFunc.entries()){
+      const f=getFuncById(db, funcId);
+      const nome=f ? f.nome : funcId;
+
+      const itens=new Map();
+      for(const m of movs){
+        const k=`${m.categoria}||${m.tamanho}`;
+        itens.set(k, (itens.get(k)||0) + Number(m.quantidade||0));
+      }
+      const linhas=[...itens.entries()].map(([k,q])=>{
+        const [cat,tam]=k.split("||");
+        return `<tr><td>${escapeHtml(cat)}</td><td>${escapeHtml(tam)}</td><td class="right">${q}</td></tr>`;
+      }).join("");
+
+      html += `
+        <div style="page-break-after: always;">
+          <div style="max-width: 780px; margin: 0 auto; padding: 0 6px; font-size: 14.5px;">
+            <h2 style="margin:0 0 14px 0; text-align:center; letter-spacing:.4px; font-size: 16.5px;">
+              TERMO DE RECEBIMENTO UNIFORME
+            </h2>
+
+            <p style="margin:0 0 12px 0; text-align:justify; text-justify:inter-word; line-height:1.55;">
+              Eu, ${escapeHtml(nome)} Recebi da empresa: INTERCOL SERVIÇOS DE INTERNET LTDA
+              CNPJ: 03.879.067/0001-36, os uniformes relacionados nesta ficha, declaro tê-los recebidos gratuitamente e em perfeito estado de conservação.
+              Comprometo-me a utilizá-los diariamente durante toda a jornada de trabalho, responsabilizando-me pela guarda e conservação dos mesmos.
+              Autorizo desde já, o desconto de seus respectivos valores em folha de pagamento/rescisão, quando por extravio e/ou danificação por uso inadequado,
+              conforme previsto no artigo 462 §1º da CLT.
+            </p>
+
+            <div class="tableWrap" style="max-height:none;">
+              <table style="width:100%; border-collapse:collapse; font-size: 13.5px;">
+                <thead><tr><th>Material entregue</th><th>Tam.</th><th class="right">Qtd</th></tr></thead>
+                <tbody>${linhas}</tbody>
+              </table>
+            </div>
+
+            <div style="margin-top:18px; text-align:right;">
+              ${escapeHtml(TERMO_LOCAL)}, ${escapeHtml(hojeBR)}
+            </div>
+
+            <div style="margin-top:30px;">
+              <div style="height:60px;"></div>
+              <div style="border-top:1px solid #000; padding-top:6px; text-align:center;">
+                ${escapeHtml(nome)}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    printHeader.style.display="none";
+    printBody.innerHTML=html;
+    printArea.style.display="block";
+    printArea.scrollIntoView({behavior:"smooth", block:"start"});
+    audit("IMPRIMIR_TERMO_DIA", `Imprimiu termos do dia (${hojeBR}), funcionários: ${porFunc.size}`);
+    window.print();
+  }
+
+  btnImprimirTermoDia.addEventListener("click", ()=>{
+    if(!requireLogin()) return;
+    gerarTermosDoDia();
+  });
+
   btnSalvar.addEventListener("click", ()=>{
+    if(!requireLogin()) return;
+
     const db=loadDB();
     const tipo=elTipo.value;
-
     if(!elData.value) return alert("Informe a data.");
     const qtd=Number(elQtd.value);
     if(!Number.isFinite(qtd)||qtd<=0) return alert("Quantidade inválida.");
-
     if((tipo==="SAIDA"||tipo==="DEVOLUCAO") && !elFuncSel.value) return alert("Selecione o funcionário.");
     if(tipo==="DEVOLUCAO" && elEstado.value==="SEM_CONDICOES" && !elMotivo.value.trim()) return alert("Informe o motivo.");
 
@@ -817,6 +1142,8 @@
     enqueue("movimento", { ...mov, funcionarioNome: f?f.nome:"" });
     processQueue(3);
 
+    audit("MOV_SALVAR", `${tipo} | ${mov.categoria} | ${mov.tamanho} | qtd=${qtd}${f?(" | func="+f.nome):""}`);
+
     elObs.value=""; elQtd.value="1"; elMotivo.value="";
     updateMovUI(); renderMov();
   });
@@ -834,51 +1161,72 @@
   });
 
   btnAddFunc.addEventListener("click", ()=>{
-    const nome=elNovoNome.value.trim();
+    if(!requireLogin()) return;
+    const nome=String(elNovoNome.value||"").trim();
     if(!nome) return alert("Informe o nome.");
     const db=loadDB();
     if(db.funcionarios.some(f=>f.nome.toLowerCase()===nome.toLowerCase())) return alert("Já existe.");
     const fobj={ id:makeId(), nome, ativo:true };
     db.funcionarios.push(fobj);
     saveDB(db);
-
     enqueue("funcionario", { ...fobj, evento:"CADASTRO" });
     processQueue(3);
-
+    audit("FUNC_ADICIONAR", nome);
     elNovoNome.value="";
     alert("Funcionário cadastrado.");
   });
 
-  btnReenviar.addEventListener("click", ()=>processQueue(30));
-  btnLimparEnviados.addEventListener("click", ()=>{
-    if(!confirm("Remover enviados?")) return;
-    saveQueue(loadQueue().filter(it=>it.status!=="ENVIADO"));
+  btnReenviar.addEventListener("click", ()=>{
+    if(!requireLogin()) return;
+    audit("QUEUE_REENVIAR", "Reenviou pendentes");
+    processQueue(30);
   });
 
-  // ====== init ======
-  fillCategorias();
-  fillTamanhos();
-  fillRelFuncionarios();
-  elData.value=todayISO();
-  renderCfg();
-  renderFuncionariosSelect();
-  updateMovUI();
-  renderMov();
-  setScreen("mov");
+  btnLimparEnviados.addEventListener("click", ()=>{
+    if(!requireLogin()) return;
+    if(!confirm("Remover enviados?")) return;
+    const before=loadQueue().length;
+    saveQueue(loadQueue().filter(it=>it.status!=="ENVIADO"));
+    const after=loadQueue().length;
+    audit("QUEUE_LIMPAR_ENVIADOS", `Antes=${before} Depois=${after}`);
+  });
 
-  carregarSheetsParaUI();
-  refreshSheetsStatus();
-  limparRelatorioUI();
+  // init
+  function boot(){
+    fillCategorias();
+    fillTamanhos();
+    fillRelFuncionarios();
 
-  elTipo.addEventListener("change", updateMovUI);
-  elEstado.addEventListener("change", updateMovUI);
-  elCat.addEventListener("change", fillTamanhos);
+    elData.value=todayISO();
+    renderCfg();
+    renderFuncionariosSelect();
+    updateMovUI();
+    renderMov();
+    setScreen("mov");
 
-  // reenvio leve
-  setInterval(()=> {
-    const q=loadQueue();
-    if(q.some(it=>it.status!=="ENVIADO")) processQueue(5);
-  }, 30000);
+    refreshSheetsStatus();
+    limparRelatorioUI();
+    refreshUserChip();
+    renderLog();
+    renderUsersAdminUI();
+
+    elTipo.addEventListener("change", updateMovUI);
+    elEstado.addEventListener("change", updateMovUI);
+    elCat.addEventListener("change", fillTamanhos);
+
+    if(!getCurrentUser()){
+      showLogin();
+    }else{
+      audit("SESSION_RESUME", "Sessão existente retomada");
+    }
+
+    setInterval(()=> {
+      const q=loadQueue();
+      if(q.some(it=>it.status!=="ENVIADO")) processQueue(5);
+    }, 30000);
+  }
+
+  boot();
 </script>
 </body>
 </html>
