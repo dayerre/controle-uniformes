@@ -51,6 +51,7 @@
 
     label{ display:block; font-size:12px; color:var(--muted); margin:10px 0 6px; }
     input,select{ width:100%; padding:10px 12px; border:1px solid rgba(255,255,255,.12); border-radius:12px; outline:none; background: rgba(10,15,28,.75); color:var(--text); }
+    input[readonly]{ opacity:.85; }
 
     .btns{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
     button.btn{ border:1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.03); color:var(--text);
@@ -71,12 +72,23 @@
     .note{ color:var(--muted); font-size:12px; margin:8px 0 0; }
     .tag{ display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.12); color:var(--muted); font-size:12px; background: rgba(255,255,255,.03); }
 
+    /* impressão: imprime somente #printArea */
     @media print {
-      header, aside.nav, .no-print { display: none !important; }
-      #printArea { display: block !important; }
-      body { background: #fff !important; color: #000 !important; }
+      body * { visibility: hidden !important; }
+      #printArea, #printArea * { visibility: visible !important; }
+
+      #printArea{
+        display:block !important;
+        position:absolute !important;
+        left:0 !important;
+        top:0 !important;
+        width:100% !important;
+        margin:0 !important;
+      }
+
+      body { background:#fff !important; color:#000 !important; }
       .card, .tableWrap { box-shadow:none !important; border: 0 !important; background: transparent !important; }
-      th{ position:static !important; }
+      th { position: static !important; background: transparent !important; color:#000 !important; }
     }
   </style>
 </head>
@@ -93,7 +105,7 @@
     </div>
     <div class="chip">
       <span class="dot warn" id="dotSheets"></span>
-      <span id="txtSheets">Sheets: não testado</span>
+      <span id="txtSheets">Sheets: configurado</span>
     </div>
   </div>
 </header>
@@ -113,6 +125,25 @@
       <div class="chip"><span class="dot ok"></span><span id="pillTotal">Estoque: —</span></div>
     </div>
     <div class="bd">
+
+      <!-- Sheets view -->
+      <div class="card no-print" style="margin-bottom:12px;">
+        <div class="hd">
+          <div>
+            <h2>Sheets</h2>
+            <p>URL fixa (não precisa configurar).</p>
+          </div>
+          <div class="chip"><span class="dot ok" id="dotSheets2"></span><span id="txtSheets2">Sheets: configurado</span></div>
+        </div>
+        <div class="bd">
+          <label for="movSheetsUrl">URL do Web App (/exec)</label>
+          <input id="movSheetsUrl" type="text" readonly />
+          <div class="btns">
+            <button type="button" class="btn primary" id="btnCarregarSheetsUrl">Carregar Sheets</button>
+          </div>
+        </div>
+      </div>
+
       <div class="grid3">
         <div>
           <label for="tipoMov">Tipo</label>
@@ -182,6 +213,7 @@
         </div>
         <div class="btns" style="align-items:end; justify-content:flex-end;">
           <button type="button" class="btn" id="btnGerarRel">Gerar relatório</button>
+          <button type="button" class="btn" id="btnLimparRel">Limpar relatório</button>
           <button type="button" class="btn primary" id="btnImprimirRel">Imprimir</button>
           <button type="button" class="btn primary" id="btnImprimirTermoDia">Imprimir termo do dia</button>
         </div>
@@ -255,38 +287,38 @@
 
   <!-- CFG -->
   <section id="screen-cfg" class="card hide">
-    <div class="hd"><div><h2>Config</h2><p></p></div></div>
+    <div class="hd"><div><h2>Config</h2><p>URL fixa do Sheets (bloqueado).</p></div></div>
     <div class="bd">
       <label for="cfgUrl">URL do Web App (/exec)</label>
-      <input id="cfgUrl" type="text" />
-      <div class="btns">
-        <button type="button" class="btn" id="btnSalvarCfg">Salvar configuração</button>
-        <button type="button" class="btn primary" id="btnTestSheets">Testar</button>
-      </div>
+      <input id="cfgUrl" type="text" readonly />
       <div class="sep"></div>
       <div class="btns">
         <button type="button" class="btn primary" id="btnReenviar">Reenviar pendentes</button>
         <button type="button" class="btn danger" id="btnLimparEnviados">Limpar enviados</button>
       </div>
-      <!-- removido texto fixo -->
-      <p class="note"></p>
+      <p class="note">O envio automático roda a cada 30s se houver pendências.</p>
     </div>
   </section>
 </main>
 
 <script>
   const DB_KEY="uniformes_db_v2_layout";
-  const CFG_KEY="uniformes_cfg_v2_layout";
   const QUEUE_KEY="uniformes_queue_v2_layout";
+
+  // URL fixa do Sheets (/exec)
+  const SHEETS_URL = "https://script.google.com/macros/s/AKfycbzef2t-ivoNG_Hu5ACUby0VStJ4ald49HU6W-2sL2ixDKfJZpEz3cfvw5PKAKeLP-lkzQ/exec";
+
+  // Local fixo do rodapé do termo
+  const TERMO_LOCAL = "Colatina/ES";
 
   const relFuncSel = document.getElementById("relFuncSel");
   const btnGerarRel = document.getElementById("btnGerarRel");
+  const btnLimparRel = document.getElementById("btnLimparRel");
   const btnImprimirRel = document.getElementById("btnImprimirRel");
   const btnImprimirTermoDia = document.getElementById("btnImprimirTermoDia");
   const printArea = document.getElementById("printArea");
   const relTitulo = document.getElementById("relTitulo");
   const relSub = document.getElementById("relSub");
-  const tblRelFuncBody = document.querySelector("#tblRelFunc tbody");
 
   const CATALOG=[
     { categoria:"Camisa masculina manga longa", tamanhos:["P","M","G","GG","XG"] },
@@ -296,19 +328,51 @@
   ];
 
   // ====== helpers ======
-  function todayISO(){ const d=new Date(); const pad=n=>String(n).padStart(2,"0"); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
-  function escapeHtml(s){ return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;"); }
+  function todayISO(){
+    const d=new Date();
+    const pad=n=>String(n).padStart(2,"0");
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  }
+  function formatBRDateFromISO(iso){
+    // iso: YYYY-MM-DD
+    if(!iso || typeof iso !== "string" || iso.length < 10) return "";
+    const [y,m,d] = iso.slice(0,10).split("-");
+    return `${d}/${m}/${y}`;
+  }
+  function escapeHtml(s){
+    return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+  }
   function makeId(){ try{ if(crypto?.randomUUID) return crypto.randomUUID(); }catch{} return String(Date.now())+"_"+Math.random().toString(16).slice(2); }
   function keyItem(c,t){ return `${c}__${t}`; }
 
   function loadDB(){ try{ return JSON.parse(localStorage.getItem(DB_KEY)) ?? {movimentos:[],estoque:{},funcionarios:[]}; }catch{ return {movimentos:[],estoque:{},funcionarios:[]}; } }
   function saveDB(db){ localStorage.setItem(DB_KEY, JSON.stringify(db)); }
-  function loadCfg(){ try{ return JSON.parse(localStorage.getItem(CFG_KEY)) ?? {sheetsUrl:""}; }catch{ return {sheetsUrl:""}; } }
-  function saveCfg(cfg){ localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); }
   function loadQueue(){ try{ return JSON.parse(localStorage.getItem(QUEUE_KEY)) ?? []; }catch{ return []; } }
   function saveQueue(q){ localStorage.setItem(QUEUE_KEY, JSON.stringify(q)); }
 
   function getFuncById(db,id){ return db.funcionarios.find(f=>f.id===id)||null; }
+
+  // ====== status UI ======
+  const dotSheets=document.getElementById("dotSheets");
+  const txtSheets=document.getElementById("txtSheets");
+  const dotSheets2=document.getElementById("dotSheets2");
+  const txtSheets2=document.getElementById("txtSheets2");
+
+  function setSheetsStatus(mode, msg){
+    const apply = (dot, txt) => {
+      dot.classList.remove("ok","err","warn");
+      if(mode==="ok"){ dot.classList.add("ok"); txt.textContent=msg || "Sheets: configurado"; return; }
+      if(mode==="erro"){ dot.classList.add("err"); txt.textContent=msg || "Sheets: erro"; return; }
+      dot.classList.add("warn"); txt.textContent=msg || "Sheets: não configurado";
+    };
+    apply(dotSheets, txtSheets);
+    apply(dotSheets2, txtSheets2);
+  }
+  function refreshSheetsStatus(){
+    if(SHEETS_URL) setSheetsStatus("ok", "Sheets: configurado");
+    else setSheetsStatus("warn", "Sheets: não configurado");
+  }
 
   // ===== Exclusão visual =====
   function hideMovimento(id){
@@ -320,7 +384,6 @@
     saveDB(db);
     renderMov();
   }
-  // deixa disponível para onclick inline
   window.hideMovimento = hideMovimento;
 
   // ===== Relatório por funcionário =====
@@ -332,10 +395,38 @@
     ).join("");
   }
 
+  function tipoLabel(t){ return t==="SAIDA" ? "SAÍDA" : (t==="DEVOLUCAO" ? "DEVOLUÇÃO" : t); }
+  function estadoLabel(e){
+    if(!e) return "—";
+    if(e==="EM_CONDICOES") return "Em condições";
+    if(e==="SEM_CONDICOES") return "Sem condições";
+    return e;
+  }
+
+  function limparRelatorioUI(){
+    relTitulo.textContent = "Relatório";
+    relSub.textContent = "—";
+    const bd = printArea.querySelector(".bd");
+    bd.innerHTML = `
+      <div class="tableWrap" style="max-height:none;">
+        <table id="tblRelFunc">
+          <thead>
+            <tr>
+              <th>Data</th><th>Tipo</th><th>Item</th><th>Tam.</th>
+              <th class="right">Qtd</th><th>Estado</th><th>Motivo</th><th>Obs.</th>
+            </tr>
+          </thead>
+          <tbody><tr><td colspan="8" class="note">—</td></tr></tbody>
+        </table>
+      </div>
+    `;
+    printArea.style.display = "none";
+  }
+
   function gerarRelatorioFuncionario() {
     const db = loadDB();
     const id = relFuncSel.value;
-    if (!id) { alert("Selecione um funcionário."); return; }
+    if (!id) { limparRelatorioUI(); return; }
 
     const f = getFuncById(db, id);
     const movs = db.movimentos
@@ -346,7 +437,6 @@
     relTitulo.textContent = `Relatório - ${f ? f.nome : id}`;
     relSub.textContent = `Total de registros: ${movs.length}`;
 
-    // volta o layout padrão do printArea (tabela)
     const bd = printArea.querySelector(".bd");
     bd.innerHTML = `
       <div class="tableWrap" style="max-height:none;">
@@ -382,14 +472,26 @@
 
   btnGerarRel.addEventListener("click", gerarRelatorioFuncionario);
 
+  btnLimparRel.addEventListener("click", ()=>{
+    relFuncSel.value = "";
+    limparRelatorioUI();
+  });
+
+  // ao escolher (Selecione), limpa o relatório
+  relFuncSel.addEventListener("change", ()=>{
+    if(!relFuncSel.value) limparRelatorioUI();
+  });
+
   btnImprimirRel.addEventListener("click", () => {
     if (printArea.style.display === "none") gerarRelatorioFuncionario();
+    if (printArea.style.display === "none") return; // nada para imprimir
     window.print();
   });
 
   function gerarTermosDoDia(){
     const db = loadDB();
     const hoje = todayISO();
+    const hojeBR = formatBRDateFromISO(hoje);
 
     const saidasHoje = db.movimentos.filter(m =>
       !m.hidden &&
@@ -432,43 +534,50 @@
 
       html += `
         <div style="page-break-after: always;">
-          <h2 style="margin:0 0 10px 0;">TERMO DE RECEBIMENTO UNIFORME</h2>
+          <div style="max-width: 780px; margin: 0 auto; padding: 0 6px; font-size: 14.5px;">
+            <h2 style="margin:0 0 14px 0; text-align:center; letter-spacing:.4px; font-size: 16.5px;">
+              TERMO DE RECEBIMENTO UNIFORME
+            </h2>
 
-          <p style="margin:0 0 10px 0;">
-            Eu, ${escapeHtml(nome)}<br>
-            Recebi da empresa: INTERCOL SERVIÇOS DE INTERNET LTDA<br>
-            CNPJ: 03.879.067/0001-36, os uniformes relacionados nesta ficha, declaro tê-los recebidos gratuitamente e em perfeito estado de conservação.
-            Comprometo-me a utilizá-los diariamente durante toda a jornada de trabalho, responsabilizando-me pela guarda e conservação dos mesmos.
-            Autorizo desde já, o desconto de seus respectivos valores em folha de pagamento/rescisão, quando por extravio e/ou danificação por uso inadequado,
-            conforme previsto no artigo 462 §1º da CLT.
-          </p>
+            <p style="margin:0 0 12px 0; text-align:justify; text-justify:inter-word; line-height:1.55;">
+              Eu, ${escapeHtml(nome)} Recebi da empresa: INTERCOL SERVIÇOS DE INTERNET LTDA
+              CNPJ: 03.879.067/0001-36, os uniformes relacionados nesta ficha, declaro tê-los recebidos gratuitamente e em perfeito estado de conservação.
+              Comprometo-me a utilizá-los diariamente durante toda a jornada de trabalho, responsabilizando-me pela guarda e conservação dos mesmos.
+              Autorizo desde já, o desconto de seus respectivos valores em folha de pagamento/rescisão, quando por extravio e/ou danificação por uso inadequado,
+              conforme previsto no artigo 462 §1º da CLT.
+            </p>
 
-          <div class="tableWrap" style="max-height:none;">
-            <table style="width:100%; border-collapse:collapse;">
-              <thead>
-                <tr>
-                  <th>Material entregue</th>
-                  <th>Tam.</th>
-                  <th class="right">Qtd</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${linhas}
-              </tbody>
-            </table>
-          </div>
+            <div class="tableWrap" style="max-height:none;">
+              <table style="width:100%; border-collapse:collapse; font-size: 13.5px;">
+                <thead>
+                  <tr>
+                    <th>Material entregue</th>
+                    <th>Tam.</th>
+                    <th class="right">Qtd</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${linhas}
+                </tbody>
+              </table>
+            </div>
 
-          <div style="margin-top:28px;">
-            <div style="height:52px;"></div>
-            <div style="border-top:1px solid #000; padding-top:6px;">
-              ${escapeHtml(nome)}
+            <div style="margin-top:18px; text-align:right;">
+              ${escapeHtml(TERMO_LOCAL)}, ${escapeHtml(hojeBR)}
+            </div>
+
+            <div style="margin-top:30px;">
+              <div style="height:60px;"></div>
+              <div style="border-top:1px solid #000; padding-top:6px; text-align:center;">
+                ${escapeHtml(nome)}
+              </div>
             </div>
           </div>
         </div>
       `;
     }
 
-    relTitulo.textContent = `Termos do dia (${hoje})`;
+    relTitulo.textContent = `Termos do dia (${formatBRDateFromISO(todayISO())})`;
     relSub.textContent = `Funcionários: ${porFunc.size}`;
 
     const bd = printArea.querySelector(".bd");
@@ -487,26 +596,14 @@
     saveQueue(q);
   }
 
-  // ====== Sheets status ======
-  const dotSheets=document.getElementById("dotSheets");
-  const txtSheets=document.getElementById("txtSheets");
-  function setSheetsStatus(mode){
-    dotSheets.classList.remove("ok","err","warn");
-    if(mode==="ok"){ dotSheets.classList.add("ok"); txtSheets.textContent="Sheets: enviado"; return; }
-    if(mode==="erro"){ dotSheets.classList.add("err"); txtSheets.textContent="Sheets: erro"; return; }
-    if(mode==="testando"){ dotSheets.classList.add("warn"); txtSheets.textContent="Sheets: enviando..."; return; }
-    dotSheets.classList.add("warn"); txtSheets.textContent="Sheets: não testado";
-  }
-
   // ====== POST via iframe fixo ======
   function postToSheets(kind, payload){
-    const { sheetsUrl } = loadCfg();
-    if(!sheetsUrl) throw new Error("URL /exec não configurada.");
+    if(!SHEETS_URL) throw new Error("URL /exec não configurada.");
 
     const form=document.createElement("form");
     form.method="POST";
-    form.action=sheetsUrl;
-    form.target="sheetsSink"; // iframe fixo
+    form.action=SHEETS_URL;
+    form.target="sheetsSink";
 
     const iKind=document.createElement("input");
     iKind.type="hidden"; iKind.name="kind"; iKind.value=kind;
@@ -530,9 +627,9 @@
       item.status="ENVIANDO"; item.tries=(item.tries||0)+1; saveQueue(q);
       try{
         postToSheets(item.kind, item.payload);
-        item.status="ENVIADO"; item.lastError=""; sent++; setSheetsStatus("ok");
+        item.status="ENVIADO"; item.lastError=""; sent++; setSheetsStatus("ok", "Sheets: enviado");
       }catch(err){
-        item.status="ERRO"; item.lastError=String(err?.message||err); setSheetsStatus("erro");
+        item.status="ERRO"; item.lastError=String(err?.message||err); setSheetsStatus("erro", "Sheets: erro");
       }
       saveQueue(q);
     }
@@ -572,15 +669,19 @@
   const elNovoNome=document.getElementById("novoNome");
   const btnAddFunc=document.getElementById("btnAddFunc");
 
-  const cfgUrl=document.getElementById("cfgUrl");
-  const btnSalvarCfg=document.getElementById("btnSalvarCfg");
-  const btnTestSheets=document.getElementById("btnTestSheets");
   const btnReenviar=document.getElementById("btnReenviar");
   const btnLimparEnviados=document.getElementById("btnLimparEnviados");
 
   const tblEstoqueBody=document.querySelector("#tblEstoque tbody");
   const pillTotal=document.getElementById("pillTotal");
   const pillTotal2=document.getElementById("pillTotal2");
+
+  // Mov - Sheets view
+  const movSheetsUrl=document.getElementById("movSheetsUrl");
+  const btnCarregarSheetsUrl=document.getElementById("btnCarregarSheetsUrl");
+
+  // Config - view
+  const cfgUrl=document.getElementById("cfgUrl");
 
   // ====== data/UI helpers ======
   function upsertEstoque(db,c,t,delta){ const k=keyItem(c,t); db.estoque[k]=Number(db.estoque[k]??0)+delta; }
@@ -618,14 +719,6 @@
 
     if(!precisa) elFuncSel.value="";
     if(!isSem) elMotivo.value="";
-  }
-
-  function tipoLabel(t){ return t==="SAIDA" ? "SAÍDA" : (t==="DEVOLUCAO" ? "DEVOLUÇÃO" : t); }
-  function estadoLabel(e){
-    if(!e) return "—";
-    if(e==="EM_CONDICOES") return "Em condições";
-    if(e==="SEM_CONDICOES") return "Sem condições";
-    return e;
   }
 
   function renderEstoque(){
@@ -670,7 +763,17 @@
     }).join("") || `<tr><td colspan="10" class="note">Sem movimentações.</td></tr>`;
   }
 
-  function renderCfg(){ cfgUrl.value=loadCfg().sheetsUrl||""; }
+  function renderCfg(){
+    cfgUrl.value = SHEETS_URL;
+  }
+
+  // ====== Sheets UI ======
+  function carregarSheetsParaUI(){
+    movSheetsUrl.value = SHEETS_URL;
+    renderCfg();
+    refreshSheetsStatus();
+  }
+  btnCarregarSheetsUrl.addEventListener("click", carregarSheetsParaUI);
 
   // ====== actions ======
   btnSalvar.addEventListener("click", ()=>{
@@ -746,20 +849,6 @@
     alert("Funcionário cadastrado.");
   });
 
-  btnSalvarCfg.addEventListener("click", ()=>{
-    const url=cfgUrl.value.trim();
-    if(!url) return alert("Cole a URL /exec.");
-    saveCfg({ sheetsUrl:url });
-    alert("Configuração salva.");
-  });
-
-  btnTestSheets.addEventListener("click", ()=>{
-    setSheetsStatus("testando");
-    enqueue("funcionario", { id:"TESTE_"+Date.now(), nome:"TESTE", ativo:true, evento:"TESTE" });
-    processQueue(1);
-    alert("Envio disparado.");
-  });
-
   btnReenviar.addEventListener("click", ()=>processQueue(30));
   btnLimparEnviados.addEventListener("click", ()=>{
     if(!confirm("Remover enviados?")) return;
@@ -776,6 +865,10 @@
   updateMovUI();
   renderMov();
   setScreen("mov");
+
+  carregarSheetsParaUI();
+  refreshSheetsStatus();
+  limparRelatorioUI();
 
   elTipo.addEventListener("change", updateMovUI);
   elEstado.addEventListener("change", updateMovUI);
