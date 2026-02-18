@@ -1,0 +1,791 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Controle de Uniformes</title>
+  <style>
+    :root{
+      --bg:#0b1220; --text:#e5e7eb; --muted:#9ca3af; --line:rgba(255,255,255,.10);
+      --danger:#f87171; --ok:#34d399; --warn:#fbbf24; --shadow:0 10px 30px rgba(0,0,0,.35); --radius:14px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0; font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; color:var(--text);
+      background: radial-gradient(900px 500px at 15% 10%, rgba(96,165,250,.20), transparent 60%),
+                  radial-gradient(900px 500px at 90% 30%, rgba(52,211,153,.16), transparent 60%),
+                  var(--bg);
+    }
+    header{ position:sticky; top:0; z-index:10; backdrop-filter: blur(10px); background: rgba(11,18,32,.65); border-bottom:1px solid var(--line); }
+    .topbar{ max-width:1300px; margin:0 auto; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .title{ display:flex; flex-direction:column; gap:2px; }
+    .title h1{ font-size:16px; margin:0; }
+    .title small{ color:var(--muted); }
+    .chip{ display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border:1px solid var(--line); border-radius:999px; color:var(--muted); font-size:12px; background: rgba(255,255,255,.03); white-space:nowrap; }
+    .dot{ width:8px; height:8px; border-radius:999px; background: var(--muted); }
+    .dot.ok{ background: var(--ok); } .dot.err{ background: var(--danger); } .dot.warn{ background: var(--warn); }
+
+    .app{ max-width:1300px; margin:0 auto; padding:16px; display:grid; grid-template-columns:260px 1fr; gap:14px; }
+    @media (max-width:980px){ .app{ grid-template-columns:1fr; } }
+    .nav{ border:1px solid var(--line); border-radius:var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      box-shadow:var(--shadow); padding:10px; position:sticky; top:66px; height:fit-content;
+    }
+    .nav button{ width:100%; text-align:left; border:1px solid transparent; background:transparent; color:var(--text);
+      padding:10px 12px; border-radius:12px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:13px;
+    }
+    .nav button:hover{ background: rgba(255,255,255,.04); }
+    .nav button.active{ background: rgba(96,165,250,.12); border-color: rgba(96,165,250,.25); }
+
+    .card{ border:1px solid var(--line); border-radius:var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      box-shadow:var(--shadow); overflow:hidden;
+    }
+    .card .hd{ padding:14px 14px 10px; border-bottom:1px solid var(--line); display:flex; align-items:flex-end; justify-content:space-between; gap:12px; }
+    .card .hd h2{ margin:0; font-size:14px; } .card .hd p{ margin:0; color:var(--muted); font-size:12px; }
+    .card .bd{ padding:14px; }
+
+    .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .grid3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+    @media (max-width:780px){ .grid2,.grid3{ grid-template-columns:1fr; } }
+
+    label{ display:block; font-size:12px; color:var(--muted); margin:10px 0 6px; }
+    input,select{ width:100%; padding:10px 12px; border:1px solid rgba(255,255,255,.12); border-radius:12px; outline:none; background: rgba(10,15,28,.75); color:var(--text); }
+
+    .btns{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    button.btn{ border:1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.03); color:var(--text);
+      padding:10px 12px; border-radius:12px; cursor:pointer; font-size:13px;
+    }
+    button.btn:hover{ background: rgba(255,255,255,.05); }
+    button.btn.primary{ background: rgba(96,165,250,.18); border-color: rgba(96,165,250,.35); }
+    button.btn.danger{ background: rgba(248,113,113,.12); border-color: rgba(248,113,113,.35); color:#fee2e2; }
+
+    .sep{ height:1px; background: var(--line); margin:14px 0; }
+    .tableWrap{ border:1px solid var(--line); border-radius:14px; overflow:auto; max-height:520px; background: rgba(10,15,28,.55); }
+    table{ width:100%; border-collapse:collapse; }
+    th,td{ padding:10px 10px; border-bottom:1px solid rgba(255,255,255,.08); font-size:13px; }
+    th{ position:sticky; top:0; background: rgba(9,13,24,.95); color:var(--muted); font-weight:600; text-align:left; font-size:12px; }
+    td.right,th.right{ text-align:right; }
+
+    .hide{ display:none !important; }
+    .note{ color:var(--muted); font-size:12px; margin:8px 0 0; }
+    .tag{ display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.12); color:var(--muted); font-size:12px; background: rgba(255,255,255,.03); }
+
+    @media print {
+      header, aside.nav, .no-print { display: none !important; }
+      #printArea { display: block !important; }
+      body { background: #fff !important; color: #000 !important; }
+      .card, .tableWrap { box-shadow:none !important; border: 0 !important; background: transparent !important; }
+      th{ position:static !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- IFRAME fixo para envio ao Apps Script sem abrir abas -->
+<iframe id="sheetsSink" name="sheetsSink" style="display:none;width:0;height:0;border:0;"></iframe>
+
+<header>
+  <div class="topbar">
+    <div class="title">
+      <h1>Controle de Uniformes</h1>
+      <small>Entrada • Saída • Devolução</small>
+    </div>
+    <div class="chip">
+      <span class="dot warn" id="dotSheets"></span>
+      <span id="txtSheets">Sheets: não testado</span>
+    </div>
+  </div>
+</header>
+
+<main class="app">
+  <aside class="nav">
+    <button type="button" class="navBtn active" data-screen="mov">Movimentar <span class="tag">principal</span></button>
+    <button type="button" class="navBtn" data-screen="func">Funcionários <span class="tag">cadastro</span></button>
+    <button type="button" class="navBtn" data-screen="est">Estoque <span class="tag">saldo</span></button>
+    <button type="button" class="navBtn" data-screen="cfg">Config <span class="tag">Sheets</span></button>
+  </aside>
+
+  <!-- MOV -->
+  <section id="screen-mov" class="card">
+    <div class="hd">
+      <div><h2>Movimentação</h2><p>Observação aparece somente em devolução.</p></div>
+      <div class="chip"><span class="dot ok"></span><span id="pillTotal">Estoque: —</span></div>
+    </div>
+    <div class="bd">
+      <div class="grid3">
+        <div>
+          <label for="tipoMov">Tipo</label>
+          <select id="tipoMov">
+            <option value="ENTRADA">Entrada</option>
+            <option value="SAIDA">Saída</option>
+            <option value="DEVOLUCAO">Devolução</option>
+          </select>
+        </div>
+        <div>
+          <label for="dataMov">Data</label>
+          <input id="dataMov" type="date" />
+        </div>
+        <div id="boxFunc" class="hide">
+          <label for="funcionarioSel">Funcionário</label>
+          <select id="funcionarioSel"></select>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div id="boxEstado" class="hide">
+          <label for="estadoItem">Estado (devolução)</label>
+          <select id="estadoItem">
+            <option value="EM_CONDICOES">Em condições</option>
+            <option value="SEM_CONDICOES">Sem condições</option>
+          </select>
+        </div>
+        <div id="boxMotivo" class="hide">
+          <label for="motivoRuim">Motivo (obrigatório)</label>
+          <input id="motivoRuim" type="text" />
+        </div>
+      </div>
+
+      <div class="grid3">
+        <div>
+          <label for="categoria">Categoria</label>
+          <select id="categoria"></select>
+        </div>
+        <div>
+          <label for="tamanho">Tamanho</label>
+          <select id="tamanho"></select>
+        </div>
+        <div>
+          <label for="quantidade">Quantidade</label>
+          <input id="quantidade" type="number" min="1" step="1" value="1" />
+        </div>
+      </div>
+
+      <!-- Observação: só em devolução -->
+      <div id="boxObs" class="hide">
+        <label for="obs">Observação</label>
+        <input id="obs" type="text" />
+      </div>
+
+      <div class="btns">
+        <button type="button" class="btn primary" id="btnSalvar">Salvar</button>
+        <button type="button" class="btn" id="btnLimpar">Limpar</button>
+      </div>
+
+      <div class="sep no-print"></div>
+
+      <!-- Relatório por funcionário -->
+      <div class="grid2 no-print">
+        <div>
+          <label for="relFuncSel">Relatório por funcionário</label>
+          <select id="relFuncSel"></select>
+        </div>
+        <div class="btns" style="align-items:end; justify-content:flex-end;">
+          <button type="button" class="btn" id="btnGerarRel">Gerar relatório</button>
+          <button type="button" class="btn primary" id="btnImprimirRel">Imprimir</button>
+          <button type="button" class="btn primary" id="btnImprimirTermoDia">Imprimir termo do dia</button>
+        </div>
+      </div>
+
+      <div id="printArea" class="card" style="margin-top:12px; display:none;">
+        <div class="hd">
+          <div>
+            <h2 id="relTitulo">Relatório</h2>
+            <p id="relSub">—</p>
+          </div>
+        </div>
+        <div class="bd">
+          <div class="tableWrap" style="max-height:none;">
+            <table id="tblRelFunc">
+              <thead>
+                <tr>
+                  <th>Data</th><th>Tipo</th><th>Item</th><th>Tam.</th>
+                  <th class="right">Qtd</th><th>Estado</th><th>Motivo</th><th>Obs.</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <h2 style="margin-top:14px;">Histórico</h2>
+      <div class="tableWrap">
+        <table id="tblHistorico">
+          <thead>
+          <tr>
+            <th>Data</th><th>Tipo</th><th>Funcionário</th><th>Item</th><th>Tam.</th>
+            <th class="right">Qtd</th><th>Estado</th><th>Motivo</th><th>Obs.</th>
+            <th class="no-print">Ações</th>
+          </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- FUNC -->
+  <section id="screen-func" class="card hide">
+    <div class="hd"><div><h2>Funcionários</h2><p>Cadastro.</p></div></div>
+    <div class="bd">
+      <label for="novoNome">Novo funcionário</label>
+      <input id="novoNome" type="text" />
+      <div class="btns">
+        <button type="button" class="btn primary" id="btnAddFunc">Adicionar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- EST -->
+  <section id="screen-est" class="card hide">
+    <div class="hd">
+      <div><h2>Estoque</h2><p>Saldos atuais por item e tamanho.</p></div>
+      <div class="chip"><span class="dot ok"></span><span id="pillTotal2">Total: —</span></div>
+    </div>
+    <div class="bd">
+      <div class="tableWrap" style="max-height:520px;">
+        <table id="tblEstoque">
+          <thead><tr><th>Item</th><th>Tamanho</th><th class="right">Saldo</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- CFG -->
+  <section id="screen-cfg" class="card hide">
+    <div class="hd"><div><h2>Config</h2><p></p></div></div>
+    <div class="bd">
+      <label for="cfgUrl">URL do Web App (/exec)</label>
+      <input id="cfgUrl" type="text" />
+      <div class="btns">
+        <button type="button" class="btn" id="btnSalvarCfg">Salvar configuração</button>
+        <button type="button" class="btn primary" id="btnTestSheets">Testar</button>
+      </div>
+      <div class="sep"></div>
+      <div class="btns">
+        <button type="button" class="btn primary" id="btnReenviar">Reenviar pendentes</button>
+        <button type="button" class="btn danger" id="btnLimparEnviados">Limpar enviados</button>
+      </div>
+      <!-- removido texto fixo -->
+      <p class="note"></p>
+    </div>
+  </section>
+</main>
+
+<script>
+  const DB_KEY="uniformes_db_v2_layout";
+  const CFG_KEY="uniformes_cfg_v2_layout";
+  const QUEUE_KEY="uniformes_queue_v2_layout";
+
+  const relFuncSel = document.getElementById("relFuncSel");
+  const btnGerarRel = document.getElementById("btnGerarRel");
+  const btnImprimirRel = document.getElementById("btnImprimirRel");
+  const btnImprimirTermoDia = document.getElementById("btnImprimirTermoDia");
+  const printArea = document.getElementById("printArea");
+  const relTitulo = document.getElementById("relTitulo");
+  const relSub = document.getElementById("relSub");
+  const tblRelFuncBody = document.querySelector("#tblRelFunc tbody");
+
+  const CATALOG=[
+    { categoria:"Camisa masculina manga longa", tamanhos:["P","M","G","GG","XG"] },
+    { categoria:"Camisa masculina manga curta", tamanhos:["P","M","G","GG","XG"] },
+    { categoria:"Calça brim c/ faixa refletiva (masc.)", tamanhos:["P","M","G","GG","XXG"] },
+    { categoria:"Camisa feminina babylook", tamanhos:["P","M","G","GG","XXG"] },
+  ];
+
+  // ====== helpers ======
+  function todayISO(){ const d=new Date(); const pad=n=>String(n).padStart(2,"0"); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+  function escapeHtml(s){ return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;"); }
+  function makeId(){ try{ if(crypto?.randomUUID) return crypto.randomUUID(); }catch{} return String(Date.now())+"_"+Math.random().toString(16).slice(2); }
+  function keyItem(c,t){ return `${c}__${t}`; }
+
+  function loadDB(){ try{ return JSON.parse(localStorage.getItem(DB_KEY)) ?? {movimentos:[],estoque:{},funcionarios:[]}; }catch{ return {movimentos:[],estoque:{},funcionarios:[]}; } }
+  function saveDB(db){ localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+  function loadCfg(){ try{ return JSON.parse(localStorage.getItem(CFG_KEY)) ?? {sheetsUrl:""}; }catch{ return {sheetsUrl:""}; } }
+  function saveCfg(cfg){ localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); }
+  function loadQueue(){ try{ return JSON.parse(localStorage.getItem(QUEUE_KEY)) ?? []; }catch{ return []; } }
+  function saveQueue(q){ localStorage.setItem(QUEUE_KEY, JSON.stringify(q)); }
+
+  function getFuncById(db,id){ return db.funcionarios.find(f=>f.id===id)||null; }
+
+  // ===== Exclusão visual =====
+  function hideMovimento(id){
+    if(!confirm("Ocultar este registro? (não será apagado da origem)")) return;
+    const db = loadDB();
+    const m = db.movimentos.find(x => x.id === id);
+    if(!m) return;
+    m.hidden = true;
+    saveDB(db);
+    renderMov();
+  }
+  // deixa disponível para onclick inline
+  window.hideMovimento = hideMovimento;
+
+  // ===== Relatório por funcionário =====
+  function fillRelFuncionarios() {
+    const db = loadDB();
+    const todos = db.funcionarios.slice().sort((a,b)=>a.nome.localeCompare(b.nome));
+    relFuncSel.innerHTML = [`<option value="">(Selecione)</option>`].concat(
+      todos.map(f => `<option value="${escapeHtml(f.id)}">${escapeHtml(f.nome + (f.ativo ? "" : " [inativo]"))}</option>`)
+    ).join("");
+  }
+
+  function gerarRelatorioFuncionario() {
+    const db = loadDB();
+    const id = relFuncSel.value;
+    if (!id) { alert("Selecione um funcionário."); return; }
+
+    const f = getFuncById(db, id);
+    const movs = db.movimentos
+      .filter(m => !m.hidden && m.funcionarioId === id)
+      .slice()
+      .sort((a,b)=>String(a.data).localeCompare(String(b.data)));
+
+    relTitulo.textContent = `Relatório - ${f ? f.nome : id}`;
+    relSub.textContent = `Total de registros: ${movs.length}`;
+
+    // volta o layout padrão do printArea (tabela)
+    const bd = printArea.querySelector(".bd");
+    bd.innerHTML = `
+      <div class="tableWrap" style="max-height:none;">
+        <table id="tblRelFunc">
+          <thead>
+            <tr>
+              <th>Data</th><th>Tipo</th><th>Item</th><th>Tam.</th>
+              <th class="right">Qtd</th><th>Estado</th><th>Motivo</th><th>Obs.</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    `;
+
+    const body = bd.querySelector("#tblRelFunc tbody");
+    body.innerHTML = movs.map(m => `
+      <tr>
+        <td>${escapeHtml(m.data)}</td>
+        <td>${escapeHtml(tipoLabel(m.tipo))}</td>
+        <td>${escapeHtml(m.categoria)}</td>
+        <td>${escapeHtml(m.tamanho)}</td>
+        <td class="right">${Number(m.quantidade)}</td>
+        <td>${escapeHtml(estadoLabel(m.estado))}</td>
+        <td>${escapeHtml(m.motivo || "—")}</td>
+        <td>${escapeHtml(m.obs || "")}</td>
+      </tr>
+    `).join("") || `<tr><td colspan="8" class="note">Sem registros.</td></tr>`;
+
+    printArea.style.display = "block";
+    printArea.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  btnGerarRel.addEventListener("click", gerarRelatorioFuncionario);
+
+  btnImprimirRel.addEventListener("click", () => {
+    if (printArea.style.display === "none") gerarRelatorioFuncionario();
+    window.print();
+  });
+
+  function gerarTermosDoDia(){
+    const db = loadDB();
+    const hoje = todayISO();
+
+    const saidasHoje = db.movimentos.filter(m =>
+      !m.hidden &&
+      m.tipo === "SAIDA" &&
+      m.data === hoje &&
+      m.funcionarioId
+    );
+
+    if(saidasHoje.length === 0){
+      alert("Não há SAÍDAS lançadas hoje para imprimir.");
+      return;
+    }
+
+    const porFunc = new Map();
+    for(const m of saidasHoje){
+      const arr = porFunc.get(m.funcionarioId) || [];
+      arr.push(m);
+      porFunc.set(m.funcionarioId, arr);
+    }
+
+    let html = "";
+    for(const [funcId, movs] of porFunc.entries()){
+      const f = getFuncById(db, funcId);
+      const nome = f ? f.nome : funcId;
+
+      const itens = new Map();
+      for(const m of movs){
+        const k = `${m.categoria}||${m.tamanho}`;
+        itens.set(k, (itens.get(k) || 0) + Number(m.quantidade || 0));
+      }
+
+      const linhas = [...itens.entries()].map(([k,q])=>{
+        const [cat,tam] = k.split("||");
+        return `<tr>
+          <td>${escapeHtml(cat)}</td>
+          <td>${escapeHtml(tam)}</td>
+          <td class="right">${q}</td>
+        </tr>`;
+      }).join("");
+
+      html += `
+        <div style="page-break-after: always;">
+          <h2 style="margin:0 0 10px 0;">TERMO DE RECEBIMENTO UNIFORME</h2>
+
+          <p style="margin:0 0 10px 0;">
+            Eu, ${escapeHtml(nome)}<br>
+            Recebi da empresa: INTERCOL SERVIÇOS DE INTERNET LTDA<br>
+            CNPJ: 03.879.067/0001-36, os uniformes relacionados nesta ficha, declaro tê-los recebidos gratuitamente e em perfeito estado de conservação.
+            Comprometo-me a utilizá-los diariamente durante toda a jornada de trabalho, responsabilizando-me pela guarda e conservação dos mesmos.
+            Autorizo desde já, o desconto de seus respectivos valores em folha de pagamento/rescisão, quando por extravio e/ou danificação por uso inadequado,
+            conforme previsto no artigo 462 §1º da CLT.
+          </p>
+
+          <div class="tableWrap" style="max-height:none;">
+            <table style="width:100%; border-collapse:collapse;">
+              <thead>
+                <tr>
+                  <th>Material entregue</th>
+                  <th>Tam.</th>
+                  <th class="right">Qtd</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${linhas}
+              </tbody>
+            </table>
+          </div>
+
+          <div style="margin-top:28px;">
+            <div style="height:52px;"></div>
+            <div style="border-top:1px solid #000; padding-top:6px;">
+              ${escapeHtml(nome)}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    relTitulo.textContent = `Termos do dia (${hoje})`;
+    relSub.textContent = `Funcionários: ${porFunc.size}`;
+
+    const bd = printArea.querySelector(".bd");
+    bd.innerHTML = html;
+
+    printArea.style.display = "block";
+    printArea.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.print();
+  }
+
+  btnImprimirTermoDia.addEventListener("click", gerarTermosDoDia);
+
+  function enqueue(kind,payload){
+    const q=loadQueue();
+    q.push({qid:makeId(), kind, payload, status:"PENDENTE", tries:0, lastError:"", createdAt:new Date().toISOString()});
+    saveQueue(q);
+  }
+
+  // ====== Sheets status ======
+  const dotSheets=document.getElementById("dotSheets");
+  const txtSheets=document.getElementById("txtSheets");
+  function setSheetsStatus(mode){
+    dotSheets.classList.remove("ok","err","warn");
+    if(mode==="ok"){ dotSheets.classList.add("ok"); txtSheets.textContent="Sheets: enviado"; return; }
+    if(mode==="erro"){ dotSheets.classList.add("err"); txtSheets.textContent="Sheets: erro"; return; }
+    if(mode==="testando"){ dotSheets.classList.add("warn"); txtSheets.textContent="Sheets: enviando..."; return; }
+    dotSheets.classList.add("warn"); txtSheets.textContent="Sheets: não testado";
+  }
+
+  // ====== POST via iframe fixo ======
+  function postToSheets(kind, payload){
+    const { sheetsUrl } = loadCfg();
+    if(!sheetsUrl) throw new Error("URL /exec não configurada.");
+
+    const form=document.createElement("form");
+    form.method="POST";
+    form.action=sheetsUrl;
+    form.target="sheetsSink"; // iframe fixo
+
+    const iKind=document.createElement("input");
+    iKind.type="hidden"; iKind.name="kind"; iKind.value=kind;
+
+    const iPayload=document.createElement("input");
+    iPayload.type="hidden"; iPayload.name="payload"; iPayload.value=JSON.stringify(payload);
+
+    form.appendChild(iKind);
+    form.appendChild(iPayload);
+    document.body.appendChild(form);
+    form.submit();
+    form.remove();
+  }
+
+  async function processQueue(limit=10){
+    const q=loadQueue();
+    let sent=0;
+    for(const item of q){
+      if(sent>=limit) break;
+      if(item.status==="ENVIADO") continue;
+      item.status="ENVIANDO"; item.tries=(item.tries||0)+1; saveQueue(q);
+      try{
+        postToSheets(item.kind, item.payload);
+        item.status="ENVIADO"; item.lastError=""; sent++; setSheetsStatus("ok");
+      }catch(err){
+        item.status="ERRO"; item.lastError=String(err?.message||err); setSheetsStatus("erro");
+      }
+      saveQueue(q);
+    }
+  }
+
+  // ====== UI navigation ======
+  const navBtns=[...document.querySelectorAll(".navBtn")];
+  const screens={ mov:document.getElementById("screen-mov"), func:document.getElementById("screen-func"), est:document.getElementById("screen-est"), cfg:document.getElementById("screen-cfg") };
+  function setScreen(name){
+    Object.entries(screens).forEach(([k,el])=>el.classList.toggle("hide", k!==name));
+    navBtns.forEach(b=>b.classList.toggle("active", b.dataset.screen===name));
+    if(name==="mov") renderMov();
+    if(name==="func") renderFuncionariosSelect();
+    if(name==="est") renderEstoque();
+    if(name==="cfg") renderCfg();
+  }
+  navBtns.forEach(b=>b.addEventListener("click",()=>setScreen(b.dataset.screen)));
+
+  // ====== refs ======
+  const elTipo=document.getElementById("tipoMov");
+  const elData=document.getElementById("dataMov");
+  const boxFunc=document.getElementById("boxFunc");
+  const elFuncSel=document.getElementById("funcionarioSel");
+  const boxEstado=document.getElementById("boxEstado");
+  const elEstado=document.getElementById("estadoItem");
+  const boxMotivo=document.getElementById("boxMotivo");
+  const elMotivo=document.getElementById("motivoRuim");
+  const elCat=document.getElementById("categoria");
+  const elTam=document.getElementById("tamanho");
+  const elQtd=document.getElementById("quantidade");
+  const boxObs=document.getElementById("boxObs");
+  const elObs=document.getElementById("obs");
+  const btnSalvar=document.getElementById("btnSalvar");
+  const btnLimpar=document.getElementById("btnLimpar");
+  const tblHistBody=document.querySelector("#tblHistorico tbody");
+
+  const elNovoNome=document.getElementById("novoNome");
+  const btnAddFunc=document.getElementById("btnAddFunc");
+
+  const cfgUrl=document.getElementById("cfgUrl");
+  const btnSalvarCfg=document.getElementById("btnSalvarCfg");
+  const btnTestSheets=document.getElementById("btnTestSheets");
+  const btnReenviar=document.getElementById("btnReenviar");
+  const btnLimparEnviados=document.getElementById("btnLimparEnviados");
+
+  const tblEstoqueBody=document.querySelector("#tblEstoque tbody");
+  const pillTotal=document.getElementById("pillTotal");
+  const pillTotal2=document.getElementById("pillTotal2");
+
+  // ====== data/UI helpers ======
+  function upsertEstoque(db,c,t,delta){ const k=keyItem(c,t); db.estoque[k]=Number(db.estoque[k]??0)+delta; }
+
+  function fillCategorias(){
+    elCat.innerHTML=CATALOG.map(c=>`<option value="${escapeHtml(c.categoria)}">${escapeHtml(c.categoria)}</option>`).join("");
+  }
+  function fillTamanhos(){
+    const found=CATALOG.find(x=>x.categoria===elCat.value);
+    const ts=found?found.tamanhos:[];
+    elTam.innerHTML=ts.map(t=>`<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join("");
+  }
+
+  function renderFuncionariosSelect(){
+    const db=loadDB();
+    const ativos=db.funcionarios.filter(f=>f.ativo).sort((a,b)=>a.nome.localeCompare(b.nome));
+    elFuncSel.innerHTML=[`<option value="">(Selecione)</option>`].concat(
+      ativos.map(f=>`<option value="${escapeHtml(f.id)}">${escapeHtml(f.nome)}</option>`)
+    ).join("");
+    fillRelFuncionarios();
+  }
+
+  function updateMovUI(){
+    const tipo=elTipo.value;
+    const precisa=(tipo==="SAIDA"||tipo==="DEVOLUCAO");
+    const isDev=(tipo==="DEVOLUCAO");
+    const isSem=isDev && (elEstado.value==="SEM_CONDICOES");
+
+    boxFunc.classList.toggle("hide", !precisa);
+    boxEstado.classList.toggle("hide", !isDev);
+    boxMotivo.classList.toggle("hide", !isSem);
+
+    boxObs.classList.toggle("hide", !isDev);
+    if(!isDev) elObs.value="";
+
+    if(!precisa) elFuncSel.value="";
+    if(!isSem) elMotivo.value="";
+  }
+
+  function tipoLabel(t){ return t==="SAIDA" ? "SAÍDA" : (t==="DEVOLUCAO" ? "DEVOLUÇÃO" : t); }
+  function estadoLabel(e){
+    if(!e) return "—";
+    if(e==="EM_CONDICOES") return "Em condições";
+    if(e==="SEM_CONDICOES") return "Sem condições";
+    return e;
+  }
+
+  function renderEstoque(){
+    const db=loadDB();
+    let total=0;
+    const rows=[];
+    Object.entries(db.estoque).map(([k,v])=>{
+      const [c,t]=k.split("__");
+      return {c,t,s:Number(v)};
+    }).sort((a,b)=>(a.c+a.t).localeCompare(b.c+b.t)).forEach(it=>{
+      total += it.s;
+      rows.push(`<tr><td>${escapeHtml(it.c)}</td><td>${escapeHtml(it.t)}</td><td class="right">${it.s}</td></tr>`);
+    });
+
+    tblEstoqueBody.innerHTML = rows.join("") || `<tr><td colspan="3" class="note">Sem itens.</td></tr>`;
+    pillTotal.textContent = `Estoque: ${total} peça(s)`;
+    pillTotal2.textContent = `Total: ${total} peça(s)`;
+  }
+
+  function renderMov(){
+    renderFuncionariosSelect();
+    renderEstoque();
+    const db=loadDB();
+
+    const hist=[...db.movimentos].filter(m=>!m.hidden).reverse().slice(0,250);
+    tblHistBody.innerHTML = hist.map(m=>{
+      const f=m.funcionarioId?getFuncById(db,m.funcionarioId):null;
+      return `<tr>
+        <td>${escapeHtml(m.data)}</td>
+        <td>${escapeHtml(tipoLabel(m.tipo))}</td>
+        <td>${escapeHtml(f?f.nome:"—")}</td>
+        <td>${escapeHtml(m.categoria)}</td>
+        <td>${escapeHtml(m.tamanho)}</td>
+        <td class="right">${Number(m.quantidade)}</td>
+        <td>${escapeHtml(estadoLabel(m.estado))}</td>
+        <td>${escapeHtml(m.motivo||"—")}</td>
+        <td>${escapeHtml(m.obs||"")}</td>
+        <td class="no-print">
+          <button type="button" class="btn danger" onclick="hideMovimento('${escapeHtml(m.id)}')">Excluir</button>
+        </td>
+      </tr>`;
+    }).join("") || `<tr><td colspan="10" class="note">Sem movimentações.</td></tr>`;
+  }
+
+  function renderCfg(){ cfgUrl.value=loadCfg().sheetsUrl||""; }
+
+  // ====== actions ======
+  btnSalvar.addEventListener("click", ()=>{
+    const db=loadDB();
+    const tipo=elTipo.value;
+
+    if(!elData.value) return alert("Informe a data.");
+    const qtd=Number(elQtd.value);
+    if(!Number.isFinite(qtd)||qtd<=0) return alert("Quantidade inválida.");
+
+    if((tipo==="SAIDA"||tipo==="DEVOLUCAO") && !elFuncSel.value) return alert("Selecione o funcionário.");
+    if(tipo==="DEVOLUCAO" && elEstado.value==="SEM_CONDICOES" && !elMotivo.value.trim()) return alert("Informe o motivo.");
+
+    const mov={
+      id:makeId(), tipo, data:elData.value,
+      funcionarioId:(tipo==="SAIDA"||tipo==="DEVOLUCAO")?elFuncSel.value:"",
+      categoria:elCat.value, tamanho:elTam.value,
+      quantidade:qtd,
+      estado:(tipo==="DEVOLUCAO")?elEstado.value:"",
+      motivo:(tipo==="DEVOLUCAO" && elEstado.value==="SEM_CONDICOES")?elMotivo.value.trim():"",
+      obs:(tipo==="DEVOLUCAO") ? elObs.value.trim() : "",
+      hidden:false
+    };
+
+    let delta=0;
+    if(tipo==="ENTRADA") delta=qtd;
+    if(tipo==="SAIDA") delta=-qtd;
+    if(tipo==="DEVOLUCAO") delta=(mov.estado==="EM_CONDICOES")?qtd:0;
+
+    if(tipo==="SAIDA"){
+      const k=keyItem(mov.categoria,mov.tamanho);
+      const saldo=Number(db.estoque[k]??0);
+      if(saldo+delta<0) return alert("Saldo insuficiente.");
+    }
+
+    if(delta!==0) upsertEstoque(db,mov.categoria,mov.tamanho,delta);
+    db.movimentos.push(mov);
+    saveDB(db);
+
+    const f=mov.funcionarioId?getFuncById(db,mov.funcionarioId):null;
+    enqueue("movimento", { ...mov, funcionarioNome: f?f.nome:"" });
+    processQueue(3);
+
+    elObs.value=""; elQtd.value="1"; elMotivo.value="";
+    updateMovUI(); renderMov();
+  });
+
+  btnLimpar.addEventListener("click", ()=>{
+    elTipo.value="ENTRADA";
+    elFuncSel.value="";
+    elEstado.value="EM_CONDICOES";
+    elQtd.value="1";
+    elMotivo.value="";
+    elObs.value="";
+    elData.value=todayISO();
+    fillTamanhos();
+    updateMovUI();
+  });
+
+  btnAddFunc.addEventListener("click", ()=>{
+    const nome=elNovoNome.value.trim();
+    if(!nome) return alert("Informe o nome.");
+    const db=loadDB();
+    if(db.funcionarios.some(f=>f.nome.toLowerCase()===nome.toLowerCase())) return alert("Já existe.");
+    const fobj={ id:makeId(), nome, ativo:true };
+    db.funcionarios.push(fobj);
+    saveDB(db);
+
+    enqueue("funcionario", { ...fobj, evento:"CADASTRO" });
+    processQueue(3);
+
+    elNovoNome.value="";
+    alert("Funcionário cadastrado.");
+  });
+
+  btnSalvarCfg.addEventListener("click", ()=>{
+    const url=cfgUrl.value.trim();
+    if(!url) return alert("Cole a URL /exec.");
+    saveCfg({ sheetsUrl:url });
+    alert("Configuração salva.");
+  });
+
+  btnTestSheets.addEventListener("click", ()=>{
+    setSheetsStatus("testando");
+    enqueue("funcionario", { id:"TESTE_"+Date.now(), nome:"TESTE", ativo:true, evento:"TESTE" });
+    processQueue(1);
+    alert("Envio disparado.");
+  });
+
+  btnReenviar.addEventListener("click", ()=>processQueue(30));
+  btnLimparEnviados.addEventListener("click", ()=>{
+    if(!confirm("Remover enviados?")) return;
+    saveQueue(loadQueue().filter(it=>it.status!=="ENVIADO"));
+  });
+
+  // ====== init ======
+  fillCategorias();
+  fillTamanhos();
+  fillRelFuncionarios();
+  elData.value=todayISO();
+  renderCfg();
+  renderFuncionariosSelect();
+  updateMovUI();
+  renderMov();
+  setScreen("mov");
+
+  elTipo.addEventListener("change", updateMovUI);
+  elEstado.addEventListener("change", updateMovUI);
+  elCat.addEventListener("change", fillTamanhos);
+
+  // reenvio leve
+  setInterval(()=> {
+    const q=loadQueue();
+    if(q.some(it=>it.status!=="ENVIADO")) processQueue(5);
+  }, 30000);
+</script>
+</body>
+</html>
