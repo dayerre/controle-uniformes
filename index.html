@@ -880,13 +880,22 @@ function migrateLocalData(){
   const db = loadDB();
   let changed = false;
 
-  for(const m of db.movimentos){
-    if(!m || !m.categoria) continue;
-    if(!m.itemId){
-      m.itemId = ensureItemIdForName(m.categoria);
-      changed = true;
+  // Garante que todo itemId do Sheets tenha um nome no ItemMap
+for (const m of db.movimentos) {
+  if (!m) continue;
+
+  const itemId2 = m.itemId ? String(m.itemId) : "";
+  const catName = String(m.categoria || "").trim();
+
+  if (itemId2 && catName) {
+    const map = loadItemMap();
+    if (!map.items[itemId2] || !map.items[itemId2].name) {
+      map.items[itemId2] = { name: catName };
+      saveItemMap(map);
     }
   }
+}
+
 
   const newEst = {};
   const oldEst = db.estoque || {};
