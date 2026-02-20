@@ -4,45 +4,134 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Controle de Uniformes</title>
+
   <style>
     :root{
-      --bg:#f3f4f6; --panel:#fff; --panel2:#f9fafb; --text:#111827; --muted:#6b7280;
-      --line:rgba(17,24,39,.12); --line2:rgba(17,24,39,.08);
-      --shadow:0 12px 28px rgba(17,24,39,.10); --radius:14px;
-      --primary:#111827; --danger:#b91c1c; --ok:#059669; --warn:#b45309; --focus: rgba(17,24,39,.18);
+      --bg:#f3f4f6;
+      --panel:#fff;
+      --panel2:#f9fafb;
+      --text:#111827;
+      --muted:#6b7280;
+      --line:rgba(17,24,39,.12);
+      --line2:rgba(17,24,39,.08);
+      --shadow:0 12px 28px rgba(17,24,39,.10);
+      --radius:14px;
+      --primary:#111827;
+      --danger:#b91c1c;
+      --ok:#059669;
+      --warn:#b45309;
+      --focus: rgba(17,24,39,.18);
     }
     *{ box-sizing:border-box; }
-    body{ margin:0; font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; color:var(--text);
-      background: linear-gradient(180deg,#f3f4f6 0%,#eef2f7 100%);
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#f3f4f6 0,#eef2f7 100%);
     }
-    header{ position:sticky; top:0; z-index:10; background: rgba(255,255,255,.85); backdrop-filter: blur(10px); border-bottom:1px solid var(--line); }
-    .topbar{ max-width:1300px; margin:0 auto; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    header{
+      position:sticky;
+      top:0;
+      z-index:10;
+      background:rgba(255,255,255,.85);
+      backdrop-filter: blur(10px);
+      border-bottom:1px solid var(--line);
+    }
+    .topbar{
+      max-width:1300px;
+      margin:0 auto;
+      padding:14px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
     .title{ display:flex; flex-direction:column; gap:2px; }
     .title h1{ font-size:16px; margin:0; font-weight:750; letter-spacing:.2px; }
     .title small{ color:var(--muted); }
 
-    .chip{ display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border:1px solid var(--line);
-      border-radius:999px; color:var(--muted); font-size:12px; background: rgba(255,255,255,.9); white-space:nowrap;
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:6px 10px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      color:var(--muted);
+      font-size:12px;
+      background:rgba(255,255,255,.9);
+      white-space:nowrap;
     }
-    .dot{ width:8px; height:8px; border-radius:999px; background: var(--muted); }
-    .dot.ok{ background: var(--ok); } .dot.err{ background: var(--danger); } .dot.warn{ background: var(--warn); }
+    .dot{ width:8px; height:8px; border-radius:999px; background:var(--muted); }
+    .dot.ok{ background:var(--ok); }
+    .dot.err{ background:var(--danger); }
+    .dot.warn{ background:var(--warn); }
 
-    .app{ max-width:1300px; margin:0 auto; padding:16px; display:grid; grid-template-columns:260px 1fr; gap:14px; }
-    @media (max-width:980px){ .app{ grid-template-columns:1fr; } }
-
-    .nav{ border:1px solid var(--line); border-radius:var(--radius); background: var(--panel); box-shadow:var(--shadow);
-      padding:10px; position:sticky; top:66px; height:fit-content;
+    .app{
+      max-width:1300px;
+      margin:0 auto;
+      padding:16px;
+      display:grid;
+      grid-template-columns:260px 1fr;
+      gap:14px;
     }
-    .nav button{ width:100%; text-align:left; border:1px solid transparent; background:transparent; color:var(--text);
-      padding:10px 12px; border-radius:12px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:13px;
-    }
-    .nav button:hover{ background: rgba(17,24,39,.04); }
-    .nav button.active{ background: rgba(17,24,39,.07); border-color: rgba(17,24,39,.12); }
-    .tag{ display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid var(--line); color:var(--muted); font-size:12px; background: var(--panel2); }
+    @media(max-width:980px){ .app{ grid-template-columns:1fr; } }
 
-    .card{ border:1px solid var(--line); border-radius:var(--radius); background: var(--panel); box-shadow:var(--shadow); overflow:hidden; }
-    .card .hd{ padding:14px 14px 10px; border-bottom:1px solid var(--line2); display:flex; align-items:flex-end; justify-content:space-between; gap:12px;
-      background: linear-gradient(180deg, rgba(249,250,251,.95), rgba(255,255,255,.95));
+    .nav{
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:var(--panel);
+      box-shadow:var(--shadow);
+      padding:10px;
+      position:sticky;
+      top:66px;
+      height:fit-content;
+    }
+    .nav button{
+      width:100%;
+      text-align:left;
+      border:1px solid transparent;
+      background:transparent;
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      font-size:13px;
+    }
+    .nav button:hover{ background:rgba(17,24,39,.04); }
+    .nav button.active{
+      background:rgba(17,24,39,.07);
+      border-color: rgba(17,24,39,.12);
+    }
+    .tag{
+      display:inline-block;
+      padding:2px 8px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      color:var(--muted);
+      font-size:12px;
+      background:var(--panel2);
+    }
+
+    .card{
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:var(--panel);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .card .hd{
+      padding:14px 14px 10px;
+      border-bottom:1px solid var(--line2);
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:12px;
+      background:linear-gradient(180deg, rgba(249,250,251,.95), rgba(255,255,255,.95));
     }
     .card .hd h2{ margin:0; font-size:14px; font-weight:750; }
     .card .hd p{ margin:0; color:var(--muted); font-size:12px; }
@@ -50,84 +139,163 @@
 
     .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
     .grid3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
-    @media (max-width:780px){ .grid2,.grid3{ grid-template-columns:1fr; } }
+    @media(max-width:780px){ .grid2,.grid3{ grid-template-columns:1fr; } }
 
     label{ display:block; font-size:12px; color:var(--muted); margin:10px 0 6px; }
-    input,select,textarea{ width:100%; padding:10px 12px; border:1px solid rgba(17,24,39,.16); border-radius:12px; outline:none; background:#fff; color:var(--text); }
-    textarea{ min-height:140px; font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace; font-size:12px; }
-    input:focus,select:focus,textarea:focus{ border-color: rgba(17,24,39,.35); box-shadow: 0 0 0 4px var(--focus); }
+    input,select,textarea{
+      width:100%;
+      padding:10px 12px;
+      border:1px solid rgba(17,24,39,.16);
+      border-radius:12px;
+      outline:none;
+      background:#fff;
+      color:var(--text);
+    }
+    textarea{
+      min-height:140px;
+      font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;
+      font-size:12px;
+    }
+    input:focus,select:focus,textarea:focus{
+      border-color: rgba(17,24,39,.35);
+      box-shadow: 0 0 0 4px var(--focus);
+    }
 
     .btns{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
-    button.btn{ border:1px solid rgba(17,24,39,.16); background:#fff; color:var(--text); padding:10px 12px; border-radius:12px; cursor:pointer; font-size:13px; }
-    button.btn:hover{ background: rgba(17,24,39,.03); }
-    button.btn.primary{ background: var(--primary); border-color: var(--primary); color:#fff; }
+    button.btn{
+      border:1px solid rgba(17,24,39,.16);
+      background:#fff;
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      font-size:13px;
+    }
+    button.btn:hover{ background:rgba(17,24,39,.03); }
+    button.btn.primary{
+      background:var(--primary);
+      border-color:var(--primary);
+      color:#fff;
+    }
     button.btn.primary:hover{ background:#000; border-color:#000; }
-    button.btn.danger{ background:#fff; border-color: rgba(185,28,28,.35); color: var(--danger); }
+    button.btn.danger{
+      background:#fff;
+      border-color: rgba(185,28,28,.35);
+      color: var(--danger);
+    }
     button.btn.danger:hover{ background: rgba(185,28,28,.05); }
     button.btn:disabled{ opacity:.55; cursor:not-allowed; }
 
-    .sep{ height:1px; background: var(--line2); margin:14px 0; }
-    .tableWrap{ border:1px solid var(--line); border-radius:14px; overflow:auto; max-height:520px; background:#fff; }
+    .sep{ height:1px; background:var(--line2); margin:14px 0; }
+    .tableWrap{
+      border:1px solid var(--line);
+      border-radius:14px;
+      overflow:auto;
+      max-height:520px;
+      background:#fff;
+    }
     table{ width:100%; border-collapse:collapse; }
-    th,td{ padding:10px 10px; border-bottom:1px solid rgba(17,24,39,.08); font-size:13px; vertical-align:top; }
-    th{ position:sticky; top:0; background:#f9fafb; color:#374151; font-weight:700; text-align:left; font-size:12px; border-bottom:1px solid rgba(17,24,39,.10); }
+    th,td{
+      padding:10px 10px;
+      border-bottom:1px solid rgba(17,24,39,.08);
+      font-size:13px;
+      vertical-align:top;
+    }
+    th{
+      position:sticky;
+      top:0;
+      background:#f9fafb;
+      color:#374151;
+      font-weight:700;
+      text-align:left;
+      font-size:12px;
+      border-bottom:1px solid rgba(17,24,39,.10);
+    }
     td.right,th.right{ text-align:right; }
     .hide{ display:none !important; }
     .note{ color:var(--muted); font-size:12px; margin:8px 0 0; }
     .errText{ color:#991b1b; font-size:12px; margin-top:10px; }
 
     /* Login */
-    .overlay{ position:fixed; inset:0; z-index:9999; background: rgba(17,24,39,.55); display:flex; align-items:center; justify-content:center; padding:16px; }
-    .loginBox{ width:min(640px,100%); border:1px solid rgba(255,255,255,.18); border-radius:16px; background:#fff; box-shadow:0 18px 50px rgba(0,0,0,.35); overflow:hidden; }
-    .brandBar{ background:#111; color:#fff; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
-    .brandLogo{ display:flex; align-items:center; gap:8px; font-weight:900; letter-spacing:.6px; font-size:14px; user-select:none; }
-    .brandLogo .mark{ display:inline-block; padding:4px 8px; background:#fff; color:#111; border-radius:4px; line-height:1; font-weight:950; letter-spacing:.8px; }
+    .overlay{
+      position:fixed; inset:0;
+      z-index:9999;
+      background:rgba(17,24,39,.55);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+    }
+    .loginBox{
+      width:min(640px,100%);
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:16px;
+      background:#fff;
+      box-shadow:0 18px 50px rgba(0,0,0,.35);
+      overflow:hidden;
+    }
+    .brandBar{
+      background:#111;
+      color:#fff;
+      padding:14px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .brandLogo{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-weight:900;
+      letter-spacing:.6px;
+      font-size:14px;
+      user-select:none;
+    }
+    .brandLogo .mark{
+      display:inline-block;
+      padding:4px 8px;
+      background:#fff;
+      color:#111;
+      border-radius:4px;
+      line-height:1;
+      font-weight:950;
+      letter-spacing:.8px;
+    }
     .brandBar small{ opacity:.9; font-weight:600; }
     .loginBody{ padding:16px; }
     .loginTitle{ margin:0; font-size:16px; font-weight:900; letter-spacing:.2px; }
+    .loginSub{ margin:6px 0 0; color:#4b5563; font-size:13px; line-height:1.35; }
 
-    /* Impressão (definitivo: evita duplicar no PDF/Android) */
-    @page { size: A4; margin: 8mm; }
-   @media print {
-  .tableWrap { max-height: none !important; overflow: visible !important; }
-  table { page-break-inside: avoid; break-inside: avoid; }
-  tr, td, th { page-break-inside: avoid; break-inside: avoid; }
-  #printArea { page-break-inside: avoid; break-inside: avoid; }
-}
-function setPrint(html){
-  printBody.innerHTML = "";   // garante que não acumula
-  printBody.innerHTML = html;
-  printArea.style.display = "block";
-}
+    /* Print */
+    @media print{
+      .tableWrap{ max-height:none !important; overflow:visible !important; }
+      table{ page-break-inside: avoid; break-inside: avoid; }
+      tr, td, th{ page-break-inside: avoid; break-inside: avoid; }
+      #printArea{ page-break-inside: avoid; break-inside: avoid; }
 
-      html, body { margin:0 !important; padding:0 !important; height:auto !important; }
-      body { background:#fff !important; color:#000 !important; }
-
-      body * { visibility: hidden !important; }
-      #printArea, #printArea * { visibility: visible !important; }
-
+      html, body{ margin:0 !important; padding:0 !important; height:auto !important; }
+      body{ background:#fff !important; color:#000 !important; visibility:hidden !important; }
+      #printArea, #printArea *{ visibility:visible !important; }
       #printArea{
-        position: fixed !important;
-        left: 0 !important;
-        top: 0 !important;
-        right: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        width: auto !important;
-        background: transparent !important;
+        position:fixed !important;
+        left:0 !important; top:0 !important; right:0 !important;
+        margin:0 !important;
+        padding:0 !important;
+        width:auto !important;
+        background:transparent !important;
       }
-
-      .card, .tableWrap { box-shadow:none !important; border:0 !important; background:transparent !important; overflow: visible !important; }
-      tr { page-break-inside: avoid; }
-      th { position: static !important; background: transparent !important; color:#000 !important; }
+      .card, .tableWrap{ box-shadow:none !important; border:0 !important; background:transparent !important; overflow:visible !important; }
+      th{ position:static !important; background:transparent !important; color:#000 !important; }
       .no-print{ display:none !important; }
     }
   </style>
 </head>
+
 <body>
 
 <!-- Login -->
-<div class="overlay" id="loginOverlay" style="display:none;">
+<div class="overlay" id="loginOverlay" style="display:none">
   <div class="loginBox">
     <div class="brandBar">
       <div class="brandLogo" aria-label="INTERCOL"><span class="mark">INTERCOL</span></div>
@@ -135,23 +303,23 @@ function setPrint(html){
     </div>
     <div class="loginBody">
       <h2 class="loginTitle">Entrar</h2>
+      <p class="loginSub">Use seu usuário e a senha (6 dígitos). Usuários são gerenciados pelo DEV no Sheets.</p>
 
-      <div class="grid2" style="margin-top:10px;">
+      <div class="grid2" style="margin-top:10px">
         <div>
           <label for="loginUser">Usuário</label>
-          <input id="loginUser" type="text" placeholder="Ex.: maria" autocomplete="username" />
+          <input id="loginUser" type="text" placeholder="Ex. maria" autocomplete="username" />
         </div>
         <div>
           <label for="loginPass">Senha (6 dígitos)</label>
-          <input id="loginPass" type="password" inputmode="numeric" placeholder="Ex.: 123456" autocomplete="current-password" />
+          <input id="loginPass" type="password" inputmode="numeric" placeholder="Ex. 123456" autocomplete="current-password" />
         </div>
       </div>
 
       <div class="btns">
         <button type="button" class="btn primary" id="btnLogin">Entrar</button>
       </div>
-
-      <div class="errText" id="loginErr" style="display:none;"></div>
+      <div class="errText" id="loginErr" style="display:none"></div>
     </div>
   </div>
 </div>
@@ -162,16 +330,18 @@ function setPrint(html){
       <h1>Controle de Uniformes</h1>
       <small>Entrada • Saída • Devolução</small>
     </div>
-    <div style="display:flex; gap:10px; align-items:center;">
+    <div style="display:flex; gap:10px; align-items:center">
       <div class="chip" id="chipUser" title="Usuário atual">
         <span class="dot ok"></span>
-        <span id="txtUser">Não logado</span>
+        <span id="txtUser">No logado</span>
       </div>
       <div class="chip">
         <span class="dot warn" id="dotSheets"></span>
-        <span id="txtSheets">Sheets: —</span>
+        <span id="txtSheets">Sheets</span>
       </div>
-      <button type="button" class="btn" id="btnLogout" style="padding:8px 10px;">Sair</button>
+      <div>
+        <button type="button" class="btn" id="btnLogout" style="padding:8px 10px">Sair</button>
+      </div>
     </div>
   </div>
 </header>
@@ -180,20 +350,24 @@ function setPrint(html){
   <aside class="nav">
     <button type="button" class="navBtn active" data-screen="mov">Movimentar <span class="tag">principal</span></button>
     <button type="button" class="navBtn" data-screen="func">Funcionários <span class="tag">cadastro</span></button>
-    <button type="button" class="navBtn" data-screen="est">Estoque <span class="tag">saldo</span></button>
+    <button type="button" class="navBtn" data-screen="est">Estoque <span class="tag">saldos</span></button>
     <button type="button" class="navBtn" data-screen="uni">Uniformes <span class="tag">catálogo</span></button>
     <button type="button" class="navBtn devOnly hide" data-screen="cfg">Config <span class="tag">DEV</span></button>
     <button type="button" class="navBtn devOnly hide" data-screen="log">Acessos <span class="tag">DEV</span></button>
   </aside>
 
+  <!-- Movimentar -->
   <section id="screen-mov" class="card">
     <div class="hd">
-      <div><h2>Movimentação</h2><p>Observação aparece somente em devolução.</p></div>
-      <div class="chip"><span class="dot ok"></span><span id="pillTotal">Estoque: —</span></div>
+      <div>
+        <h2>Movimentação</h2>
+        <p>Observação aparece somente em devolução.</p>
+      </div>
+      <div class="chip"><span class="dot ok"></span><span id="pillTotal">Estoque total</span></div>
     </div>
-    <div class="bd">
 
-      <div class="btns no-print" style="margin-top:0; margin-bottom:12px;">
+    <div class="bd">
+      <div class="btns no-print" style="margin-top:0; margin-bottom:12px">
         <button type="button" class="btn" id="btnCarregarSheetsUrl">Carregar Sheets</button>
       </div>
 
@@ -231,9 +405,18 @@ function setPrint(html){
       </div>
 
       <div class="grid3">
-        <div><label for="categoria">Categoria</label><select id="categoria"></select></div>
-        <div><label for="tamanho">Tamanho</label><select id="tamanho"></select></div>
-        <div><label for="quantidade">Quantidade</label><input id="quantidade" type="number" min="1" step="1" value="1" /></div>
+        <div>
+          <label for="categoria">Categoria</label>
+          <select id="categoria"></select>
+        </div>
+        <div>
+          <label for="tamanho">Tamanho</label>
+          <select id="tamanho"></select>
+        </div>
+        <div>
+          <label for="quantidade">Quantidade</label>
+          <input id="quantidade" type="number" min="1" step="1" value="1" />
+        </div>
       </div>
 
       <div id="boxObs" class="hide">
@@ -253,43 +436,54 @@ function setPrint(html){
           <label for="relFuncSel">Relatório por funcionário</label>
           <select id="relFuncSel"></select>
         </div>
-        <div class="btns" style="align-items:end; justify-content:flex-end;">
+        <div class="btns" style="align-items:end; justify-content:flex-end">
           <button type="button" class="btn" id="btnGerarRel">Gerar relatório</button>
-          <button type="button" class="btn" id="btnLimparRel">Limpar relatório</button>
+          <button type="button" class="btn" id="btnLimparRel">Limpar</button>
           <button type="button" class="btn primary" id="btnImprimirRel">Imprimir relatório</button>
           <button type="button" class="btn primary" id="btnImprimirTermo" disabled>Imprimir termo</button>
         </div>
       </div>
 
-      <div id="printArea" class="card" style="margin-top:12px; display:none;">
-        <div class="hd" id="printHeader">
-          <div><h2>Impressão</h2><p>—</p></div>
-        </div>
-        <div class="bd" id="printBody"></div>
+      <div id="printArea" class="card" style="margin-top:12px; display:none">
+        <div class="hd" id="printHeader"><div><h2>Impresso</h2><p></p></div></div>
+        <div class="bd" id="printBody"><div class="note"></div></div>
       </div>
 
-      <h2 style="margin-top:14px;">Histórico</h2>
+      <h2 style="margin-top:14px">Histórico</h2>
       <div class="tableWrap">
         <table id="tblHistorico">
           <thead>
             <tr>
-              <th>Data</th><th>Tipo</th><th>Funcionário</th><th>Item</th><th>Tam.</th>
-              <th class="right">Qtd</th><th>Estado</th><th>Motivo</th><th>Obs.</th>
+              <th>Data</th>
+              <th>Tipo</th>
+              <th>Funcionário</th>
+              <th>Item</th>
+              <th>Tam.</th>
+              <th class="right">Qtd</th>
+              <th>Estado</th>
+              <th>Motivo</th>
+              <th>Obs.</th>
               <th class="no-print">Ações</th>
             </tr>
           </thead>
           <tbody></tbody>
         </table>
       </div>
-
     </div>
   </section>
 
+  <!-- Funcionários -->
   <section id="screen-func" class="card hide">
-    <div class="hd"><div><h2>Funcionários</h2><p>Cadastro e status.</p></div></div>
+    <div class="hd">
+      <div>
+        <h2>Funcionários</h2>
+        <p>Cadastro e status.</p>
+      </div>
+    </div>
     <div class="bd">
       <label for="novoNome">Novo funcionário</label>
       <input id="novoNome" type="text" />
+
       <div class="btns">
         <button type="button" class="btn primary" id="btnAddFunc">Adicionar</button>
         <button type="button" class="btn" id="btnListarFuncs">Listar todos</button>
@@ -298,33 +492,38 @@ function setPrint(html){
       <div class="sep"></div>
 
       <label>Todos os funcionários</label>
-      <div class="tableWrap" style="max-height:420px;">
+      <div class="tableWrap" style="max-height:420px">
         <table id="tblFuncs">
           <thead>
-            <tr><th>Nome</th><th>Status</th><th class="right">Ações</th></tr>
+            <tr>
+              <th>Nome</th>
+              <th>Status</th>
+              <th class="right">Ações</th>
+            </tr>
           </thead>
-          <tbody>
-            <tr><td colspan="3" class="note">Clique em “Listar todos”.</td></tr>
-          </tbody>
+          <tbody><tr><td colspan="3" class="note">Clique em “Listar todos”.</td></tr></tbody>
         </table>
       </div>
-
       <div class="note" id="funcMsg"></div>
     </div>
   </section>
 
+  <!-- Estoque -->
   <section id="screen-est" class="card hide">
     <div class="hd">
-      <div><h2>Estoque</h2><p>Saldos atuais por item e tamanho.</p></div>
-      <div class="chip"><span class="dot ok"></span><span id="pillTotal2">Total: —</span></div>
+      <div>
+        <h2>Estoque</h2>
+        <p>Saldos atuais por item e tamanho.</p>
+      </div>
+      <div class="chip"><span class="dot ok"></span><span id="pillTotal2">Total</span></div>
     </div>
     <div class="bd">
-      <div class="btns no-print" style="margin-top:0;">
+      <div class="btns no-print" style="margin-top:0">
         <button type="button" class="btn" id="btnEditarItensEstoque">Editar nomes dos itens</button>
       </div>
-      <div class="note no-print" id="msgEditarItens" style="display:none;"></div>
+      <div class="note no-print" id="msgEditarItens" style="display:none"></div>
 
-      <div class="tableWrap" style="max-height:520px; margin-top:10px;">
+      <div class="tableWrap" style="max-height:520px; margin-top:10px">
         <table id="tblEstoque">
           <thead><tr><th>Item</th><th>Tamanho</th><th class="right">Saldo</th></tr></thead>
           <tbody></tbody>
@@ -333,12 +532,18 @@ function setPrint(html){
     </div>
   </section>
 
+  <!-- Catálogo -->
   <section id="screen-uni" class="card hide">
-    <div class="hd"><div><h2>Uniformes (catálogo)</h2><p>Adicionar, editar e remover itens.</p></div></div>
+    <div class="hd">
+      <div>
+        <h2>Uniformes (catálogo)</h2>
+        <p>Adicionar, editar e remover itens.</p>
+      </div>
+    </div>
     <div class="bd">
       <p class="note">Depois de editar, clique em <b>Salvar no Sheets</b> para publicar.</p>
 
-      <div class="btns no-print" style="margin-top:0;">
+      <div class="btns no-print" style="margin-top:0">
         <button type="button" class="btn" id="btnCarregarCatalogoSheets">Carregar do Sheets</button>
         <button type="button" class="btn primary" id="btnSalvarCatalogoSheets">Salvar no Sheets</button>
         <button type="button" class="btn" id="btnRestaurarCatalogo">Restaurar padrão</button>
@@ -347,8 +552,14 @@ function setPrint(html){
       <div class="sep"></div>
 
       <div class="grid2">
-        <div><label for="catNome">Categoria (nome do item)</label><input id="catNome" type="text" /></div>
-        <div><label for="catTamanhos">Tamanhos (separe por vírgula)</label><input id="catTamanhos" type="text" /></div>
+        <div>
+          <label for="catNome">Categoria (nome do item)</label>
+          <input id="catNome" type="text" />
+        </div>
+        <div>
+          <label for="catTamanhos">Tamanhos (separe por vírgula)</label>
+          <input id="catTamanhos" type="text" />
+        </div>
       </div>
 
       <div class="btns">
@@ -359,31 +570,33 @@ function setPrint(html){
       <div class="sep"></div>
 
       <label>Itens cadastrados</label>
-      <div class="tableWrap" style="max-height:520px;">
+      <div class="tableWrap" style="max-height:520px">
         <table id="tblCatalogo">
           <thead><tr><th>Categoria</th><th>Tamanhos</th><th class="right">Ações</th></tr></thead>
           <tbody></tbody>
         </table>
       </div>
-
       <div class="note" id="catMsg"></div>
     </div>
   </section>
 
+  <!-- Config DEV -->
   <section id="screen-cfg" class="card hide devOnlyScreen">
-    <div class="hd"><div><h2>Config (DEV)</h2><p>Somente DEV.</p></div></div>
+    <div class="hd"><div><h2>Config DEV</h2><p>Somente DEV.</p></div></div>
     <div class="bd">
-      <label>URL do Web App (/exec)</label>
+      <label>URL do Web App (exec)</label>
       <input id="cfgUrl" type="text" readonly />
       <p class="note">Se o login funcionar, esta URL já está correta.</p>
     </div>
   </section>
 
+  <!-- Acessos DEV -->
   <section id="screen-log" class="card hide devOnlyScreen">
-    <div class="hd"><div><h2>Acessos (DEV)</h2><p>Usuários no Sheets.</p></div></div>
+    <div class="hd"><div><h2>Acessos DEV</h2><p>Usuários no Sheets.</p></div></div>
     <div class="bd">
-      <label for="devPin">PIN do DEV (para gerenciar usuários)</label>
+      <label for="devPin">PIN do DEV para gerenciar usuários</label>
       <input id="devPin" type="password" inputmode="numeric" placeholder="6 dígitos" autocomplete="off" />
+
       <div class="btns">
         <button type="button" class="btn" id="btnLoadUsers">Carregar usuários</button>
       </div>
@@ -391,12 +604,20 @@ function setPrint(html){
       <div class="sep"></div>
 
       <div class="grid3">
-        <div><label for="newUserLogin">Novo login</label><input id="newUserLogin" type="text" placeholder="ex.: maria" /></div>
-        <div><label for="newUserName">Nome (opcional)</label><input id="newUserName" type="text" placeholder="ex.: Maria Silva" /></div>
-        <div><label for="newUserPin">Senha (6 dígitos)</label><input id="newUserPin" type="password" inputmode="numeric" placeholder="ex.: 123456" /></div>
+        <div>
+          <label for="newUserLogin">Novo login</label>
+          <input id="newUserLogin" type="text" placeholder="ex. maria" />
+        </div>
+        <div>
+          <label for="newUserName">Nome (opcional)</label>
+          <input id="newUserName" type="text" placeholder="ex. Maria Silva" />
+        </div>
+        <div>
+          <label for="newUserPin">Senha (6 dígitos)</label>
+          <input id="newUserPin" type="password" inputmode="numeric" placeholder="ex. 123456" />
+        </div>
       </div>
 
-      <!-- NOVO: permissão -->
       <div class="grid2">
         <div>
           <label for="newUserCanEdit">Permissão</label>
@@ -405,9 +626,7 @@ function setPrint(html){
             <option value="VIEW">Somente visualizar</option>
           </select>
         </div>
-        <div class="note" style="align-self:end;">
-          Definido pelo DEV (será salvo no Sheets)
-        </div>
+        <div class="note" style="align-self:end">Definido pelo DEV e salvo no Sheets.</div>
       </div>
 
       <div class="btns">
@@ -416,9 +635,17 @@ function setPrint(html){
 
       <div class="sep"></div>
 
-      <div class="tableWrap" style="max-height:420px;">
+      <div class="tableWrap" style="max-height:420px">
         <table id="tblUsers">
-          <thead><tr><th>Login</th><th>Nome</th><th>Status</th><th>Permissão</th><th class="right">Ações</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Login</th>
+              <th>Nome</th>
+              <th>Status</th>
+              <th>Permissão</th>
+              <th class="right">Ações</th>
+            </tr>
+          </thead>
           <tbody><tr><td colspan="5" class="note">Carregue os usuários.</td></tr></tbody>
         </table>
       </div>
@@ -427,87 +654,144 @@ function setPrint(html){
 </main>
 
 <script>
-  // ===== CONFIG =====
-  const SHEETS_URL = "https://script.google.com/macros/s/AKfycbzef2t-ivoNG_Hu5ACUby0VStJ4ald49HU6W-2sL2ixDKfJZpEz3cfvw5PKAKeLP-lkzQ/exec";
-  const DEV_EMAIL = "dayerre@gmail.com";
-  const TERMO_LOCAL = "Colatina/ES";
-  // ==================
+  // =========================
+  // CONFIG
+  // =========================
+  const SHEETSURL = "https://script.google.com/macros/s/AKfycbzef2t-ivoNGHu5ACUby0VStJ4ald49HU6W-2sL2ixDKfJZpEz3cfvw5PKAKeLP-lkzQ/exec";
+  const DEVEMAIL = "dayerre@gmail.com";
+  const TERMOLOCAL = "Colatina/ES";
 
-  let IS_DEMO = false; // DEMO removido (mantido só por compatibilidade interna)
+  let ISDEMO = false; // DEMO removido, mantido só por compatibilidade interna
 
-  const DB_KEY="uniformes_db_site";
-  const SESSION_KEY="uniformes_session_sheet_v9_jsonp";
-  const CATALOG_KEY_LOCAL="uniformes_catalogo_local_v1";
-  const ITEM_MAP_KEY="uniformes_item_map_v1";
+  const DBKEY = "uniformes_db_site";
+  const SESSIONKEY = "uniformes_session_sheet_v9_jsonp";
+  const CATALOGKEYLOCAL = "uniformes_catalogo_local_v1";
+  const ITEMMAPKEY = "uniformes_itemmap_v1";
 
-  const DEFAULT_CATALOG=[
+  const DEFAULTCATALOG = [
     { categoria:"Camisa masculina manga longa", tamanhos:["P","M","G","GG","XG"] },
     { categoria:"Camisa masculina manga curta", tamanhos:["P","M","G","GG","XG"] },
-    { categoria:"Calça brim c/ faixa refletiva (masc.)", tamanhos:["P","M","G","GG","XXG"] },
+    { categoria:"Calça brim c/ faixa refletiva masc.", tamanhos:["P","M","G","GG","XXG"] },
     { categoria:"Camisa feminina babylook", tamanhos:["P","M","G","GG","XXG"] },
   ];
 
-  const REL_ALL="__ALL__";
+  const RELALL = "ALL";
 
-  function todayISO(){ const d=new Date(); const pad=n=>String(n).padStart(2,"0"); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
-  function formatBRDateFromISO(iso){ if(!iso||typeof iso!=="string"||iso.length<10) return ""; const [y,m,d]=iso.slice(0,10).split("-"); return `${d}/${m}/${y}`; }
-  function escapeHtml(s){ return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;"); }
-  function makeId(){ try{ if(crypto?.randomUUID) return crypto.randomUUID(); }catch{} return String(Date.now())+"_"+Math.random().toString(16).slice(2); }
-
-  function loadDB(){ try{ return JSON.parse(localStorage.getItem(DB_KEY)) ?? {movimentos:[],estoque:{},funcionarios:[]}; }catch{ return {movimentos:[],estoque:{},funcionarios:[]}; } }
-  function saveDB(db){ if(IS_DEMO) return; localStorage.setItem(DB_KEY, JSON.stringify(db)); }
-  function getFuncById(db,id){ return db.funcionarios.find(f=>f.id===id)||null; }
-
-  function loadSession(){ try{ return JSON.parse(localStorage.getItem(SESSION_KEY))||null; }catch{ return null; } }
-  function saveSession(s){ localStorage.setItem(SESSION_KEY, JSON.stringify(s)); }
-  function clearSession(){ localStorage.removeItem(SESSION_KEY); }
-  function getCurrentUser(){ const s=loadSession(); if(!s||!s.login) return null; return s; }
-  function isDevSession(){ const s=getCurrentUser(); return !!(s && s.isDev); }
-  function canEditSession(){ const s=getCurrentUser(); return !!(s && (s.isDev || s.canEdit)); }
-
-  function setSheetsStatus(mode, msg){
-    const dot=document.getElementById("dotSheets");
-    const txt=document.getElementById("txtSheets");
-    dot.classList.remove("ok","err","warn");
-    dot.classList.add(mode==="ok" ? "ok" : mode==="erro" ? "err" : "warn");
-    txt.textContent=msg;
+  // =========================
+  // Utils
+  // =========================
+  function todayISO(){
+    const d = new Date();
+    const pad = n => String(n).padStart(2,"0");
+    return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate());
+  }
+  function formatBRDateFromISO(iso){
+    if(!iso || typeof iso !== "string" || iso.length < 10) return "";
+    const [y,m,d] = iso.slice(0,10).split("-");
+    return `${d}/${m}/${y}`;
+  }
+  function escapeHtml(s){
+    return String(s||"")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+  function makeId(){
+    try{ if(crypto?.randomUUID) return crypto.randomUUID(); }catch(e){}
+    return String(Date.now()) + Math.random().toString(16).slice(2);
   }
 
-  // JSONP (Apps Script ContentService)
+  // =========================
+  // Local DB + Session
+  // =========================
+  function loadDB(){
+    try{
+      return JSON.parse(localStorage.getItem(DBKEY)) ?? { movimentos:[], estoque:{}, funcionarios:[] };
+    }catch(e){
+      return { movimentos:[], estoque:{}, funcionarios:[] };
+    }
+  }
+  function saveDB(db){
+    if(ISDEMO) return;
+    localStorage.setItem(DBKEY, JSON.stringify(db));
+  }
+
+  function loadSession(){
+    try{ return JSON.parse(localStorage.getItem(SESSIONKEY)) ?? null; }catch(e){ return null; }
+  }
+  function saveSessions(s){
+    localStorage.setItem(SESSIONKEY, JSON.stringify(s));
+  }
+  // FIX: alias que estava faltando e quebrava o JS
+  function saveSession(s){
+    return saveSessions(s);
+  }
+  function clearSession(){
+    localStorage.removeItem(SESSIONKEY);
+    sessionStorage.removeItem("actorPin");
+  }
+
+  function getCurrentUser(){
+    const s = loadSession();
+    if(!s || !s.login) return null;
+    return s;
+  }
+  function isDevSession(){
+    const s = getCurrentUser();
+    return !!(s && s.isDev);
+  }
+  function canEditSession(){
+    const s = getCurrentUser();
+    return !!(s && (s.isDev || s.canEdit));
+  }
+
+  function setSheetsStatus(mode, msg){
+    const dot = document.getElementById("dotSheets");
+    const txt = document.getElementById("txtSheets");
+    dot.classList.remove("ok","err","warn");
+    dot.classList.add(mode === "ok" ? "ok" : mode === "erro" ? "err" : "warn");
+    txt.textContent = msg;
+  }
+
+  // =========================
+  // JSONP calls
+  // =========================
   function apiJsonp(params, timeoutMs=12000){
-    return new Promise((resolve, reject)=>{
-      const cbName = "cb_" + Math.random().toString(16).slice(2);
-      const u = new URL(SHEETS_URL);
-      Object.entries(params).forEach(([k,v])=>u.searchParams.set(k, v));
+    return new Promise((resolve, reject) => {
+      const cbName = "cb" + Math.random().toString(16).slice(2);
+      const u = new URL(SHEETSURL);
+      Object.entries(params).forEach(([k,v]) => u.searchParams.set(k, v));
       u.searchParams.set("callback", cbName);
-      u.searchParams.set("_ts", String(Date.now()));
+      u.searchParams.set("ts", String(Date.now()));
 
       const s = document.createElement("script");
-      let done=false;
+      let done = false;
 
-      window[cbName] = (data)=>{
+      window[cbName] = (data) => {
         if(done) return;
-        done=true;
+        done = true;
         cleanup();
         resolve(data);
       };
 
-      const t = setTimeout(()=>{
+      const t = setTimeout(() => {
         if(done) return;
-        done=true;
+        done = true;
         cleanup();
         reject(new Error("Timeout ao comunicar com o Sheets."));
       }, timeoutMs);
 
       function cleanup(){
         clearTimeout(t);
-        try{ delete window[cbName]; }catch{ window[cbName]=undefined; }
+        try{ delete window[cbName]; }catch(e){ window[cbName] = undefined; }
         s.remove();
       }
 
-      s.onerror = ()=>{
+      s.onerror = () => {
         if(done) return;
-        done=true;
+        done = true;
         cleanup();
         reject(new Error("Falha ao carregar resposta do servidor."));
       };
@@ -525,146 +809,163 @@ function setPrint(html){
   }
 
   async function sendKind(kind, payload){
-  const s = getCurrentUser();
-  if(!s || !s.login) throw new Error("Sem sessão.");
+    const s = getCurrentUser();
+    if(!s || !s.login) throw new Error("Sem sessão.");
 
-  const actorPin = sessionStorage.getItem("actorPin");
-  if(!actorPin) throw new Error("PIN da sessão não definido. Faça login novamente.");
+    const actorPin = sessionStorage.getItem("actorPin");
+    if(!actorPin) throw new Error("PIN da sessão não definido. Faça login novamente.");
 
-  const fullPayload = { ...payload, actorLogin: s.login, actorPin };
+    const fullPayload = { ...(payload||{}), actorLogin: s.login, actorPin };
 
-  const j = await apiJsonp({ kind, payload: JSON.stringify(fullPayload) });
-  if(!j || typeof j !== "object") throw new Error("Resposta inválida do servidor.");
-  if(!j.ok) throw new Error(j.error || "Erro ao salvar no Sheets.");
-  return j;
-}
+    const j = await apiJsonp({ kind, payload: JSON.stringify(fullPayload) });
+    if(!j || typeof j !== "object") throw new Error("Resposta inválida do servidor.");
+    if(!j.ok) throw new Error(j.error || "Erro ao salvar no Sheets.");
+    return j;
+  }
 
-
-  // ===== ItemMap
-  function loadItemMap_(){
+  // =========================
+  // ItemMap (renomear sem quebrar)
+  // =========================
+  function loadItemMap(){
     try{
-      const raw = JSON.parse(localStorage.getItem(ITEM_MAP_KEY)) || {};
-      raw.items = raw.items && typeof raw.items==="object" ? raw.items : {};
-      raw.legacyNameToId = raw.legacyNameToId && typeof raw.legacyNameToId==="object" ? raw.legacyNameToId : {};
+      const raw = JSON.parse(localStorage.getItem(ITEMMAPKEY)) || {};
+      raw.items = (raw.items && typeof raw.items === "object") ? raw.items : {};
+      raw.legacyNameToId = (raw.legacyNameToId && typeof raw.legacyNameToId === "object") ? raw.legacyNameToId : {};
       return raw;
-    }catch{
+    }catch(e){
       return { items:{}, legacyNameToId:{} };
     }
   }
-  function saveItemMap_(m){ if(IS_DEMO) return; localStorage.setItem(ITEM_MAP_KEY, JSON.stringify(m)); }
-  function ensureItemIdForName_(name){
+  function saveItemMap(m){
+    if(ISDEMO) return;
+    localStorage.setItem(ITEMMAPKEY, JSON.stringify(m));
+  }
+  function ensureItemIdForName(name){
     const nm = String(name||"").trim();
-    const map = loadItemMap_();
+    const map = loadItemMap();
     const existing = map.legacyNameToId[nm];
     if(existing) return existing;
     const id = "itm_" + makeId();
     map.legacyNameToId[nm] = id;
-    if(!map.items[id]) map.items[id] = { name: nm };
-    saveItemMap_(map);
+    if(!map.items[id]) map.items[id] = { name:nm };
+    saveItemMap(map);
     return id;
   }
-  function getItemNameById_(itemId, fallbackName){
-    const map = loadItemMap_();
-    const it = map.items[String(itemId||"")];
+  function getItemNameById(itemId, fallbackName){
+    const map = loadItemMap();
+    const it = map.items[String(itemId)];
     if(it && it.name) return String(it.name);
-    return String(fallbackName||"");
+    return String(fallbackName || itemId || "");
   }
-  function renameItem_(itemId, newName){
+  function renameItem(itemId, newName){
     const name = String(newName||"").trim();
     if(!name) throw new Error("Nome inválido.");
-    const map = loadItemMap_();
+    const map = loadItemMap();
     if(!map.items[itemId]) map.items[itemId] = { name };
     map.items[itemId].name = name;
-    saveItemMap_(map);
+    saveItemMap(map);
   }
-  function migrateLocalData_(){
-    const db = loadDB();
-    let changed=false;
 
-    for(const m of db.movimentos){
+  function migrateLocalData(){
+    const db = loadDB();
+    let changed = false;
+
+    for(const m of db.movimentos || []){
       if(!m || !m.categoria) continue;
       if(!m.itemId){
-        m.itemId = ensureItemIdForName_(m.categoria);
-        changed=true;
+        m.itemId = ensureItemIdForName(m.categoria);
+        changed = true;
       }
     }
 
     const newEst = {};
     const oldEst = db.estoque || {};
     for(const [k,v] of Object.entries(oldEst)){
-      const parts = String(k).split("__");
-      if(parts.length>=2){
-        const catOrId = parts[0];
-        const tam = parts.slice(1).join("__");
-        const isId = String(catOrId).startsWith("itm_");
-        const itemId = isId ? catOrId : ensureItemIdForName_(catOrId);
-        const nk = `${itemId}__${tam}`;
-        newEst[nk] = (Number(newEst[nk]||0) + Number(v||0));
-        if(nk!==k) changed=true;
-      }
+      const parts = String(k).split("-");
+      if(parts.length < 2) continue;
+      const catOrId = parts[0];
+      const tam = parts.slice(1).join("-");
+      const isId = String(catOrId).startsWith("itm_");
+      const itemId = isId ? catOrId : ensureItemIdForName(catOrId);
+      const nk = itemId + "-" + tam;
+      newEst[nk] = Number(newEst[nk] || 0) + Number(v || 0);
+      if(nk !== k) changed = true;
     }
     db.estoque = newEst;
 
     if(changed) saveDB(db);
   }
 
-  // ===== Catálogo
-  function normalizeCatalog_(raw){
+  // =========================
+  // Catálogo
+  // =========================
+  function normalizeCatalog(raw){
     if(!Array.isArray(raw)) return null;
-    const out=[];
+    const out = [];
     for(const it of raw){
       const categoria = String(it?.categoria||"").trim();
       const tamanhosRaw = Array.isArray(it?.tamanhos) ? it.tamanhos : [];
       const tamanhos = [...new Set(tamanhosRaw.map(x=>String(x||"").trim()).filter(Boolean))];
-      if(!categoria || tamanhos.length===0) continue;
+      if(!categoria || tamanhos.length === 0) continue;
       out.push({ categoria, tamanhos });
     }
     return out.length ? out : null;
   }
-  function loadCatalogLocal_(){
+
+  function loadCatalogLocal(){
     try{
-      const raw = JSON.parse(localStorage.getItem(CATALOG_KEY_LOCAL));
-      return normalizeCatalog_(raw) || DEFAULT_CATALOG;
-    }catch{
-      return DEFAULT_CATALOG;
+      const raw = JSON.parse(localStorage.getItem(CATALOGKEYLOCAL));
+      return normalizeCatalog(raw) || DEFAULTCATALOG.slice();
+    }catch(e){
+      return DEFAULTCATALOG.slice();
     }
   }
-  function saveCatalogLocal_(cat){ if(IS_DEMO) return; localStorage.setItem(CATALOG_KEY_LOCAL, JSON.stringify(cat)); }
-  let CATALOG_CACHE = null;
+  function saveCatalogLocal(cat){
+    if(ISDEMO) return;
+    localStorage.setItem(CATALOGKEYLOCAL, JSON.stringify(cat));
+  }
 
-  async function loadCatalogFromSheets_(){
+  let CATALOGCACHE = null;
+
+  async function loadCatalogFromSheets(){
     const j = await api({ action:"getCatalogo" });
     const list = Array.isArray(j.catalog) ? j.catalog : [];
     return list
       .filter(x => x && x.ativo !== false)
-      .map(x => ({ categoria: String(x.categoria||"").trim(), tamanhos: Array.isArray(x.tamanhos)?x.tamanhos:[] }))
+      .map(x => ({
+        categoria: String(x.categoria||"").trim(),
+        tamanhos: Array.isArray(x.tamanhos) ? x.tamanhos.map(t=>String(t||"").trim()).filter(Boolean) : []
+      }))
       .filter(x => x.categoria && x.tamanhos.length);
   }
-  function getCatalog_(){
-    if(Array.isArray(CATALOG_CACHE) && CATALOG_CACHE.length) return CATALOG_CACHE;
-    return loadCatalogLocal_();
+
+  function getCatalog(){
+    if(Array.isArray(CATALOGCACHE) && CATALOGCACHE.length) return CATALOGCACHE;
+    return loadCatalogLocal();
   }
-  async function refreshCatalogPreferSheets_(){
+
+  async function refreshCatalogPreferSheets(){
     try{
       setSheetsStatus("warn","Sheets: carregando catálogo...");
-      const cat = await loadCatalogFromSheets_();
+      const cat = await loadCatalogFromSheets();
       if(cat && cat.length){
-        CATALOG_CACHE = cat;
-        saveCatalogLocal_(cat);
+        CATALOGCACHE = cat;
+        saveCatalogLocal(cat);
         setSheetsStatus("ok","Sheets: catálogo OK");
         return true;
       }
       setSheetsStatus("warn","Sheets: catálogo vazio");
       return false;
-    }catch{
+    }catch(e){
       setSheetsStatus("warn","Sheets: catálogo offline");
       return false;
     }
   }
-  async function publishCatalogToSheets_(cat){
+
+  async function publishCatalogToSheets(cat){
     const payload = {
       catalog: cat.map(it => ({
-        itemId: ensureItemIdForName_(it.categoria),
+        itemId: ensureItemIdForName(it.categoria),
         categoria: it.categoria,
         tamanhos: it.tamanhos,
         ativo: true
@@ -673,30 +974,37 @@ function setPrint(html){
     return await sendKind("catalogo", payload);
   }
 
-  // ===== Login UI
-  const loginOverlay=document.getElementById("loginOverlay");
-  const loginUser=document.getElementById("loginUser");
-  const loginPass=document.getElementById("loginPass");
-  const btnLogin=document.getElementById("btnLogin");
-  const loginErr=document.getElementById("loginErr");
-  const txtUser=document.getElementById("txtUser");
-  const btnLogout=document.getElementById("btnLogout");
+  // =========================
+  // Login UI
+  // =========================
+  const loginOverlay = document.getElementById("loginOverlay");
+  const loginUser = document.getElementById("loginUser");
+  const loginPass = document.getElementById("loginPass");
+  const btnLogin = document.getElementById("btnLogin");
+  const loginErr = document.getElementById("loginErr");
+  const txtUser = document.getElementById("txtUser");
+  const btnLogout = document.getElementById("btnLogout");
 
   function showLogin(){
-    loginErr.style.display="none"; loginErr.textContent="";
-    loginOverlay.style.display="flex";
+    loginErr.style.display = "none";
+    loginErr.textContent = "";
+    loginOverlay.style.display = "flex";
     setTimeout(()=>loginUser.focus(), 50);
   }
-  function hideLogin(){ loginOverlay.style.display="none"; }
+  function hideLogin(){ loginOverlay.style.display = "none"; }
 
   function refreshUserChip(){
-    const s=getCurrentUser();
-    txtUser.textContent = s ? `Logado: ${s.login}${s.isDev ? " (DEV)" : (s.canEdit ? "" : " (Somente visualização)")}` : "Não logado";
+    const s = getCurrentUser();
+    if(!s) { txtUser.textContent = "No logado"; return; }
+    if(s.isDev) { txtUser.textContent = `Logado: ${s.login} (DEV)`; return; }
+    // FIX: aqui estava invertido
+    txtUser.textContent = `Logado: ${s.login} (${s.canEdit ? "Edita" : "Somente visualização"})`;
   }
+
   function applyDevVisibility(){
-    const isDev=isDevSession();
-    document.querySelectorAll(".devOnly").forEach(el=>el.classList.toggle("hide", !isDev));
-    document.querySelectorAll(".devOnlyScreen").forEach(el=>el.classList.toggle("hide", !isDev));
+    const isDev = isDevSession();
+    document.querySelectorAll(".devOnly").forEach(el => el.classList.toggle("hide", !isDev));
+    document.querySelectorAll(".devOnlyScreen").forEach(el => el.classList.toggle("hide", !isDev));
     if(!isDev){
       if(!document.getElementById("screen-cfg").classList.contains("hide") ||
          !document.getElementById("screen-log").classList.contains("hide")){
@@ -705,521 +1013,475 @@ function setPrint(html){
     }
   }
 
+  function applyEditLocks(){
+    const canEdit = canEditSession();
+    document.getElementById("btnSalvar").disabled = !canEdit;
+    document.getElementById("btnAddFunc").disabled = !canEdit;
+    document.getElementById("btnSalvarCatalogoSheets").disabled = !canEdit;
+    document.getElementById("btnAddCatItem").disabled = !canEdit;
+    document.getElementById("btnRestaurarCatalogo").disabled = !canEdit;
+    document.getElementById("btnEditarItensEstoque").disabled = !canEdit;
+  }
+
   async function doLogin(){
-  const login = String(loginUser.value || "").trim().toLowerCase();
-  const pinString = String(loginPass.value || "").trim();
+    const login = String(loginUser.value || "").trim().toLowerCase();
+    const pinString = String(loginPass.value || "").trim();
 
-  if(!login){
-    loginErr.textContent = "Informe o usuário.";
-    loginErr.style.display = "block";
-    return;
+    if(!login){
+      loginErr.textContent = "Informe o usuário.";
+      loginErr.style.display = "block";
+      return;
+    }
+    if(!/^\d{6}$/.test(pinString)){
+      loginErr.textContent = "Senha inválida (6 dígitos).";
+      loginErr.style.display = "block";
+      return;
+    }
+
+    try{
+      setSheetsStatus("warn","Sheets: validando login...");
+      const j = await api({ action:"login", login, pin: pinString });
+
+      sessionStorage.setItem("actorPin", pinString);
+      ISDEMO = false;
+
+      saveSession({
+        login: j.login,
+        isDev: !!j.isDev,
+        canEdit: (j.isDev ? true : !!j.canEdit),
+        at: new Date().toLocaleString("pt-BR")
+      });
+
+      hideLogin();
+      refreshUserChip();
+      applyDevVisibility();
+      applyEditLocks();
+
+      setSheetsStatus("ok","Sheets: conectado");
+
+      await refreshCatalogPreferSheets();
+      fillCategorias();
+      fillTamanhos();
+
+      // auto sync
+      await autoSyncAfterLogin();
+
+    }catch(err){
+      setSheetsStatus("erro","Sheets: erro");
+      loginErr.textContent = String(err && err.message ? err.message : err);
+      loginErr.style.display = "block";
+    }
   }
-
-  if(!/^\d{6}$/.test(pinString)){
-    loginErr.textContent = "Senha inválida (6 dígitos).";
-    loginErr.style.display = "block";
-    return;
-  }
-
-  try{
-    setSheetsStatus("warn","Sheets: validando login...");
-
-    // IMPORTANTE: aqui era o bug (pin não existe). Use pinString
-    const j = await api({ action:"login", login, pin: pinString });
-
-    // Guarda o PIN só na sessão do navegador (necessário para gravar no Sheets)
-    sessionStorage.setItem("actorPin", pinString);
-
-    ISDEMO = false;
-
-    saveSession({
-  login: j.login,
-  isDev: !!j.isDev,
-  canEdit: (j.isDev ? true : !!j.canEdit),
-  at: new Date().toLocaleString("pt-BR")
-});
-
-    hideLogin();
-    refreshUserChip();
-    applyDevVisibility();
-
-    setSheetsStatus("ok","Sheets: conectado");
-
-    await refreshCatalogPreferSheets();
-    fillCategorias();
-    fillTamanhos();
-
-    // Se você já adicionou auto-sync após login, pode manter:
-    // await autoSyncAfterLogin_?.();
-
-  }catch(err){
-    setSheetsStatus("erro","Sheets: erro");
-    loginErr.textContent = String(err && err.message ? err.message : err);
-    loginErr.style.display = "block";
-  }
-}
 
   btnLogin.addEventListener("click", doLogin);
-  loginPass.addEventListener("keydown", e=>{ if(e.key==="Enter") doLogin(); });
-  loginUser.addEventListener("keydown", e=>{ if(e.key==="Enter") loginPass.focus(); });
+  loginPass.addEventListener("keydown", (e)=>{ if(e.key === "Enter") doLogin(); });
+  loginUser.addEventListener("keydown", (e)=>{ if(e.key === "Enter") loginPass.focus(); });
 
-  btnLogout.addEventListener("click", ()=>{
-    IS_DEMO = false;
+  btnLogout.addEventListener("click", () => {
+    ISDEMO = false;
     clearSession();
     refreshUserChip();
     applyDevVisibility();
+    applyEditLocks();
     showLogin();
   });
 
-  // ===== nav
-  const navBtns=[...document.querySelectorAll(".navBtn")];
-  const screens={
-    mov:document.getElementById("screen-mov"),
-    func:document.getElementById("screen-func"),
-    est:document.getElementById("screen-est"),
-    uni:document.getElementById("screen-uni"),
-    cfg:document.getElementById("screen-cfg"),
-    log:document.getElementById("screen-log")
+  // =========================
+  // Nav
+  // =========================
+  const navBtns = [...document.querySelectorAll(".navBtn")];
+  const screens = {
+    mov: document.getElementById("screen-mov"),
+    func: document.getElementById("screen-func"),
+    est: document.getElementById("screen-est"),
+    uni: document.getElementById("screen-uni"),
+    cfg: document.getElementById("screen-cfg"),
+    log: document.getElementById("screen-log"),
   };
+
   function setScreen(name){
-    Object.entries(screens).forEach(([k,el])=>el.classList.toggle("hide", k!==name));
-    navBtns.forEach(b=>b.classList.toggle("active", b.dataset.screen===name));
-    if(name==="mov") renderMov();
-    if(name==="func"){ renderFuncionariosSelect(); renderListaFuncionarios_(); }
-    if(name==="est") renderEstoque();
-    if(name==="uni"){ renderCatalogUI_(); clearCatForm_(); }
-    if(name==="cfg") document.getElementById("cfgUrl").value=SHEETS_URL;
+    Object.entries(screens).forEach(([k,el]) => el.classList.toggle("hide", k !== name));
+    navBtns.forEach(b => b.classList.toggle("active", b.dataset.screen === name));
+    if(name === "mov") renderMov();
+    if(name === "func"){ renderFuncionariosSelect(); renderListaFuncionarios(); }
+    if(name === "est") renderEstoque();
+    if(name === "uni"){ renderCatalogUI(); clearCatForm(); }
+    if(name === "cfg") document.getElementById("cfgUrl").value = SHEETSURL;
   }
-  navBtns.forEach(b=>b.addEventListener("click",()=>setScreen(b.dataset.screen)));
+  navBtns.forEach(b => b.addEventListener("click", ()=>setScreen(b.dataset.screen)));
 
-  // ===== refs
-  const elTipo=document.getElementById("tipoMov");
-  const elData=document.getElementById("dataMov");
-  const boxFunc=document.getElementById("boxFunc");
-  const elFuncSel=document.getElementById("funcionarioSel");
-  const boxEstado=document.getElementById("boxEstado");
-  const elEstado=document.getElementById("estadoItem");
-  const boxMotivo=document.getElementById("boxMotivo");
-  const elMotivo=document.getElementById("motivoRuim");
-  const elCat=document.getElementById("categoria");
-  const elTam=document.getElementById("tamanho");
-  const elQtd=document.getElementById("quantidade");
-  const boxObs=document.getElementById("boxObs");
-  const elObs=document.getElementById("obs");
-  const btnSalvar=document.getElementById("btnSalvar");
-  const btnLimpar=document.getElementById("btnLimpar");
-  const tblHistBody=document.querySelector("#tblHistorico tbody");
-  const tblEstoqueBody=document.querySelector("#tblEstoque tbody");
-  const pillTotal=document.getElementById("pillTotal");
-  const pillTotal2=document.getElementById("pillTotal2");
+  // =========================
+  // Refs
+  // =========================
+  const elTipo = document.getElementById("tipoMov");
+  const elData = document.getElementById("dataMov");
+  const boxFunc = document.getElementById("boxFunc");
+  const elFuncSel = document.getElementById("funcionarioSel");
+  const boxEstado = document.getElementById("boxEstado");
+  const elEstado = document.getElementById("estadoItem");
+  const boxMotivo = document.getElementById("boxMotivo");
+  const elMotivo = document.getElementById("motivoRuim");
+  const elCat = document.getElementById("categoria");
+  const elTam = document.getElementById("tamanho");
+  const elQtd = document.getElementById("quantidade");
+  const boxObs = document.getElementById("boxObs");
+  const elObs = document.getElementById("obs");
+  const btnSalvar = document.getElementById("btnSalvar");
+  const btnLimpar = document.getElementById("btnLimpar");
+  const tblHistBody = document.querySelector("#tblHistorico tbody");
+  const tblEstoqueBody = document.querySelector("#tblEstoque tbody");
+  const pillTotal = document.getElementById("pillTotal");
+  const pillTotal2 = document.getElementById("pillTotal2");
 
-  const relFuncSel=document.getElementById("relFuncSel");
-  const btnGerarRel=document.getElementById("btnGerarRel");
-  const btnLimparRel=document.getElementById("btnLimparRel");
-  const btnImprimirRel=document.getElementById("btnImprimirRel");
-  const btnImprimirTermo=document.getElementById("btnImprimirTermo");
+  const relFuncSel = document.getElementById("relFuncSel");
+  const btnGerarRel = document.getElementById("btnGerarRel");
+  const btnLimparRel = document.getElementById("btnLimparRel");
+  const btnImprimirRel = document.getElementById("btnImprimirRel");
+  const btnImprimirTermo = document.getElementById("btnImprimirTermo");
 
-  const printArea=document.getElementById("printArea");
-  const printHeader=document.getElementById("printHeader");
-  const printBody=document.getElementById("printBody");
+  const printArea = document.getElementById("printArea");
+  const printHeader = document.getElementById("printHeader");
+  const printBody = document.getElementById("printBody");
 
-  const elNovoNome=document.getElementById("novoNome");
-  const btnAddFunc=document.getElementById("btnAddFunc");
+  const elNovoNome = document.getElementById("novoNome");
+  const btnAddFunc = document.getElementById("btnAddFunc");
   const btnListarFuncs = document.getElementById("btnListarFuncs");
   const tblFuncsBody = document.querySelector("#tblFuncs tbody");
   const funcMsg = document.getElementById("funcMsg");
 
-  const btnCarregarCatalogoSheets=document.getElementById("btnCarregarCatalogoSheets");
-  const btnSalvarCatalogoSheets=document.getElementById("btnSalvarCatalogoSheets");
-  const btnRestaurarCatalogo=document.getElementById("btnRestaurarCatalogo");
-  const catNome=document.getElementById("catNome");
-  const catTamanhos=document.getElementById("catTamanhos");
-  const btnAddCatItem=document.getElementById("btnAddCatItem");
-  const btnLimparCatForm=document.getElementById("btnLimparCatForm");
-  const tblCatalogoBody=document.querySelector("#tblCatalogo tbody");
-  const catMsg=document.getElementById("catMsg");
+  const btnCarregarCatalogoSheets = document.getElementById("btnCarregarCatalogoSheets");
+  const btnSalvarCatalogoSheets = document.getElementById("btnSalvarCatalogoSheets");
+  const btnRestaurarCatalogo = document.getElementById("btnRestaurarCatalogo");
+  const catNome = document.getElementById("catNome");
+  const catTamanhos = document.getElementById("catTamanhos");
+  const btnAddCatItem = document.getElementById("btnAddCatItem");
+  const btnLimparCatForm = document.getElementById("btnLimparCatForm");
+  const tblCatalogoBody = document.querySelector("#tblCatalogo tbody");
+  const catMsg = document.getElementById("catMsg");
 
-  const btnEditarItensEstoque=document.getElementById("btnEditarItensEstoque");
-  const msgEditarItens=document.getElementById("msgEditarItens");
+  const btnEditarItensEstoque = document.getElementById("btnEditarItensEstoque");
+  const msgEditarItens = document.getElementById("msgEditarItens");
 
-  const devPin=document.getElementById("devPin");
-  const btnLoadUsers=document.getElementById("btnLoadUsers");
-  const newUserLogin=document.getElementById("newUserLogin");
-  const newUserName=document.getElementById("newUserName");
-  const newUserPin=document.getElementById("newUserPin");
-  const newUserCanEdit=document.getElementById("newUserCanEdit");
-  const btnCreateUser=document.getElementById("btnCreateUser");
-  const tblUsersBody=document.querySelector("#tblUsers tbody");
+  const devPin = document.getElementById("devPin");
+  const btnLoadUsers = document.getElementById("btnLoadUsers");
+  const newUserLogin = document.getElementById("newUserLogin");
+  const newUserName = document.getElementById("newUserName");
+  const newUserPin = document.getElementById("newUserPin");
+  const newUserCanEdit = document.getElementById("newUserCanEdit");
+  const btnCreateUser = document.getElementById("btnCreateUser");
+  const tblUsersBody = document.querySelector("#tblUsers tbody");
 
-  function requireLogin(){ if(!getCurrentUser()){ showLogin(); return false; } return true; }
-  function requireEdit(){ if(!requireLogin()) return false; if(!canEditSession()){ alert("Seu usuário está em modo somente visualização."); return false; } return true; }
+  // =========================
+  // Guards
+  // =========================
+  function requireLogin(){
+    if(!getCurrentUser()){
+      showLogin();
+      return false;
+    }
+    return true;
+  }
+  function requireEdit(){
+    if(!requireLogin()) return false;
+    if(!canEditSession()){
+      alert("Seu usuário está em modo somente visualização.");
+      return false;
+    }
+    return true;
+  }
   function requireDev(){
     if(!requireLogin()) return false;
-    if(!isDevSession()){ alert("Somente DEV."); return false; }
-    if(!/^\d{6}$/.test(String(devPin.value||"").trim())){ alert("Informe o PIN do DEV (6 dígitos)."); return false; }
+    if(!isDevSession()){
+      alert("Somente DEV.");
+      return false;
+    }
+    if(!/^\d{6}$/.test(String(devPin.value||"").trim())){
+      alert("Informe o PIN do DEV (6 dígitos).");
+      return false;
+    }
     return true;
   }
 
-  function applyEditLocks_(){
-    const canEdit = canEditSession();
-    btnSalvar.disabled = !canEdit;
-    btnAddFunc.disabled = !canEdit;
-    btnSalvarCatalogoSheets.disabled = !canEdit;
-    btnAddCatItem.disabled = !canEdit;
-    btnRestaurarCatalogo.disabled = !canEdit;
-    btnEditarItensEstoque.disabled = !canEdit;
-  }
-
-  // ===== auto sync after login
-  async function autoSyncAfterLogin_(){
+  // =========================
+  // Sync from Sheets
+  // =========================
+  async function autoSyncAfterLogin(){
     if(!requireLogin()) return;
     try{
       setSheetsStatus("warn","Sheets: sincronizando...");
       const j = await api({ action:"getSnapshot" });
 
       const db = loadDB();
-      db.funcionarios = Array.isArray(j.funcionarios) ? j.funcionarios : [];
-      db.movimentos = Array.isArray(j.movimentos) ? j.movimentos : [];
+      db.funcionarios = Array.isArray(j.funcionarios) ? j.funcionarios : db.funcionarios;
+      db.movimentos   = Array.isArray(j.movimentos) ? j.movimentos : db.movimentos;
+
       db.estoque = {};
-
       for(const m of db.movimentos){
-        if(m && m.categoria && !m.itemId) m.itemId = ensureItemIdForName_(m.categoria);
-      }
-
-      for(const m of db.movimentos){
-        const qtd = Number(m.quantidade||0);
+        if(!m || m.hidden) continue;
+        const qtd = Number(m.quantidade || 0);
         if(!qtd) continue;
 
-        let delta=0;
-        if(m.tipo==="ENTRADA") delta=qtd;
-        if(m.tipo==="SAIDA") delta=-qtd;
-        if(m.tipo==="DEVOLUCAO") delta=(m.estado==="EMCONDICOES") ? qtd : 0;
+        const itemId2 = m.itemId ? String(m.itemId) : ensureItemIdForName(m.categoria);
+        const k = itemId2 + "-" + m.tamanho;
 
-        if(delta!==0){
-          const itemId = m.itemId || ensureItemIdForName_(m.categoria);
-          const k = `${itemId}__${m.tamanho}`;
-          db.estoque[k] = Number(db.estoque[k]||0) + delta;
-        }
+        let delta = 0;
+        if(m.tipo === "ENTRADA") delta = qtd;
+        if(m.tipo === "SAIDA") delta = -qtd;
+        if(m.tipo === "DEVOLUCAO") delta = (m.estado === "EMCONDICOES" ? qtd : 0);
+
+        db.estoque[k] = Number(db.estoque[k] || 0) + delta;
       }
 
       saveDB(db);
       renderMov();
       renderEstoque();
       fillRelFuncionariosSomenteQuemPegou();
+
       setSheetsStatus("ok","Sheets: sincronizado");
-    }catch{
+    }catch(e){
       setSheetsStatus("warn","Sheets: offline");
     }
   }
 
-  // ===== DEV users
-  async function loadUsersFromSheet(){
-    if(!requireDev()) return;
-    const s=getCurrentUser();
-    try{
-      const j=await api({ action:"listUsers", devLogin:s.login, devPin:String(devPin.value||"").trim() });
-      renderUsersTable(j.users||[]);
-    }catch(err){
-      alert(String(err.message||err));
-    }
-  }
-
-  function renderUsersTable(users){
-    const sorted=[...users].sort((a,b)=>String(a.login).localeCompare(String(b.login)));
-    tblUsersBody.innerHTML = sorted.map(u=>`
-      <tr>
-        <td>${escapeHtml(u.login)}</td>
-        <td>${escapeHtml(u.name||"—")}</td>
-        <td>${u.active ? "Ativo" : "Inativo"}</td>
-        <td>${u.canEdit ? "Edita" : "Somente ver"}</td>
-        <td class="right">
-          <button class="btn" type="button" onclick="toggleUserSheet('${escapeHtml(u.login)}')">${u.active ? "Desativar" : "Ativar"}</button>
-          <button class="btn" type="button" onclick="togglePermUserSheet('${escapeHtml(u.login)}', ${u.canEdit ? "true":"false"})">${u.canEdit ? "Bloquear edição" : "Liberar edição"}</button>
-          <button class="btn" type="button" onclick="resetPinSheet('${escapeHtml(u.login)}')">Reset senha</button>
-          <button class="btn danger" type="button" onclick="removeUserSheet('${escapeHtml(u.login)}')">Remover</button>
-        </td>
-      </tr>
-    `).join("") || `<tr><td colspan="5" class="note">Sem usuários.</td></tr>`;
-  }
-
-  window.toggleUserSheet = async (login)=>{
-    if(!requireDev()) return;
-    const s=getCurrentUser();
-    await api({ action:"toggleUser", login, devLogin:s.login, devPin:String(devPin.value||"").trim() });
-    loadUsersFromSheet();
-  };
-  window.togglePermUserSheet = async (login, currentCanEdit)=>{
-    if(!requireDev()) return;
-    const s=getCurrentUser();
-    await api({ action:"setPerm", login, canEdit: (!currentCanEdit ? "1":"0"), devLogin:s.login, devPin:String(devPin.value||"").trim() });
-    loadUsersFromSheet();
-  };
-  window.resetPinSheet = async (login)=>{
-    if(!requireDev()) return;
-    const np=prompt("Nova senha (6 dígitos):");
-    if(np===null) return;
-    if(!/^\d{6}$/.test(np)) return alert("Precisa ser 6 dígitos.");
-    const s=getCurrentUser();
-    await api({ action:"resetPin", login, pin:np, devLogin:s.login, devPin:String(devPin.value||"").trim() });
-    loadUsersFromSheet();
-  };
-  window.removeUserSheet = async (login)=>{
-    if(!requireDev()) return;
-    if(!confirm("Remover usuário?")) return;
-    const s=getCurrentUser();
-    await api({ action:"removeUser", login, devLogin:s.login, devPin:String(devPin.value||"").trim() });
-    loadUsersFromSheet();
-  };
-
-  btnLoadUsers.addEventListener("click", loadUsersFromSheet);
-  btnCreateUser.addEventListener("click", async ()=>{
-    if(!requireDev()) return;
-    const login=String(newUserLogin.value||"").trim().toLowerCase();
-    const name=String(newUserName.value||"").trim();
-    const pin=String(newUserPin.value||"").trim();
-    const canEdit = (String(newUserCanEdit.value||"EDIT")==="EDIT");
-
-    if(!login) return alert("Informe o login.");
-    if(login===DEV_EMAIL.toLowerCase()) return alert("Login reservado ao DEV.");
-    if(!/^\d{6}$/.test(pin)) return alert("Senha deve ter 6 dígitos.");
-
-    const s=getCurrentUser();
-    await api({ action:"createUser", login, name, pin, canEdit: (canEdit?"1":"0"), devLogin:s.login, devPin:String(devPin.value||"").trim() });
-
-    newUserLogin.value=""; newUserName.value=""; newUserPin.value="";
-    loadUsersFromSheet();
+  document.getElementById("btnCarregarSheetsUrl").addEventListener("click", async () => {
+    if(!requireLogin()) return;
+    await autoSyncAfterLogin();
   });
 
-  // ===== app
-  function upsertEstoque(db,itemId,t,delta){
-    const k=`${itemId}__${t}`;
-    db.estoque[k]=Number(db.estoque[k]??0)+delta;
+  // =========================
+  // App logic
+  // =========================
+  function upsertEstoque(db, itemId, t, delta){
+    const k = itemId + "-" + t;
+    db.estoque[k] = Number(db.estoque[k] || 0) + delta;
   }
 
   function fillCategorias(){
-    const catalog=getCatalog_();
-    catalog.forEach(c=>ensureItemIdForName_(c.categoria));
-    elCat.innerHTML=catalog.map(c=>`<option value="${escapeHtml(c.categoria)}">${escapeHtml(c.categoria)}</option>`).join("");
+    const catalog = getCatalog();
+    catalog.forEach(c => ensureItemIdForName(c.categoria));
+    elCat.innerHTML = catalog.map(c => `<option value="${escapeHtml(c.categoria)}">${escapeHtml(c.categoria)}</option>`).join("");
   }
   function fillTamanhos(){
-    const catalog=getCatalog_();
-    const found=catalog.find(x=>x.categoria===elCat.value);
-    const ts=found?found.tamanhos:[];
-    elTam.innerHTML=ts.map(t=>`<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join("");
+    const catalog = getCatalog();
+    const found = catalog.find(x => x.categoria === elCat.value);
+    const ts = found ? found.tamanhos : [];
+    elTam.innerHTML = ts.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join("");
   }
 
   function fillRelFuncionariosSomenteQuemPegou(){
-    const db=loadDB();
+    const db = loadDB();
     const pegouIds = new Set(
-      db.movimentos.filter(m => !m.hidden && m.tipo==="SAIDA" && m.funcionarioId).map(m => m.funcionarioId)
+      (db.movimentos||[])
+        .filter(m => m && !m.hidden && m.tipo === "SAIDA" && m.funcionarioId)
+        .map(m => m.funcionarioId)
     );
-    const lista = db.funcionarios
-      .filter(f => pegouIds.has(f.id))
+
+    const lista = (db.funcionarios||[])
+      .filter(f => f && pegouIds.has(f.id))
       .slice()
-      .sort((a,b)=>a.nome.localeCompare(b.nome));
+      .sort((a,b)=>String(a.nome||"").localeCompare(String(b.nome||"")));
 
     relFuncSel.innerHTML = [
-      `<option value="">(Selecione)</option>`,
-      `<option value="${REL_ALL}">Todos</option>`
-    ].concat(lista.map(f=>`<option value="${escapeHtml(f.id)}">${escapeHtml(f.nome)}</option>`)).join("");
+      `<option value="">Selecione</option>`,
+      `<option value="${RELALL}">Todos</option>`,
+      ...lista.map(f => `<option value="${escapeHtml(f.id)}">${escapeHtml(f.nome||"")}</option>`)
+    ].join("");
+  }
+
+  function getFuncById(db, id){
+    return (db.funcionarios||[]).find(f => f.id === id) || null;
+  }
+
+  function updateMovUI(){
+    const tipo = elTipo.value;
+    const precisaFunc = (tipo === "SAIDA" || tipo === "DEVOLUCAO");
+    const isDev = (tipo === "DEVOLUCAO");
+    const isSem = isDev && (elEstado.value === "SEMCONDICOES");
+
+    boxFunc.classList.toggle("hide", !precisaFunc);
+    boxEstado.classList.toggle("hide", !isDev);
+    boxMotivo.classList.toggle("hide", !isSem);
+    boxObs.classList.toggle("hide", !isDev);
+
+    if(!isDev) elObs.value = "";
+    if(!precisaFunc) elFuncSel.value = "";
+    if(!isSem) elMotivo.value = "";
+  }
+
+  function tipoLabel(t){
+    if(t === "SAIDA") return "SAÍDA";
+    if(t === "DEVOLUCAO") return "DEVOLUÇÃO";
+    return "ENTRADA";
+  }
+  function estadoLabel(e){
+    if(!e) return "";
+    if(e === "EMCONDICOES") return "Em condições";
+    if(e === "SEMCONDICOES") return "Sem condições";
+    return e;
   }
 
   function renderFuncionariosSelect(){
-    const db=loadDB();
-    const ativos=db.funcionarios.filter(f=>f.ativo).sort((a,b)=>a.nome.localeCompare(b.nome));
-    elFuncSel.innerHTML=[`<option value="">(Selecione)</option>`].concat(
-      ativos.map(f=>`<option value="${escapeHtml(f.id)}">${escapeHtml(f.nome)}</option>`)
-    ).join("");
+    const db = loadDB();
+    const ativos = (db.funcionarios||[])
+      .filter(f => f && f.ativo)
+      .slice()
+      .sort((a,b)=>String(a.nome||"").localeCompare(String(b.nome||"")));
+    elFuncSel.innerHTML = [
+      `<option value="">Selecione</option>`,
+      ...ativos.map(f => `<option value="${escapeHtml(f.id)}">${escapeHtml(f.nome||"")}</option>`)
+    ].join("");
     fillRelFuncionariosSomenteQuemPegou();
   }
 
-  function renderListaFuncionarios_(){
+  function renderListaFuncionarios(){
     const db = loadDB();
-    const all = (db.funcionarios||[]).slice().sort((a,b)=>String(a.nome||"").localeCompare(String(b.nome||"")));
-    tblFuncsBody.innerHTML = all.map(f => `
+    const all = (db.funcionarios||[])
+      .slice()
+      .sort((a,b)=>String(a.nome||"").localeCompare(String(b.nome||"")));
+
+    tblFuncsBody.innerHTML = all.length ? all.map(f => `
       <tr>
         <td>${escapeHtml(f.nome||"")}</td>
         <td>${f.ativo ? "Ativo" : "Inativo"}</td>
         <td class="right">
-          <button type="button" class="btn" ${canEditSession() ? "" : "disabled"} onclick="toggleFuncionarioAtivo('${escapeHtml(f.id)}')">
+          <button type="button" class="btn" ${canEditSession() ? "" : "disabled"}
+            onclick="toggleFuncionarioAtivo('${escapeHtml(f.id)}')">
             ${f.ativo ? "Inativar" : "Ativar"}
           </button>
         </td>
       </tr>
-    `).join("") || `<tr><td colspan="3" class="note">Sem funcionários.</td></tr>`;
+    `).join("") : `<tr><td colspan="3" class="note">Sem funcionários.</td></tr>`;
 
     funcMsg.textContent = canEditSession() ? "" : "Seu usuário está em modo somente visualização.";
   }
 
-  window.toggleFuncionarioAtivo = async (funcId) => {
+  window.toggleFuncionarioAtivo = async function(funcId){
     if(!requireEdit()) return;
-
     const db = loadDB();
-    const f = (db.funcionarios||[]).find(x=>x.id===funcId);
+    const f = (db.funcionarios||[]).find(x => x.id === funcId);
     if(!f) return alert("Funcionário não encontrado.");
 
     const nextActive = !f.ativo;
-    if(!confirm(`${nextActive ? "Ativar" : "Inativar"} \"${f.nome}\"?`)) return;
+    if(!confirm(`${nextActive ? "Ativar" : "Inativar"} ${f.nome}?`)) return;
 
     try{
       setSheetsStatus("warn","Sheets: atualizando funcionário...");
-await sendKind("funcionario", { id: f.id, nome: f.nome, ativo: nextActive, evento: "TOGGLE" });
-setSheetsStatus("ok","Sheets: salvo");
+      await sendKind("funcionario", { id: f.id, nome: f.nome, ativo: nextActive, evento:"TOGGLE" });
+      setSheetsStatus("ok","Sheets: salvo");
 
-// ===== NOVO: puxa snapshot do Sheets e atualiza o DB local =====
-try{
-  setSheetsStatus("warn","Sheets: sincronizando...");
-  const snap = await api({ action:"getSnapshot" });
+      // sync completo (fonte de verdade)
+      await autoSyncAfterLogin();
 
-  const db = loadDB();
-  db.funcionarios = Array.isArray(snap.funcionarios) ? snap.funcionarios : db.funcionarios;
-  db.movimentos   = Array.isArray(snap.movimentos) ? snap.movimentos : db.movimentos;
+      // garante UI
+      renderFuncionariosSelect();
+      renderListaFuncionarios();
+      renderMov();
+      renderEstoque();
 
-  // Recalcula estoque do zero baseado nos movimentos vindos do Sheets
-  db.estoque = {};
-  for(const m of db.movimentos){
-    if(!m || m.hidden) continue;
-
-    const qtd = Number(m.quantidade || 0);
-    if(!qtd) continue;
-
-    const itemId2 = m.itemId ? String(m.itemId) : ensureItemIdForName(m.categoria);
-    const k = itemId2 + "-" + m.tamanho;
-
-    let delta = 0;
-    if(m.tipo === "ENTRADA") delta = qtd;
-    if(m.tipo === "SAIDA") delta = -qtd;
-    if(m.tipo === "DEVOLUCAO") delta = (m.estado === "EMCONDICOES" ? qtd : 0);
-
-    db.estoque[k] = Number(db.estoque[k] || 0) + delta;
-  }
-
-  saveDB(db);
-
-  // Atualiza telas que dependem de funcionários
-  renderFuncionariosSelect();
-  fillRelFuncionariosSomenteQuemPegou();
-  renderMov();
-  renderEstoque();
-
-  setSheetsStatus("ok","Sheets: sincronizado");
-}catch(syncErr){
-  // Não falha o toggle por causa da sincronização
-  setSheetsStatus("warn","Sheets: salvo (sync falhou)");
-}
-
-
-    f.ativo = nextActive;
-    saveDB(db);
-
-    renderFuncionariosSelect();
-    renderListaFuncionarios_();
-    renderMov();
+    }catch(err){
+      setSheetsStatus("erro","Sheets: erro");
+      alert("Não foi possível salvar no Sheets: " + String(err.message||err));
+      return;
+    }
   };
 
-  btnListarFuncs.addEventListener("click", ()=>{
-    if(!requireLogin()) return;
-    renderListaFuncionarios_();
-  });
-
-  function updateMovUI(){
-    const tipo=elTipo.value;
-    const precisa=(tipo==="SAIDA"||tipo==="DEVOLUCAO");
-    const isDev=(tipo==="DEVOLUCAO");
-    const isSem=isDev && (elEstado.value==="SEMCONDICOES");
-    boxFunc.classList.toggle("hide", !precisa);
-    boxEstado.classList.toggle("hide", !isDev);
-    boxMotivo.classList.toggle("hide", !isSem);
-    boxObs.classList.toggle("hide", !isDev);
-    if(!isDev) elObs.value="";
-    if(!precisa) elFuncSel.value="";
-    if(!isSem) elMotivo.value="";
-  }
-  function tipoLabel(t){ return t==="SAIDA" ? "SAÍDA" : (t==="DEVOLUCAO" ? "DEVOLUÇÃO" : t); }
-  function estadoLabel(e){ if(!e) return "—"; if(e==="EMCONDICOES") return "Em condições"; if(e==="SEMCONDICOES") return "Sem condições"; return e; }
-
   function renderEstoque(){
-    const db=loadDB();
-    let total=0;
-    const rows=[];
-    Object.entries(db.estoque).map(([k,v])=>{
-      const [itemId,t]=String(k).split("__");
-      return {itemId,t,s:Number(v)};
-    }).sort((a,b)=>(getItemNameById_(a.itemId,a.itemId)+a.t).localeCompare(getItemNameById_(b.itemId,b.itemId)+b.t)).forEach(it=>{
+    const db = loadDB();
+    let total = 0;
+
+    const rows = Object.entries(db.estoque||{})
+      .map(([k,v]) => {
+        const [itemId, ...rest] = String(k).split("-");
+        const t = rest.join("-");
+        return { itemId, t, s:Number(v||0) };
+      })
+      .sort((a,b)=> (getItemNameById(a.itemId,a.itemId)+a.t).localeCompare(getItemNameById(b.itemId,b.itemId)+b.t));
+
+    const html = rows.length ? rows.map(it => {
       total += it.s;
-      rows.push(`<tr>
-        <td>${escapeHtml(getItemNameById_(it.itemId, it.itemId))}</td>
-        <td>${escapeHtml(it.t||"")}</td>
-        <td class="right">${it.s}</td>
-      </tr>`);
-    });
-    tblEstoqueBody.innerHTML = rows.join("") || `<tr><td colspan="3" class="note">Sem itens.</td></tr>`;
-    pillTotal.textContent = `Estoque: ${total} peça(s)`;
-    pillTotal2.textContent = `Total: ${total} peça(s)`;
+      return `<tr>
+        <td>${escapeHtml(getItemNameById(it.itemId, it.itemId))}</td>
+        <td>${escapeHtml(it.t)}</td>
+        <td class="right">${Number(it.s)}</td>
+      </tr>`;
+    }).join("") : `<tr><td colspan="3" class="note">Sem itens.</td></tr>`;
+
+    tblEstoqueBody.innerHTML = html;
+    pillTotal.textContent = `Estoque total: ${total} peças`;
+    pillTotal2.textContent = `Total: ${total} peças`;
   }
 
   function renderMov(){
     renderFuncionariosSelect();
     renderEstoque();
-    const db=loadDB();
-    const hist=[...db.movimentos].filter(m=>!m.hidden).reverse().slice(0,250);
-    tblHistBody.innerHTML = hist.map(m=>{
-      const f=m.funcionarioId?getFuncById(db,m.funcionarioId):null;
-      const itemName = m.itemId ? getItemNameById_(m.itemId, m.categoria) : (m.categoria||"");
+
+    const db = loadDB();
+    const hist = (db.movimentos||[])
+      .filter(m => m && !m.hidden)
+      .slice()
+      .reverse()
+      .slice(0,250);
+
+    tblHistBody.innerHTML = hist.length ? hist.map(m => {
+      const f = m.funcionarioId ? getFuncById(db, m.funcionarioId) : null;
+      const itemName = m.itemId ? getItemNameById(m.itemId, m.categoria) : (m.categoria||"");
       return `<tr>
-        <td>${escapeHtml(m.data)}</td>
+        <td>${escapeHtml(m.data||"")}</td>
         <td>${escapeHtml(tipoLabel(m.tipo))}</td>
-        <td>${escapeHtml(f?f.nome:"—")}</td>
+        <td>${escapeHtml(f ? f.nome : "")}</td>
         <td>${escapeHtml(itemName)}</td>
         <td>${escapeHtml(m.tamanho||"")}</td>
-        <td class="right">${Number(m.quantidade)}</td>
+        <td class="right">${Number(m.quantidade||0)}</td>
         <td>${escapeHtml(estadoLabel(m.estado))}</td>
-        <td>${escapeHtml(m.motivo||"—")}</td>
+        <td>${escapeHtml(m.motivo||"")}</td>
         <td>${escapeHtml(m.obs||"")}</td>
-        <td class="no-print"><button type="button" class="btn danger" ${canEditSession() ? "" : "disabled"} onclick="hideMovimento('${escapeHtml(m.id)}')">Excluir</button></td>
+        <td class="no-print">
+          <button type="button" class="btn danger" ${canEditSession() ? "" : "disabled"} onclick="hideMovimento('${escapeHtml(m.id)}')">Excluir</button>
+        </td>
       </tr>`;
-    }).join("") || `<tr><td colspan="10" class="note">Sem movimentações.</td></tr>`;
+    }).join("") : `<tr><td colspan="10" class="note">Sem movimentações.</td></tr>`;
   }
 
+  // impressão
   function setPrint(html){
-    printHeader.style.display="none";
+    printHeader.style.display = "none";
+    printBody.innerHTML = ""; // evita duplicação
     printBody.innerHTML = html;
-    printArea.style.display="block";
+    printArea.style.display = "block";
   }
   function clearPrint(){
-    printHeader.style.display="flex";
-    printBody.innerHTML = `<div class="note">—</div>`;
-    printArea.style.display="none";
+    printHeader.style.display = "flex";
+    printBody.innerHTML = `<div class="note"></div>`;
+    printArea.style.display = "none";
   }
 
-  function getMovsDoFuncionario_(db, funcId){
-    return db.movimentos
-      .filter(m => !m.hidden && m.funcionarioId === funcId && (m.tipo==="SAIDA" || m.tipo==="DEVOLUCAO"))
+  function getMovsDoFuncionario(db, funcId){
+    return (db.movimentos||[])
+      .filter(m => m && !m.hidden && m.funcionarioId === funcId && (m.tipo === "SAIDA" || m.tipo === "DEVOLUCAO"))
       .slice()
-      .sort((a,b)=>String(a.data).localeCompare(String(b.data)));
+      .sort((a,b)=>String(a.data||"").localeCompare(String(b.data||"")));
   }
 
-  function funcionarioBlock_(nome, movs){
-    const rows = movs.map(m=>{
-      const itemName = m.itemId ? getItemNameById_(m.itemId, m.categoria) : (m.categoria||"");
-      return `
-        <tr>
-          <td>${escapeHtml(m.data)}</td>
-          <td>${escapeHtml(tipoLabel(m.tipo))}</td>
-          <td>${escapeHtml(itemName)}</td>
-          <td>${escapeHtml(m.tamanho||"")}</td>
-          <td class="right">${Number(m.quantidade)}</td>
-          <td>${escapeHtml(estadoLabel(m.estado))}</td>
-          <td>${escapeHtml(m.motivo || "—")}</td>
-          <td>${escapeHtml(m.obs || "")}</td>
-        </tr>`;
+  function funcionarioBlock(nome, movs){
+    const rows = movs.map(m => {
+      const itemName = m.itemId ? getItemNameById(m.itemId, m.categoria) : (m.categoria||"");
+      return `<tr>
+        <td>${escapeHtml(m.data||"")}</td>
+        <td>${escapeHtml(tipoLabel(m.tipo))}</td>
+        <td>${escapeHtml(itemName)}</td>
+        <td>${escapeHtml(m.tamanho||"")}</td>
+        <td class="right">${Number(m.quantidade||0)}</td>
+        <td>${escapeHtml(estadoLabel(m.estado))}</td>
+        <td>${escapeHtml(m.motivo||"")}</td>
+        <td>${escapeHtml(m.obs||"")}</td>
+      </tr>`;
     }).join("");
 
     return `
-      <div style="margin:0 0 18px 0;">
-        <p class="note" style="margin:0 0 8px 0;">Funcionário: <b>${escapeHtml(nome)}</b></p>
-        <div class="tableWrap" style="max-height:none;">
-          <table style="width:100%; border-collapse:collapse;">
+      <div style="margin:0 0 18px 0">
+        <p class="note" style="margin:0 0 8px 0">Funcionário: <b>${escapeHtml(nome)}</b></p>
+        <div class="tableWrap" style="max-height:none">
+          <table style="width:100%; border-collapse:collapse">
             <thead>
               <tr>
                 <th>Data</th><th>Tipo</th><th>Item</th><th>Tam.</th><th class="right">Qtd</th><th>Estado</th><th>Motivo</th><th>Obs.</th>
@@ -1237,112 +1499,112 @@ try{
   function gerarRelatorioFuncionarioOuTodos(){
     const db = loadDB();
     const id = relFuncSel.value;
-    if(!id){ clearPrint(); btnImprimirTermo.disabled=true; return; }
+    if(!id){ clearPrint(); btnImprimirTermo.disabled = true; return; }
 
-    if(id === REL_ALL){
-      const pegouIds = new Set(db.movimentos.filter(m=>!m.hidden && m.tipo==="SAIDA" && m.funcionarioId).map(m=>m.funcionarioId));
-      const lista = db.funcionarios.filter(f=>pegouIds.has(f.id)).slice().sort((a,b)=>a.nome.localeCompare(b.nome));
-      const blocks = lista.map(f=>funcionarioBlock_(f.nome, getMovsDoFuncionario_(db, f.id))).join("");
+    if(id === RELALL){
+      const pegouIds = new Set(
+        (db.movimentos||[])
+          .filter(m => m && !m.hidden && m.tipo === "SAIDA" && m.funcionarioId)
+          .map(m => m.funcionarioId)
+      );
+      const lista = (db.funcionarios||[])
+        .filter(f => f && pegouIds.has(f.id))
+        .slice()
+        .sort((a,b)=>String(a.nome||"").localeCompare(String(b.nome||"")));
 
-      setPrint(`
-        <div style="max-width:980px; margin:0 auto; padding:0 6px;">
-          <h2 style="margin:0 0 10px 0;">Relatório por funcionário (Todos)</h2>
-          ${blocks || `<div class="note">Sem funcionários.</div>`}
-        </div>
-      `);
-
+      const blocks = lista.map(f => funcionarioBlock(f.nome, getMovsDoFuncionario(db, f.id))).join("");
+      setPrint(`<div style="max-width:980px; margin:0 auto; padding:0 6px">
+        <h2 style="margin:0 0 10px 0">Relatório por funcionário (Todos)</h2>
+        ${blocks || `<div class="note">Sem funcionários.</div>`}
+      </div>`);
       btnImprimirTermo.disabled = true;
       return;
     }
 
     const f = getFuncById(db, id);
     const nome = f ? f.nome : id;
-    const movs = getMovsDoFuncionario_(db, id);
-
-    setPrint(`
-      <div style="max-width:980px; margin:0 auto; padding:0 6px;">
-        <h2 style="margin:0 0 10px 0;">Relatório por funcionário</h2>
-        ${funcionarioBlock_(nome, movs)}
-      </div>
-    `);
-
+    const movs = getMovsDoFuncionario(db, id);
+    setPrint(`<div style="max-width:980px; margin:0 auto; padding:0 6px">
+      <h2 style="margin:0 0 10px 0">Relatório por funcionário</h2>
+      ${funcionarioBlock(nome, movs)}
+    </div>`);
     btnImprimirTermo.disabled = false;
   }
 
-  function calcSaldoPorFuncionario_(db, funcId){
+  function calcSaldoPorFuncionario(db, funcId){
     const saldo = new Map();
-    const movs = db.movimentos.filter(m => !m.hidden && m.funcionarioId===funcId);
+    const movs = (db.movimentos||[]).filter(m => m && !m.hidden && m.funcionarioId === funcId);
 
     for(const m of movs){
       const qtd = Number(m.quantidade||0);
       if(!qtd) continue;
 
       let delta = 0;
-      if(m.tipo==="SAIDA") delta = +qtd;
-      if(m.tipo==="DEVOLUCAO" && m.estado==="EMCONDICOES") delta = -qtd;
-      if(delta===0) continue;
+      if(m.tipo === "SAIDA") delta = qtd;
+      if(m.tipo === "DEVOLUCAO" && m.estado === "EMCONDICOES") delta = -qtd;
+      if(delta === 0) continue;
 
-      const itemId = m.itemId || ensureItemIdForName_(m.categoria);
-      const k = `${itemId}||${m.tamanho||""}`;
-      saldo.set(k, (saldo.get(k)||0) + delta);
+      const itemId = m.itemId ? String(m.itemId) : ensureItemIdForName(m.categoria);
+      const k = itemId + "-" + m.tamanho;
+      saldo.set(k, (saldo.get(k) || 0) + delta);
     }
 
     const out = [];
     for(const [k,q] of saldo.entries()){
-      if(q>0){
-        const [itemId,tamanho] = k.split("||");
-        out.push({ itemId, tamanho, quantidade:q });
+      if(q > 0){
+        const [itemId, ...rest] = k.split("-");
+        out.push({ itemId, tamanho: rest.join("-"), quantidade:q });
       }
     }
-    out.sort((a,b)=>(getItemNameById_(a.itemId,a.itemId)+a.tamanho).localeCompare(getItemNameById_(b.itemId,b.itemId)+b.tamanho));
+    out.sort((a,b)=> (getItemNameById(a.itemId,a.itemId)+a.tamanho).localeCompare(getItemNameById(b.itemId,b.itemId)+b.tamanho));
     return out;
   }
 
   function imprimirTermoFuncionario(){
     const db = loadDB();
     const funcId = relFuncSel.value;
-    if(!funcId || funcId===REL_ALL) return alert("Selecione um funcionário (não 'Todos').");
+    if(!funcId || funcId === RELALL) return alert("Selecione um funcionário (não 'Todos').");
 
     const f = getFuncById(db, funcId);
     const nome = f ? f.nome : funcId;
 
-    const itens = calcSaldoPorFuncionario_(db, funcId);
-    const ok = itens.length>0 ? true : confirm("Este funcionário não tem saldo positivo (pelo cálculo). Imprimir termo mesmo assim?");
-    if(!ok) return;
+    const itens = calcSaldoPorFuncionario(db, funcId);
+    if(itens.length === 0){
+      const ok = confirm("Este funcionário não tem saldo positivo pelo cálculo. Imprimir termo mesmo assim?");
+      if(!ok) return;
+    }
 
     const hojeBR = formatBRDateFromISO(todayISO());
-    const rows = itens.map(it=>`
+    const rows = itens.map(it => `
       <tr>
-        <td>${escapeHtml(getItemNameById_(it.itemId,it.itemId))}</td>
-        <td>${escapeHtml(it.tamanho||"")}</td>
+        <td>${escapeHtml(getItemNameById(it.itemId, it.itemId))}</td>
+        <td>${escapeHtml(it.tamanho)}</td>
         <td class="right">${Number(it.quantidade)}</td>
       </tr>
     `).join("");
 
     setPrint(`
-      <div style="max-width:780px; margin:0; padding:0 2mm; font-size:13px; line-height:1.25;">
-        <h2 style="margin:0 0 8px 0; text-align:center; letter-spacing:.4px; font-size:15px;">TERMO DE RECEBIMENTO UNIFORME</h2>
-
-        <p style="margin:0 0 8px 0; text-align:justify; line-height:1.35;">
-          Eu, ${escapeHtml(nome)} Recebi da empresa: INTERCOL SERVIÇOS DE INTERNET LTDA
-          CNPJ: 03.879.067/0001-36, os uniformes relacionados nesta ficha, declaro tê-los recebido gratuitamente e em perfeito estado de conservação.
+      <div style="max-width:780px; margin:0; padding:0 2mm; font-size:13px; line-height:1.25">
+        <h2 style="margin:0 0 8px 0; text-align:center; letter-spacing:.4px; font-size:15px">TERMO DE RECEBIMENTO UNIFORME</h2>
+        <p style="margin:0 0 8px 0; text-align:justify; line-height:1.35">
+          Eu, ${escapeHtml(nome)}. Recebi da empresa INTERCOL SERVIÇOS DE INTERNET LTDA (CNPJ 03.879.067/0001-36),
+          os uniformes relacionados nesta ficha, declaro tê-los recebido gratuitamente e em perfeito estado de conservação.
           Comprometo-me a utilizá-los diariamente durante toda a jornada de trabalho, responsabilizando-me pela guarda e conservação dos mesmos.
           Autorizo desde já, o desconto de seus respectivos valores em folha de pagamento/rescisão, quando por extravio e/ou danificação por uso inadequado,
-          conforme previsto no artigo 462 §1º da CLT.
+          conforme previsto no artigo 462 §1 da CLT.
         </p>
 
-        <div class="tableWrap" style="max-height:none;">
-          <table style="width:100%; border-collapse:collapse; font-size:12.5px;">
+        <div class="tableWrap" style="max-height:none">
+          <table style="width:100%; border-collapse:collapse; font-size:12.5px">
             <thead><tr><th>Material entregue</th><th>Tam.</th><th class="right">Qtd</th></tr></thead>
-            <tbody>${rows || `<tr><td colspan="3" class="note">—</td></tr>`}</tbody>
+            <tbody>${rows || `<tr><td colspan="3" class="note"></td></tr>`}</tbody>
           </table>
         </div>
 
-        <div style="margin-top:10px; text-align:right;">${escapeHtml(TERMO_LOCAL)}, ${escapeHtml(hojeBR)}</div>
-
-        <div style="margin-top:18px;">
-          <div style="height:38px;"></div>
-          <div style="border-top:1px solid #000; padding-top:6px; text-align:center;">${escapeHtml(nome)}</div>
+        <div style="margin-top:10px; text-align:right">${escapeHtml(TERMOLOCAL)}, ${escapeHtml(hojeBR)}</div>
+        <div style="margin-top:18px">
+          <div style="height:38px"></div>
+          <div style="border-top:1px solid #000; padding-top:6px; text-align:center">${escapeHtml(nome)}</div>
         </div>
       </div>
     `);
@@ -1350,49 +1612,47 @@ try{
     window.print();
   }
 
-  // ===== botão manual carregar sheets (mantido)
-  document.getElementById("btnCarregarSheetsUrl").addEventListener("click", async ()=>{
-    if(!requireLogin()) return;
-    await autoSyncAfterLogin_();
-  });
-
-  // ===== salvar movimento
-  btnSalvar.addEventListener("click", async ()=>{
+  // salvar movimento
+  btnSalvar.addEventListener("click", async () => {
     if(!requireEdit()) return;
 
-    const db=loadDB();
-    const tipo=elTipo.value;
+    const db = loadDB();
+    const tipo = elTipo.value;
 
     if(!elData.value) return alert("Informe a data.");
-    const qtd=Number(elQtd.value);
-    if(!Number.isFinite(qtd)||qtd<=0) return alert("Quantidade inválida.");
-    if((tipo==="SAIDA"||tipo==="DEVOLUCAO") && !elFuncSel.value) return alert("Selecione o funcionário.");
-    if(tipo==="DEVOLUCAO" && elEstado.value==="SEMCONDICOES" && !elMotivo.value.trim()) return alert("Informe o motivo.");
+    const qtd = Number(elQtd.value);
+    if(!Number.isFinite(qtd) || qtd <= 0) return alert("Quantidade inválida.");
 
-    const itemId = ensureItemIdForName_(elCat.value);
+    if((tipo === "SAIDA" || tipo === "DEVOLUCAO") && !elFuncSel.value) return alert("Selecione o funcionário.");
+    if(tipo === "DEVOLUCAO" && elEstado.value === "SEMCONDICOES" && !String(elMotivo.value||"").trim()){
+      return alert("Informe o motivo.");
+    }
 
-    const mov={
-      id:makeId(), tipo, data:elData.value,
-      funcionarioId:(tipo==="SAIDA"||tipo==="DEVOLUCAO")?elFuncSel.value:"",
+    const itemId = ensureItemIdForName(elCat.value);
+    const mov = {
+      id: makeId(),
+      tipo,
+      data: elData.value,
+      funcionarioId: (tipo === "SAIDA" || tipo === "DEVOLUCAO") ? elFuncSel.value : "",
       itemId,
-      categoria:elCat.value,
-      tamanho:elTam.value,
-      quantidade:qtd,
-      estado:(tipo==="DEVOLUCAO")?elEstado.value:"",
-      motivo:(tipo==="DEVOLUCAO" && elEstado.value==="SEMCONDICOES")?elMotivo.value.trim():"",
-      obs:(tipo==="DEVOLUCAO") ? elObs.value.trim() : "",
-      hidden:false
+      categoria: elCat.value,
+      tamanho: elTam.value,
+      quantidade: qtd,
+      estado: (tipo === "DEVOLUCAO") ? elEstado.value : "",
+      motivo: (tipo === "DEVOLUCAO" && elEstado.value === "SEMCONDICOES") ? String(elMotivo.value||"").trim() : "",
+      obs: (tipo === "DEVOLUCAO") ? String(elObs.value||"").trim() : "",
+      hidden: false
     };
 
-    let delta=0;
-    if(tipo==="ENTRADA") delta=qtd;
-    if(tipo==="SAIDA") delta=-qtd;
-    if(tipo==="DEVOLUCAO") delta=(mov.estado==="EMCONDICOES")?qtd:0;
+    let delta = 0;
+    if(tipo === "ENTRADA") delta = qtd;
+    if(tipo === "SAIDA") delta = -qtd;
+    if(tipo === "DEVOLUCAO") delta = (mov.estado === "EMCONDICOES" ? qtd : 0);
 
-    if(tipo==="SAIDA"){
-      const k=`${itemId}__${mov.tamanho}`;
-      const saldo=Number(db.estoque[k]??0);
-      if(saldo+delta<0) return alert("Saldo insuficiente.");
+    if(tipo === "SAIDA"){
+      const k = itemId + "-" + mov.tamanho;
+      const saldo = Number(db.estoque[k] || 0);
+      if(saldo + delta < 0) return alert("Saldo insuficiente.");
     }
 
     try{
@@ -1400,217 +1660,287 @@ try{
       const funcionarioNome = mov.funcionarioId ? (getFuncById(db, mov.funcionarioId)?.nome || "") : "";
       await sendKind("movimento", { ...mov, funcionarioNome });
       setSheetsStatus("ok","Sheets: salvo");
+
+      // FIX: sincroniza e recalcula tudo para refletir no histórico/relatório
+      await autoSyncAfterLogin();
+
     }catch(err){
       setSheetsStatus("erro","Sheets: erro");
       alert("Não foi possível salvar no Sheets: " + String(err.message||err));
       return;
     }
 
-    if(delta!==0) upsertEstoque(db,itemId,mov.tamanho,delta);
+    // fallback local (se quiser manter local imediato mesmo sem sync)
+    if(delta !== 0) upsertEstoque(db, itemId, mov.tamanho, delta);
     db.movimentos.push(mov);
     saveDB(db);
 
-    elObs.value=""; elQtd.value="1"; elMotivo.value="";
-    updateMovUI(); renderMov();
+    elObs.value = "";
+    elQtd.value = 1;
+    elMotivo.value = "";
+    updateMovUI();
+    renderMov();
   });
 
-  btnLimpar.addEventListener("click", ()=>{
-    elTipo.value="ENTRADA";
-    elFuncSel.value="";
-    elEstado.value="EMCONDICOES";
-    elQtd.value="1";
-    elMotivo.value="";
-    elObs.value="";
-    elData.value=todayISO();
+  btnLimpar.addEventListener("click", () => {
+    elTipo.value = "ENTRADA";
+    elFuncSel.value = "";
+    elEstado.value = "EMCONDICOES";
+    elQtd.value = 1;
+    elMotivo.value = "";
+    elObs.value = "";
+    elData.value = todayISO();
     fillTamanhos();
     updateMovUI();
   });
 
-  // ===== salvar funcionário
-  btnAddFunc.addEventListener("click", async ()=>{
+  // salvar funcionário
+  btnAddFunc.addEventListener("click", async () => {
     if(!requireEdit()) return;
 
-    const nome=String(elNovoNome.value||"").trim();
+    const nome = String(elNovoNome.value||"").trim();
     if(!nome) return alert("Informe o nome.");
 
-    const db=loadDB();
-    if(db.funcionarios.some(f=>f.nome.toLowerCase()===nome.toLowerCase())) return alert("Já existe.");
+    const db = loadDB();
+    if((db.funcionarios||[]).some(f => String(f.nome||"").toLowerCase() === nome.toLowerCase())){
+      return alert("Já existe.");
+    }
 
-    const func = { id: makeId(), nome, ativo: true, evento: "ADD" };
+    const func = { id: makeId(), nome, ativo:true, evento:"ADD" };
 
     try{
       setSheetsStatus("warn","Sheets: salvando...");
       await sendKind("funcionario", func);
       setSheetsStatus("ok","Sheets: salvo");
+
+      await autoSyncAfterLogin();
+
     }catch(err){
       setSheetsStatus("erro","Sheets: erro");
       alert("Não foi possível salvar no Sheets: " + String(err.message||err));
       return;
     }
 
-    db.funcionarios.push({ id: func.id, nome: func.nome, ativo: true });
+    db.funcionarios.push({ id: func.id, nome: func.nome, ativo:true });
     saveDB(db);
-
-    elNovoNome.value="";
+    elNovoNome.value = "";
     renderFuncionariosSelect();
-    renderListaFuncionarios_();
+    renderListaFuncionarios();
     alert("Funcionário cadastrado.");
   });
 
-  function hideMovimento(id){
+  btnListarFuncs.addEventListener("click", () => {
+    if(!requireLogin()) return;
+    renderListaFuncionarios();
+  });
+
+  // ocultar movimento (local)
+  window.hideMovimento = function(id){
     if(!requireEdit()) return;
     if(!confirm("Ocultar este registro?")) return;
-    const db=loadDB();
-    const m=db.movimentos.find(x=>x.id===id);
+
+    const db = loadDB();
+    const m = (db.movimentos||[]).find(x => x.id === id);
     if(!m) return;
-    m.hidden=true;
-// Recalcula estoque baseado nos movimentos visíveis
-db.estoque = {};
-for (const x of db.movimentos) {
-  if (!x || x.hidden) continue;
-  const qtd = Number(x.quantidade || 0);
-  if (!qtd) continue;
 
-  const itemId2 = x.itemId ? String(x.itemId) : ensureItemIdForName(x.categoria);
-  const k = itemId2 + "-" + x.tamanho;
+    m.hidden = true;
 
-  let d = 0;
-  if (x.tipo === "ENTRADA") d = qtd;
-  if (x.tipo === "SAIDA") d = -qtd;
-  if (x.tipo === "DEVOLUCAO") d = (x.estado === "EMCONDICOES" ? qtd : 0);
+    // recalcula estoque baseado nos movimentos visíveis (mais seguro)
+    db.estoque = {};
+    for(const x of (db.movimentos||[])){
+      if(!x || x.hidden) continue;
+      const qtd = Number(x.quantidade || 0);
+      if(!qtd) continue;
 
-  db.estoque[k] = Number(db.estoque[k] || 0) + d;
-}
+      const itemId2 = x.itemId ? String(x.itemId) : ensureItemIdForName(x.categoria);
+      const k = itemId2 + "-" + x.tamanho;
+
+      let d = 0;
+      if(x.tipo === "ENTRADA") d = qtd;
+      if(x.tipo === "SAIDA") d = -qtd;
+      if(x.tipo === "DEVOLUCAO") d = (x.estado === "EMCONDICOES" ? qtd : 0);
+
+      db.estoque[k] = Number(db.estoque[k] || 0) + d;
+    }
 
     saveDB(db);
     renderMov();
-  }
-  window.hideMovimento=hideMovimento;
+  };
 
-  // ===== Relatório / Termo
-  btnGerarRel.addEventListener("click", ()=>{ if(!requireLogin()) return; gerarRelatorioFuncionarioOuTodos(); });
-  btnLimparRel.addEventListener("click", ()=>{ relFuncSel.value = ""; clearPrint(); btnImprimirTermo.disabled=true; });
-  relFuncSel.addEventListener("change", ()=>{ btnImprimirTermo.disabled = (!relFuncSel.value || relFuncSel.value===REL_ALL); });
-
-  btnImprimirRel.addEventListener("click", ()=>{
+  // relatório/termo
+  btnGerarRel.addEventListener("click", () => {
+    if(!requireLogin()) return;
+    gerarRelatorioFuncionarioOuTodos();
+  });
+  btnLimparRel.addEventListener("click", () => {
+    relFuncSel.value = "";
+    clearPrint();
+    btnImprimirTermo.disabled = true;
+  });
+  relFuncSel.addEventListener("change", () => {
+    btnImprimirTermo.disabled = !relFuncSel.value || relFuncSel.value === RELALL;
+  });
+  btnImprimirRel.addEventListener("click", () => {
     if(!requireLogin()) return;
     if(printArea.style.display === "none") gerarRelatorioFuncionarioOuTodos();
     if(printArea.style.display === "none") return;
     window.print();
   });
-  btnImprimirTermo.addEventListener("click", ()=>{ if(!requireLogin()) return; imprimirTermoFuncionario(); });
+  btnImprimirTermo.addEventListener("click", () => {
+    if(!requireLogin()) return;
+    imprimirTermoFuncionario();
+  });
 
-  // ===== Estoque: renomear
-  btnEditarItensEstoque.addEventListener("click", ()=>{
+  // estoque renomear
+  btnEditarItensEstoque.addEventListener("click", () => {
     if(!requireEdit()) return;
     try{
       const db = loadDB();
       const ids = new Set();
-      Object.keys(db.estoque||{}).forEach(k=>{ const itemId = String(k).split("__")[0]; if(itemId) ids.add(itemId); });
-      (db.movimentos||[]).forEach(m=>{ if(m && m.itemId) ids.add(m.itemId); else if(m && m.categoria) ids.add(ensureItemIdForName_(m.categoria)); });
-      const list = [...ids].sort((a,b)=>getItemNameById_(a,a).localeCompare(getItemNameById_(b,b)));
-      if(list.length===0) return alert("Nenhum item encontrado para editar.");
-      const choice = prompt("Digite o NÚMERO do item para renomear:\n" + list.map((id,idx)=>`${idx+1}) ${getItemNameById_(id,id)}`).join("\n"));
-      if(choice===null) return;
+
+      Object.keys(db.estoque||{}).forEach(k => {
+        const itemId = String(k).split("-")[0];
+        if(itemId) ids.add(itemId);
+      });
+
+      (db.movimentos||[]).forEach(m => {
+        if(!m) return;
+        if(m.itemId) ids.add(m.itemId);
+        else if(m.categoria) ids.add(ensureItemIdForName(m.categoria));
+      });
+
+      const list = [...ids].sort((a,b)=>getItemNameById(a,a).localeCompare(getItemNameById(b,b)));
+      if(list.length === 0) return alert("Nenhum item encontrado para editar.");
+
+      const choice = prompt("Digite o NÚMERO do item para renomear:\n\n" + list.map((id,idx)=>`${idx+1}) ${getItemNameById(id,id)}`).join("\n"));
+      if(choice === null) return;
+
       const n = Number(choice);
-      if(!Number.isFinite(n) || n<1 || n>list.length) return alert("Opção inválida.");
+      if(!Number.isFinite(n) || n < 1 || n > list.length) return alert("Opção inválida.");
+
       const itemId = list[n-1];
-      const current = getItemNameById_(itemId,itemId);
+      const current = getItemNameById(itemId, itemId);
       const newName = prompt("Novo nome do item:", current);
-      if(newName===null) return;
-      renameItem_(itemId, newName);
-      msgEditarItens.style.display="block";
-      msgEditarItens.textContent="Nome atualizado. Reflete automaticamente em estoque, histórico, relatórios e termo.";
+      if(newName === null) return;
+
+      renameItem(itemId, newName);
+      msgEditarItens.style.display = "block";
+      msgEditarItens.textContent = "Nome atualizado. Reflete automaticamente em estoque, histórico, relatórios e termo.";
+
       const db2 = loadDB();
-      (db2.movimentos||[]).forEach(m=>{ if(m && m.itemId===itemId) m.categoria = getItemNameById_(itemId, m.categoria); });
+      (db2.movimentos||[]).forEach(m => {
+        if(m && m.itemId === itemId) m.categoria = getItemNameById(itemId, m.categoria);
+      });
       saveDB(db2);
-      renderMov(); renderEstoque(); fillCategorias(); fillTamanhos(); fillRelFuncionariosSomenteQuemPegou();
+
+      renderMov();
+      renderEstoque();
+      fillCategorias();
+      fillTamanhos();
+      fillRelFuncionariosSomenteQuemPegou();
+
     }catch(err){
       alert(String(err.message||err));
     }
   });
 
-  // ===== Catálogo
-  function parseSizes_(text){ return [...new Set(String(text||"").split(",").map(s=>s.trim()).filter(Boolean))]; }
-
-  function renderCatalogUI_(){
-    const cat = getCatalog_().slice().sort((a,b)=>a.categoria.localeCompare(b.categoria));
-    tblCatalogoBody.innerHTML = cat.map((it)=>`
+  // catálogo UI
+  function parseSizes(text){
+    return [...new Set(String(text||"").split(",").map(s=>s.trim()).filter(Boolean))];
+  }
+  function renderCatalogUI(){
+    const cat = getCatalog().slice().sort((a,b)=>String(a.categoria||"").localeCompare(String(b.categoria||"")));
+    tblCatalogoBody.innerHTML = cat.length ? cat.map(it => `
       <tr>
         <td>${escapeHtml(it.categoria)}</td>
-        <td>${escapeHtml((it.tamanhos||[]).join(", "))}</td>
+        <td>${escapeHtml(it.tamanhos.join(", "))}</td>
         <td class="right">
           <button type="button" class="btn" onclick="editCatItem('${escapeHtml(it.categoria)}')">Editar</button>
           <button type="button" class="btn danger" ${canEditSession() ? "" : "disabled"} onclick="removeCatItem('${escapeHtml(it.categoria)}')">Remover</button>
         </td>
       </tr>
-    `).join("") || `<tr><td colspan="3" class="note">Sem itens.</td></tr>`;
+    `).join("") : `<tr><td colspan="3" class="note">Sem itens.</td></tr>`;
     catMsg.textContent = "";
   }
-
-  function clearCatForm_(){ catNome.value = ""; catTamanhos.value = ""; }
-
-  window.editCatItem = (categoria)=>{
-    const cat = getCatalog_();
-    const it = cat.find(x=>x.categoria===categoria);
+  function clearCatForm(){ catNome.value = ""; catTamanhos.value = ""; }
+  window.editCatItem = function(categoria){
+    const cat = getCatalog();
+    const it = cat.find(x => x.categoria === categoria);
     if(!it) return;
     catNome.value = it.categoria;
-    catTamanhos.value = (it.tamanhos||[]).join(",");
+    catTamanhos.value = it.tamanhos.join(", ");
     catNome.focus();
   };
-
-  window.removeCatItem = (categoria)=>{
+  window.removeCatItem = function(categoria){
     if(!requireEdit()) return;
-    const cat = getCatalog_();
-    const it = cat.find(x=>x.categoria===categoria);
+    const cat = getCatalog();
+    const it = cat.find(x => x.categoria === categoria);
     if(!it) return;
-    if(!confirm(`Remover "${it.categoria}"?`)) return;
-    const next = cat.filter(x=>x.categoria!==categoria);
-    CATALOG_CACHE = next;
-    saveCatalogLocal_(next);
-    fillCategorias(); fillTamanhos(); renderCatalogUI_();
+    if(!confirm(`Remover ${it.categoria}?`)) return;
+    const next = cat.filter(x => x.categoria !== categoria);
+    CATALOGCACHE = next;
+    saveCatalogLocal(next);
+    fillCategorias();
+    fillTamanhos();
+    renderCatalogUI();
   };
 
-  btnAddCatItem.addEventListener("click", ()=>{
+  btnAddCatItem.addEventListener("click", () => {
     if(!requireEdit()) return;
     const categoria = String(catNome.value||"").trim();
-    const tamanhos = parseSizes_(catTamanhos.value);
+    const tamanhos = parseSizes(catTamanhos.value);
     if(!categoria) return alert("Informe a categoria.");
     if(tamanhos.length === 0) return alert("Informe pelo menos 1 tamanho.");
-    ensureItemIdForName_(categoria);
-    const cat = getCatalog_();
-    const idx = cat.findIndex(x => x.categoria.toLowerCase() === categoria.toLowerCase());
+
+    ensureItemIdForName(categoria);
+
+    const cat = getCatalog();
+    const idx = cat.findIndex(x => String(x.categoria||"").toLowerCase() === categoria.toLowerCase());
     const next = cat.slice();
     if(idx >= 0) next[idx] = { categoria, tamanhos };
     else next.push({ categoria, tamanhos });
-    CATALOG_CACHE = next;
-    saveCatalogLocal_(next);
-    fillCategorias(); fillTamanhos(); renderCatalogUI_(); clearCatForm_();
+
+    CATALOGCACHE = next;
+    saveCatalogLocal(next);
+    fillCategorias();
+    fillTamanhos();
+    renderCatalogUI();
+    clearCatForm();
   });
 
-  btnLimparCatForm.addEventListener("click", ()=>{ clearCatForm_(); catNome.focus(); });
+  btnLimparCatForm.addEventListener("click", () => {
+    clearCatForm();
+    catNome.focus();
+  });
 
-  btnCarregarCatalogoSheets.addEventListener("click", async ()=>{
+  btnCarregarCatalogoSheets.addEventListener("click", async () => {
     if(!requireLogin()) return;
     try{
-      const ok = await refreshCatalogPreferSheets_();
-      if(ok){ fillCategorias(); fillTamanhos(); renderCatalogUI_(); alert("Catálogo carregado do Sheets."); }
-      else alert("Não foi possível carregar do Sheets (ou está vazio).");
+      const ok = await refreshCatalogPreferSheets();
+      if(ok){
+        fillCategorias();
+        fillTamanhos();
+        renderCatalogUI();
+        alert("Catálogo carregado do Sheets.");
+      }else{
+        alert("Não foi possível carregar do Sheets (ou está vazio).");
+      }
     }catch(err){
       alert(String(err.message||err));
     }
   });
 
-  btnSalvarCatalogoSheets.addEventListener("click", async ()=>{
+  btnSalvarCatalogoSheets.addEventListener("click", async () => {
     if(!requireEdit()) return;
     try{
-      const cat = getCatalog_();
-      const norm = normalizeCatalog_(cat);
+      const cat = getCatalog();
+      const norm = normalizeCatalog(cat);
       if(!norm) return alert("Catálogo inválido/vazio.");
+
       setSheetsStatus("warn","Sheets: salvando catálogo...");
-      await publishCatalogToSheets_(norm);
-      CATALOG_CACHE = norm;
-      saveCatalogLocal_(norm);
+      await publishCatalogToSheets(norm);
+      CATALOGCACHE = norm;
+      saveCatalogLocal(norm);
       setSheetsStatus("ok","Sheets: catálogo salvo");
       alert("Catálogo salvo no Sheets.");
     }catch(err){
@@ -1619,34 +1949,127 @@ for (const x of db.movimentos) {
     }
   });
 
-  btnRestaurarCatalogo.addEventListener("click", ()=>{
+  btnRestaurarCatalogo.addEventListener("click", () => {
     if(!requireEdit()) return;
     if(!confirm("Restaurar catálogo padrão?")) return;
-    saveCatalogLocal_(DEFAULT_CATALOG);
-    CATALOG_CACHE = DEFAULT_CATALOG.slice();
-    fillCategorias(); fillTamanhos(); renderCatalogUI_(); clearCatForm_();
+    saveCatalogLocal(DEFAULTCATALOG);
+    CATALOGCACHE = DEFAULTCATALOG.slice();
+    fillCategorias();
+    fillTamanhos();
+    renderCatalogUI();
+    clearCatForm();
     alert("Catálogo restaurado.");
   });
 
-  // ===== init
-  function boot(){
-    migrateLocalData_();
+  // DEV users
+  async function loadUsersFromSheet(){
+    if(!requireDev()) return;
+    const s = getCurrentUser();
+    try{
+      const j = await api({ action:"listUsers", devLogin:s.login, devPin:String(devPin.value||"").trim() });
+      renderUsersTable(j.users);
+    }catch(err){
+      alert(String(err.message||err));
+    }
+  }
 
+  function renderUsersTable(users){
+    const sorted = (users||[]).slice().sort((a,b)=>String(a.login||"").localeCompare(String(b.login||"")));
+    tblUsersBody.innerHTML = sorted.length ? sorted.map(u => `
+      <tr>
+        <td>${escapeHtml(u.login)}</td>
+        <td>${escapeHtml(u.name||"")}</td>
+        <td>${u.active ? "Ativo" : "Inativo"}</td>
+        <td>${u.canEdit ? "Edita" : "Somente ver"}</td>
+        <td class="right">
+          <button class="btn" type="button" onclick="toggleUserSheet('${escapeHtml(u.login)}')">${u.active ? "Desativar" : "Ativar"}</button>
+          <button class="btn" type="button" onclick="togglePermUserSheet('${escapeHtml(u.login)}', ${u.canEdit ? "true" : "false"})">${u.canEdit ? "Bloquear edição" : "Liberar edição"}</button>
+          <button class="btn" type="button" onclick="resetPinSheet('${escapeHtml(u.login)}')">Reset senha</button>
+          <button class="btn danger" type="button" onclick="removeUserSheet('${escapeHtml(u.login)}')">Remover</button>
+        </td>
+      </tr>
+    `).join("") : `<tr><td colspan="5" class="note">Sem usuários.</td></tr>`;
+  }
+
+  window.toggleUserSheet = async function(login){
+    if(!requireDev()) return;
+    const s = getCurrentUser();
+    await api({ action:"toggleUser", login, devLogin:s.login, devPin:String(devPin.value||"").trim() });
+    loadUsersFromSheet();
+  };
+  window.togglePermUserSheet = async function(login, currentCanEdit){
+    if(!requireDev()) return;
+    const s = getCurrentUser();
+    await api({ action:"setPerm", login, canEdit: (!currentCanEdit ? "1" : "0"), devLogin:s.login, devPin:String(devPin.value||"").trim() });
+    loadUsersFromSheet();
+  };
+  window.resetPinSheet = async function(login){
+    if(!requireDev()) return;
+    const np = prompt("Nova senha (6 dígitos):");
+    if(np === null) return;
+    if(!/^\d{6}$/.test(np)) return alert("Precisa ser 6 dígitos.");
+    const s = getCurrentUser();
+    await api({ action:"resetPin", login, pin:np, devLogin:s.login, devPin:String(devPin.value||"").trim() });
+    loadUsersFromSheet();
+  };
+  window.removeUserSheet = async function(login){
+    if(!requireDev()) return;
+    if(!confirm("Remover usuário?")) return;
+    const s = getCurrentUser();
+    await api({ action:"removeUser", login, devLogin:s.login, devPin:String(devPin.value||"").trim() });
+    loadUsersFromSheet();
+  };
+
+  btnLoadUsers.addEventListener("click", loadUsersFromSheet);
+
+  btnCreateUser.addEventListener("click", async () => {
+    if(!requireDev()) return;
+
+    const login = String(newUserLogin.value||"").trim().toLowerCase();
+    const name = String(newUserName.value||"").trim();
+    const pin = String(newUserPin.value||"").trim();
+    const canEdit = (String(newUserCanEdit.value||"EDIT") === "EDIT");
+
+    if(!login) return alert("Informe o login.");
+    if(login === DEVEMAIL.toLowerCase()) return alert("Login reservado ao DEV.");
+    if(!/^\d{6}$/.test(pin)) return alert("Senha deve ter 6 dígitos.");
+
+    const s = getCurrentUser();
+    await api({
+      action:"createUser",
+      login, name, pin,
+      canEdit: canEdit ? "1" : "0",
+      devLogin:s.login,
+      devPin:String(devPin.value||"").trim()
+    });
+
+    newUserLogin.value = "";
+    newUserName.value = "";
+    newUserPin.value = "";
+    loadUsersFromSheet();
+  });
+
+  // =========================
+  // Boot
+  // =========================
+  function boot(){
+    migrateLocalData();
     fillCategorias();
     fillTamanhos();
-    elData.value=todayISO();
+    elData.value = todayISO();
     updateMovUI();
     renderMov();
     renderEstoque();
     setScreen("mov");
-    document.getElementById("cfgUrl").value=SHEETS_URL;
+    document.getElementById("cfgUrl").value = SHEETSURL;
 
     clearPrint();
     btnImprimirTermo.disabled = true;
 
     refreshUserChip();
     applyDevVisibility();
-    applyEditLocks_();
+    applyEditLocks();
+
     if(!getCurrentUser()) showLogin();
 
     setSheetsStatus("warn","Sheets: verificando...");
@@ -1658,7 +2081,9 @@ for (const x of db.movimentos) {
     elEstado.addEventListener("change", updateMovUI);
     elCat.addEventListener("change", fillTamanhos);
   }
+
   boot();
 </script>
+
 </body>
 </html>
