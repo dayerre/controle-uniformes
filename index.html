@@ -307,11 +307,50 @@
       <div><h2>Uniformes (catálogo)</h2><p>Carrega e salva no Sheets (com fallback local).</p></div>
     </div>
     <div class="bd">
-      <p class="note">Quando o Sheets estiver online e a aba <b>Catalogo</b> existir, este catálogo vira a fonte principal.</p>
-      <div class="btns no-print" style="margin-top:0;">
-        <button type="button" class="btn" id="btnCarregarCatalogoSheets">Carregar do Sheets</button>
-        <button type="button" class="btn primary" id="btnPublicarCatalogoSheets">Salvar no Sheets</button>
-      </div>
+  <p class="note">Edite os itens do catálogo por aqui. Depois clique em <b>Salvar no Sheets</b> para publicar.</p>
+
+  <div class="btns no-print" style="margin-top:0;">
+    <button type="button" class="btn" id="btnCarregarCatalogoSheets">Carregar do Sheets</button>
+    <button type="button" class="btn primary" id="btnPublicarCatalogoSheets">Salvar no Sheets</button>
+    <button type="button" class="btn" id="btnRestaurarCatalogo">Restaurar padrão</button>
+  </div>
+
+  <div class="sep"></div>
+
+  <div class="grid2">
+    <div>
+      <label for="catNome">Categoria (nome do item)</label>
+      <input id="catNome" type="text" placeholder="Ex.: Camisa masculina manga longa" />
+    </div>
+    <div>
+      <label for="catTamanhos">Tamanhos (separe por vírgula)</label>
+      <input id="catTamanhos" type="text" placeholder="Ex.: P,M,G,GG,XG" />
+    </div>
+  </div>
+
+  <div class="btns">
+    <button type="button" class="btn primary" id="btnAddCatItem">Adicionar item</button>
+    <button type="button" class="btn" id="btnLimparCatForm">Limpar</button>
+  </div>
+
+  <div class="sep"></div>
+
+  <label>Itens cadastrados</label>
+  <div class="tableWrap" style="max-height:520px;">
+    <table id="tblCatalogo">
+      <thead>
+        <tr>
+          <th>Categoria</th>
+          <th>Tamanhos</th>
+          <th class="right">Ações</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="note" id="catMsg"></div>
+</div>
 
       <label for="catJson">Catálogo (JSON)</label>
       <textarea id="catJson" spellcheck="false"></textarea>
