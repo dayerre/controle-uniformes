@@ -517,8 +517,8 @@
   const s = getCurrentUser();
   if(!s || !s.login) throw new Error("Sem sessão.");
 
-  const actorPin = sessionStorage.getItem("actorPin", pin); // você define ao logar
-  if(!actorPin) throw new Error("PIN da sessão ausente.");
+  const actorPin = sessionStorage.getItem("actorPin");
+  if(!actorPin) throw new Error("PIN da sessão não definido. Faça login novamente.");
 
   const fullPayload = { ...payload, actorLogin: s.login, actorPin };
 
@@ -695,36 +695,58 @@
   }
 
   async function doLogin(){
-    const login=String(loginUser.value||"").trim().toLowerCase();
-    const pin=String(loginPass.value||"").trim();
+  const login = String(loginUser.value || "").trim().toLowerCase();
+  const pinString = String(loginPass.value || "").trim();
 
-    if(!login){ loginErr.textContent="Informe o usuário."; loginErr.style.display="block"; return; }
-    if(!/^\d{6}$/.test(pin)){ loginErr.textContent="Senha inválida (6 dígitos)."; loginErr.style.display="block"; return; }
-
-    try{
-      setSheetsStatus("warn","Sheets: validando login...");
-      const j = await api({ action:"login", login, login, pin: pinString });
-
-      // esperado do GAS: {login, isDev, canEdit}
-      saveSession({ login: j.login, isDev: !!j.isDev, canEdit: !!j.canEdit, at: new Date().toLocaleString("pt-BR") });
-
-      hideLogin();
-      refreshUserChip();
-      applyDevVisibility();
-
-      setSheetsStatus("ok","Sheets: conectado");
-      await refreshCatalogPreferSheets_();
-      fillCategorias();
-      fillTamanhos();
-
-      await autoSyncAfterLogin_();
-      applyEditLocks_();
-    }catch(err){
-      setSheetsStatus("erro","Sheets: erro");
-      loginErr.textContent=String(err.message||err);
-      loginErr.style.display="block";
-    }
+  if(!login){
+    loginErr.textContent = "Informe o usuário.";
+    loginErr.style.display = "block";
+    return;
   }
+
+  if(!/^\d{6}$/.test(pinString)){
+    loginErr.textContent = "Senha inválida (6 dígitos).";
+    loginErr.style.display = "block";
+    return;
+  }
+
+  try{
+    setSheetsStatus("warn","Sheets: validando login...");
+
+    // IMPORTANTE: aqui era o bug (pin não existe). Use pinString
+    const j = await api({ action:"login", login, pin: pinString });
+
+    // Guarda o PIN só na sessão do navegador (necessário para gravar no Sheets)
+    sessionStorage.setItem("actorPin", pinString);
+
+    ISDEMO = false;
+
+    localStorage.setItem(SESSIONKEY, JSON.stringify({
+      login: j.login,
+      isDev: !!j.isDev,     // DEV quando login = dayerre@gmail.com e pin=200585 (validado no GAS)
+      canEdit: (j.isDev ? true : !!j.canEdit), // se o GAS retornar canEdit para usuários comuns
+      at: new Date().toLocaleString("pt-BR")
+    }));
+
+    hideLogin();
+    refreshUserChip();
+    applyDevVisibility();
+
+    setSheetsStatus("ok","Sheets: conectado");
+
+    await refreshCatalogPreferSheets();
+    fillCategorias();
+    fillTamanhos();
+
+    // Se você já adicionou auto-sync após login, pode manter:
+    // await autoSyncAfterLogin_?.();
+
+  }catch(err){
+    setSheetsStatus("erro","Sheets: erro");
+    loginErr.textContent = String(err && err.message ? err.message : err);
+    loginErr.style.display = "block";
+  }
+}
 
   btnLogin.addEventListener("click", doLogin);
   loginPass.addEventListener("keydown", e=>{ if(e.key==="Enter") doLogin(); });
