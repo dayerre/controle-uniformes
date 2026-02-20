@@ -667,7 +667,7 @@
 const SHEETSURL = "https://script.google.com/macros/s/AKfycbzef2t-ivoNG_Hu5ACUby0VStJ4ald49HU6W-2sL2ixDKfJZpEz3cfvw5PKAKeLP-lkzQ/exec";
 const DEVEMAIL = "dayerre@gmail.com";
 const TERMOLOCAL = "Colatina/ES";
-let ISDEMO = false; // DEMO removido, mantido só por compatibilidade interna
+let ISDEMO = false;
 
 const DBKEY = "uniformesdbsite";
 const SESSIONKEY = "uniformessessionsheetv9jsonp";
@@ -716,7 +716,7 @@ function makeId(){
 ========================= */
 function loadDB(){
   try{
-    return JSON.parse(localStorage.getItem(DBKEY) ?? "") || { movimentos:[], estoque:{}, funcionarios:[] };
+    return JSON.parse(localStorage.getItem(DBKEY) ?? "null") || { movimentos:[], estoque:{}, funcionarios:[] };
   }catch(e){
     return { movimentos:[], estoque:{}, funcionarios:[] };
   }
@@ -735,7 +735,7 @@ function loadSession(){
 function saveSessions(s){
   localStorage.setItem(SESSIONKEY, JSON.stringify(s));
 }
-/* FIX: alias que estava faltando e quebrava o JS */
+/* alias */
 function saveSession(s){
   return saveSessions(s);
 }
@@ -881,21 +881,26 @@ function migrateLocalData(){
   let changed = false;
 
   // Garante que todo itemId do Sheets tenha um nome no ItemMap
-for (const m of db.movimentos) {
-  if (!m) continue;
-
-  const itemId2 = m.itemId ? String(m.itemId) : "";
-  const catName = String(m.categoria || "").trim();
-
-  if (itemId2 && catName) {
-    const map = loadItemMap();
-    if (!map.items[itemId2] || !map.items[itemId2].name) {
-      map.items[itemId2] = { name: catName };
-      saveItemMap(map);
+  for (const m of db.movimentos) {
+    if (!m) continue;
+    const itemId2 = m.itemId ? String(m.itemId) : "";
+    const catName = String(m.categoria || "").trim();
+    if (itemId2 && catName) {
+      const map = loadItemMap();
+      if (!map.items[itemId2] || !map.items[itemId2].name) {
+        map.items[itemId2] = { name: catName };
+        saveItemMap(map);
+      }
     }
   }
-}
 
+  for(const m of db.movimentos){
+    if(!m || !m.categoria) continue;
+    if(!m.itemId){
+      m.itemId = ensureItemIdForName(m.categoria);
+      changed = true;
+    }
+  }
 
   const newEst = {};
   const oldEst = db.estoque || {};
@@ -1236,6 +1241,25 @@ async function autoSyncAfterLogin(){
     db.funcionarios = Array.isArray(j.funcionarios) ? j.funcionarios : db.funcionarios;
     db.movimentos = Array.isArray(j.movimentos) ? j.movimentos : db.movimentos;
 
+    // ===== FIX: popular ItemMap com nomes (categoria) vindos do Sheets =====
+    // Isso evita aparecer "itm-..." no estoque quando o itemId já existia no Sheets
+    try{
+      const map = loadItemMap();
+      let changed = false;
+      for (const m of db.movimentos || []) {
+        if (!m) continue;
+        const itemId2 = m.itemId ? String(m.itemId) : "";
+        const catName = String(m.categoria || "").trim();
+        if (!itemId2 || !catName) continue;
+        if (!map.items[itemId2] || !map.items[itemId2].name) {
+          map.items[itemId2] = { name: catName };
+          changed = true;
+        }
+      }
+      if (changed) saveItemMap(map);
+    }catch(e){}
+    // ===== fim FIX =====
+
     db.estoque = {};
     for(const m of db.movimentos){
       if(!m || m.hidden) continue;
@@ -1290,12 +1314,12 @@ function fillTamanhos(){
 function fillRelFuncionariosSomenteQuemPegou(){
   const db = loadDB();
   const pegouIds = new Set(
-    db.movimentos
+    (db.movimentos || [])
       .filter(m => m && !m.hidden && m.tipo === "SAIDA" && m.funcionarioId)
       .map(m => m.funcionarioId)
   );
 
-  const lista = db.funcionarios
+  const lista = (db.funcionarios || [])
     .filter(f => f && pegouIds.has(f.id))
     .slice()
     .sort((a,b)=>String(a.nome).localeCompare(String(b.nome)));
@@ -1390,7 +1414,6 @@ window.toggleFuncionarioAtivo = async function(funcId){
     await sendKind("funcionario", { id:f.id, nome:f.nome, ativo: nextActive, evento:"TOGGLE" });
     setSheetsStatus("ok","Sheets salvo");
 
-    /* sync completo (fonte de verdade) */
     await autoSyncAfterLogin();
 
     renderFuncionariosSelect();
@@ -1683,7 +1706,7 @@ btnSalvar.addEventListener("click", async ()=>{
     quantidade: qtd,
     estado: (tipo === "DEVOLUCAO") ? elEstado.value : "",
     motivo: (tipo === "DEVOLUCAO" && elEstado.value === "SEMCONDICOES") ? String(elMotivo.value).trim() : "",
-    obs: (tipo === "DEVOLUCAO") ? String(elObs.value || "").trim() : "",
+    obs: (tipo === "DEVOLUCAO") ? String(elObs.value).trim() : "",
     hidden: false
   };
 
@@ -1704,7 +1727,6 @@ btnSalvar.addEventListener("click", async ()=>{
     await sendKind("movimento", { ...mov, funcionarioNome });
     setSheetsStatus("ok","Sheets salvo");
 
-    /* FIX: sincroniza e recalcula tudo para refletir em histórico/relatório */
     await autoSyncAfterLogin();
   }catch(err){
     setSheetsStatus("erro","Sheets erro");
@@ -1788,7 +1810,6 @@ window.hideMovimento = function(id){
 
   m.hidden = true;
 
-  /* Recalcula estoque baseado nos movimentos visíveis (mais seguro) */
   db.estoque = {};
   for(const x of db.movimentos){
     if(!x || x.hidden) continue;
