@@ -703,7 +703,7 @@
 
     try{
       setSheetsStatus("warn","Sheets: validando login...");
-      const j = await api({ action:"login", login, pin });
+      const j = await api({ action:"login", login, login, pin: pinString });
 
       // esperado do GAS: {login, isDev, canEdit}
       saveSession({ login: j.login, isDev: !!j.isDev, canEdit: !!j.canEdit, at: new Date().toLocaleString("pt-BR") });
