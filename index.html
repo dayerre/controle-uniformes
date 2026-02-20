@@ -721,12 +721,12 @@
 
     ISDEMO = false;
 
-    localStorage.setItem(SESSIONKEY, JSON.stringify({
-      login: j.login,
-      isDev: !!j.isDev,     // DEV quando login = dayerre@gmail.com e pin=200585 (validado no GAS)
-      canEdit: (j.isDev ? true : !!j.canEdit), // se o GAS retornar canEdit para usuários comuns
-      at: new Date().toLocaleString("pt-BR")
-    }));
+    saveSession({
+  login: j.login,
+  isDev: !!j.isDev,
+  canEdit: (j.isDev ? true : !!j.canEdit),
+  at: new Date().toLocaleString("pt-BR")
+});
 
     hideLogin();
     refreshUserChip();
