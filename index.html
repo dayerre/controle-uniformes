@@ -1432,8 +1432,10 @@ function renderEstoque(){
 
   const rows = Object.entries(db.estoque || {})
     .map(([k,v])=>{
-      const [itemId, ...rest] = String(k).split("-");
-      const t = rest.join("-");
+      const ks = String(k);
+const p = ks.lastIndexOf("-");
+const itemId = p > 0 ? ks.slice(0, p) : ks;
+const t = p > 0 ? ks.slice(p + 1) : "";
       return { itemId, t, s: Number(v || 0) };
     })
     .sort((a,b)=>{
