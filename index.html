@@ -87,15 +87,23 @@
     .loginTitle{ margin:0; font-size:16px; font-weight:900; letter-spacing:.2px; }
     .loginSub{ margin:6px 0 0; color:#4b5563; font-size:13px; line-height:1.35; }
 
+    /* Impressão: evita página extra (sem absolute) [web:131] */
+    @page { margin: 12mm; }
     @media print {
       body * { visibility: hidden !important; }
       #printArea, #printArea * { visibility: visible !important; }
-      #printArea{ display:block !important; position:absolute !important; left:0 !important; top:0 !important; width:100% !important; margin:0 !important; }
+
+      #printArea{
+        display:block !important;
+        position: static !important;
+        width: 100% !important;
+        margin: 0 !important;
+      }
+
       body { background:#fff !important; color:#000 !important; }
       .card, .tableWrap { box-shadow:none !important; border: 0 !important; background: transparent !important; }
       th { position: static !important; background: transparent !important; color:#000 !important; }
       .no-print{ display:none !important; }
-      /* Não forçar quebra: navegador quebra só quando encher [web:131] */
     }
   </style>
 </head>
@@ -296,14 +304,20 @@
 
   <section id="screen-uni" class="card hide">
     <div class="hd">
-      <div><h2>Uniformes (catálogo)</h2><p>Insira/edite categorias e tamanhos com segurança.</p></div>
+      <div><h2>Uniformes (catálogo)</h2><p>Carrega e salva no Sheets (com fallback local).</p></div>
     </div>
     <div class="bd">
-      <p class="note">Este catálogo fica salvo no navegador (localStorage). Se apagar os dados do navegador, volta ao padrão.</p>
+      <p class="note">Quando o Sheets estiver online e a aba <b>Catalogo</b> existir, este catálogo vira a fonte principal.</p>
+      <div class="btns no-print" style="margin-top:0;">
+        <button type="button" class="btn" id="btnCarregarCatalogoSheets">Carregar do Sheets</button>
+        <button type="button" class="btn primary" id="btnPublicarCatalogoSheets">Salvar no Sheets</button>
+      </div>
+
       <label for="catJson">Catálogo (JSON)</label>
       <textarea id="catJson" spellcheck="false"></textarea>
+
       <div class="btns">
-        <button type="button" class="btn primary" id="btnSalvarCatalogo">Salvar catálogo</button>
+        <button type="button" class="btn" id="btnSalvarCatalogoLocal">Salvar local</button>
         <button type="button" class="btn" id="btnRestaurarCatalogo">Restaurar padrão</button>
       </div>
       <div class="note" id="catMsg"></div>
@@ -368,8 +382,8 @@
   // ==============================
 
   const DB_KEY="uniformes_db_site";
-  const SESSION_KEY="uniformes_session_sheet_v7_jsonp";
-  const CATALOG_KEY="uniformes_catalogo_v2";
+  const SESSION_KEY="uniformes_session_sheet_v8_jsonp";
+  const CATALOG_KEY_LOCAL="uniformes_catalogo_local_v1";
   const ITEM_MAP_KEY="uniformes_item_map_v1";
 
   const DEFAULT_CATALOG=[
@@ -379,13 +393,12 @@
     { categoria:"Camisa feminina babylook", tamanhos:["P","M","G","GG","XXG"] },
   ];
 
-  const REL_ALL = "__ALL__";
+  const REL_ALL="__ALL__";
 
   function todayISO(){ const d=new Date(); const pad=n=>String(n).padStart(2,"0"); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
   function formatBRDateFromISO(iso){ if(!iso||typeof iso!=="string"||iso.length<10) return ""; const [y,m,d]=iso.slice(0,10).split("-"); return `${d}/${m}/${y}`; }
   function escapeHtml(s){ return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;"); }
   function makeId(){ try{ if(crypto?.randomUUID) return crypto.randomUUID(); }catch{} return String(Date.now())+"_"+Math.random().toString(16).slice(2); }
-  function keyItem(c,t){ return `${c}__${t}`; }
 
   function loadDB(){ try{ return JSON.parse(localStorage.getItem(DB_KEY)) ?? {movimentos:[],estoque:{},funcionarios:[]}; }catch{ return {movimentos:[],estoque:{},funcionarios:[]}; } }
   function saveDB(db){ localStorage.setItem(DB_KEY, JSON.stringify(db)); }
@@ -405,7 +418,7 @@
     txt.textContent=msg;
   }
 
-  // JSONP (GitHub Pages sem CORS)
+  // JSONP (ContentService) [web:33]
   function apiJsonp(params, timeoutMs=12000){
     return new Promise((resolve, reject)=>{
       const cbName = "cb_" + Math.random().toString(16).slice(2);
@@ -463,33 +476,7 @@
     return j;
   }
 
-  // ===== Catálogo editável + Mapa de itens (renomear sem quebrar)
-  function normalizeCatalog_(raw){
-    if(!Array.isArray(raw)) return null;
-    const out=[];
-    for(const it of raw){
-      const categoria = String(it?.categoria||"").trim();
-      const tamanhosRaw = Array.isArray(it?.tamanhos) ? it.tamanhos : [];
-      const tamanhos = [...new Set(tamanhosRaw.map(x=>String(x||"").trim()).filter(Boolean))];
-      if(!categoria || tamanhos.length===0) continue;
-      out.push({ categoria, tamanhos });
-    }
-    if(out.length===0) return null;
-    return out;
-  }
-  function loadCatalog(){
-    try{
-      const raw = JSON.parse(localStorage.getItem(CATALOG_KEY));
-      return normalizeCatalog_(raw) || DEFAULT_CATALOG;
-    }catch{
-      return DEFAULT_CATALOG;
-    }
-  }
-  function saveCatalog(cat){
-    localStorage.setItem(CATALOG_KEY, JSON.stringify(cat));
-  }
-
-  // itemMap: { [itemId]: { name } , legacyKeyToId: { "Categoria": "itemId" } }
+  // ===== ItemMap (renomear sem quebrar)
   function loadItemMap_(){
     try{
       const raw = JSON.parse(localStorage.getItem(ITEM_MAP_KEY)) || {};
@@ -500,9 +487,7 @@
       return { items:{}, legacyNameToId:{} };
     }
   }
-  function saveItemMap_(m){
-    localStorage.setItem(ITEM_MAP_KEY, JSON.stringify(m));
-  }
+  function saveItemMap_(m){ localStorage.setItem(ITEM_MAP_KEY, JSON.stringify(m)); }
 
   function ensureItemIdForName_(name){
     const nm = String(name||"").trim();
@@ -533,22 +518,18 @@
     saveItemMap_(map);
   }
 
-  // Migração: garante itemId em movimentos e em estoque (local)
   function migrateLocalData_(){
     const db = loadDB();
     let changed=false;
 
     for(const m of db.movimentos){
-      if(!m) continue;
-      if(!m.categoria) continue;
-
+      if(!m || !m.categoria) continue;
       if(!m.itemId){
         m.itemId = ensureItemIdForName_(m.categoria);
         changed=true;
       }
     }
 
-    // estoque local: converte chaves antigas categoria__tamanho para itemId__tamanho
     const newEst = {};
     const oldEst = db.estoque || {};
     for(const [k,v] of Object.entries(oldEst)){
@@ -556,7 +537,6 @@
       if(parts.length>=2){
         const catOrId = parts[0];
         const tam = parts.slice(1).join("__");
-        // se já parece itemId, mantém
         const isId = String(catOrId).startsWith("itm_");
         const itemId = isId ? catOrId : ensureItemIdForName_(catOrId);
         const nk = `${itemId}__${tam}`;
@@ -567,6 +547,83 @@
     db.estoque = newEst;
 
     if(changed) saveDB(db);
+  }
+
+  // ===== Catálogo: Local + Sheets
+  function normalizeCatalog_(raw){
+    if(!Array.isArray(raw)) return null;
+    const out=[];
+    for(const it of raw){
+      const categoria = String(it?.categoria||"").trim();
+      const tamanhosRaw = Array.isArray(it?.tamanhos) ? it.tamanhos : [];
+      const tamanhos = [...new Set(tamanhosRaw.map(x=>String(x||"").trim()).filter(Boolean))];
+      if(!categoria || tamanhos.length===0) continue;
+      out.push({ categoria, tamanhos });
+    }
+    return out.length ? out : null;
+  }
+
+  function loadCatalogLocal_(){
+    try{
+      const raw = JSON.parse(localStorage.getItem(CATALOG_KEY_LOCAL));
+      return normalizeCatalog_(raw) || DEFAULT_CATALOG;
+    }catch{
+      return DEFAULT_CATALOG;
+    }
+  }
+  function saveCatalogLocal_(cat){ localStorage.setItem(CATALOG_KEY_LOCAL, JSON.stringify(cat)); }
+
+  // fonte principal: Sheets (se conseguir)
+  let CATALOG_CACHE = null;
+
+  async function loadCatalogFromSheets_(){
+    const j = await api({ action:"getCatalogo" });
+    const list = Array.isArray(j.catalog) ? j.catalog : [];
+    // converte para o formato do app: [{categoria,tamanhos}]
+    const normalized = list
+      .filter(x => x && x.ativo !== false)
+      .map(x => ({ categoria: String(x.categoria||"").trim(), tamanhos: Array.isArray(x.tamanhos)?x.tamanhos:[] }))
+      .filter(x => x.categoria && x.tamanhos.length);
+
+    return normalized;
+  }
+
+  function getCatalog_(){
+    if(Array.isArray(CATALOG_CACHE) && CATALOG_CACHE.length) return CATALOG_CACHE;
+    return loadCatalogLocal_();
+  }
+
+  async function refreshCatalogPreferSheets_(){
+    try{
+      setSheetsStatus("warn","Sheets: carregando catálogo...");
+      const cat = await loadCatalogFromSheets_();
+      if(cat && cat.length){
+        CATALOG_CACHE = cat;
+        // opcional: atualizar local como espelho
+        saveCatalogLocal_(cat);
+        setSheetsStatus("ok","Sheets: catálogo OK");
+        return true;
+      }
+      setSheetsStatus("warn","Sheets: catálogo vazio");
+      return false;
+    }catch(err){
+      setSheetsStatus("warn","Sheets: catálogo offline");
+      return false;
+    }
+  }
+
+  async function publishCatalogToSheets_(cat){
+    // Precisamos também enviar itemId para a aba Catalogo
+    // Vamos gerar itemId por categoria (estável via itemMap)
+    const payload = {
+      catalog: cat.map(it => ({
+        itemId: ensureItemIdForName_(it.categoria),
+        categoria: it.categoria,
+        tamanhos: it.tamanhos,
+        ativo: true
+      }))
+    };
+    return await sendKind("catalogo", payload);
   }
 
   // ===== Login UI
@@ -614,6 +671,10 @@
       refreshUserChip();
       applyDevVisibility();
       setSheetsStatus("ok","Sheets: conectado");
+      // carrega catálogo do sheets após logar
+      await refreshCatalogPreferSheets_();
+      fillCategorias();
+      fillTamanhos();
     }catch(err){
       setSheetsStatus("erro","Sheets: erro");
       loginErr.textContent=String(err.message||err);
@@ -648,7 +709,7 @@
     if(name==="mov") renderMov();
     if(name==="func") renderFuncionariosSelect();
     if(name==="est") renderEstoque();
-    if(name==="uni") renderCatalogEditor();
+    if(name==="uni") renderCatalogEditor_();
     if(name==="cfg") document.getElementById("cfgUrl").value=SHEETS_URL;
   }
   navBtns.forEach(b=>b.addEventListener("click",()=>setScreen(b.dataset.screen)));
@@ -687,9 +748,11 @@
   const elNovoNome=document.getElementById("novoNome");
   const btnAddFunc=document.getElementById("btnAddFunc");
 
-  // Catálogo editor
+  // Catálogo UI
   const catJson=document.getElementById("catJson");
-  const btnSalvarCatalogo=document.getElementById("btnSalvarCatalogo");
+  const btnCarregarCatalogoSheets=document.getElementById("btnCarregarCatalogoSheets");
+  const btnPublicarCatalogoSheets=document.getElementById("btnPublicarCatalogoSheets");
+  const btnSalvarCatalogoLocal=document.getElementById("btnSalvarCatalogoLocal");
   const btnRestaurarCatalogo=document.getElementById("btnRestaurarCatalogo");
   const catMsg=document.getElementById("catMsg");
 
@@ -791,13 +854,12 @@
   }
 
   function fillCategorias(){
-    const catalog=loadCatalog();
-    // garante itemId para cada categoria existente
+    const catalog=getCatalog_();
     catalog.forEach(c=>ensureItemIdForName_(c.categoria));
     elCat.innerHTML=catalog.map(c=>`<option value="${escapeHtml(c.categoria)}">${escapeHtml(c.categoria)}</option>`).join("");
   }
   function fillTamanhos(){
-    const catalog=loadCatalog();
+    const catalog=getCatalog_();
     const found=catalog.find(x=>x.categoria===elCat.value);
     const ts=found?found.tamanhos:[];
     elTam.innerHTML=ts.map(t=>`<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join("");
@@ -905,7 +967,7 @@
     printArea.style.display="none";
   }
 
-  // ===== relatório por funcionário (e Todos)
+  // ===== relatório por funcionário (e Todos) com título 1x
   function getMovsDoFuncionario_(db, funcId){
     return db.movimentos
       .filter(m => !m.hidden && m.funcionarioId === funcId && (m.tipo==="SAIDA" || m.tipo==="DEVOLUCAO"))
@@ -913,7 +975,7 @@
       .sort((a,b)=>String(a.data).localeCompare(String(b.data)));
   }
 
-  function reportBlock_(nome, movs){
+  function funcionarioBlock_(nome, movs){
     const rows = movs.map(m=>{
       const itemName = m.itemId ? getItemNameById_(m.itemId, m.categoria) : (m.categoria||"");
       return `
@@ -931,9 +993,7 @@
 
     return `
       <div style="margin:0 0 18px 0;">
-        <h2 style="margin:0 0 6px 0;">Relatório por funcionário</h2>
-        <p class="note" style="margin:0 0 10px 0;">Funcionário: <b>${escapeHtml(nome)}</b></p>
-
+        <p class="note" style="margin:0 0 8px 0;">Funcionário: <b>${escapeHtml(nome)}</b></p>
         <div class="tableWrap" style="max-height:none;">
           <table style="width:100%; border-collapse:collapse;">
             <thead>
@@ -956,7 +1016,6 @@
     if(!id){ clearPrint(); btnImprimirTermo.disabled=true; return; }
 
     if(id === REL_ALL){
-      // Todos: usa a mesma lista do select (somente quem pegou)
       const pegouIds = new Set(
         db.movimentos.filter(m=>!m.hidden && m.tipo==="SAIDA" && m.funcionarioId).map(m=>m.funcionarioId)
       );
@@ -967,11 +1026,17 @@
 
       const blocks = lista.map(f=>{
         const movs = getMovsDoFuncionario_(db, f.id);
-        return reportBlock_(f.nome, movs);
+        return funcionarioBlock_(f.nome, movs);
       }).join("");
 
-      setPrint(`<div style="max-width:980px; margin:0 auto; padding:0 6px;">${blocks || `<div class="note">Sem funcionários.</div>`}</div>`);
-      btnImprimirTermo.disabled = true; // termo é individual
+      setPrint(`
+        <div style="max-width:980px; margin:0 auto; padding:0 6px;">
+          <h2 style="margin:0 0 10px 0;">Relatório por funcionário (Todos)</h2>
+          ${blocks || `<div class="note">Sem funcionários.</div>`}
+        </div>
+      `);
+
+      btnImprimirTermo.disabled = true;
       return;
     }
 
@@ -979,11 +1044,17 @@
     const nome = f ? f.nome : id;
     const movs = getMovsDoFuncionario_(db, id);
 
-    setPrint(`<div style="max-width:980px; margin:0 auto; padding:0 6px;">${reportBlock_(nome, movs)}</div>`);
+    setPrint(`
+      <div style="max-width:980px; margin:0 auto; padding:0 6px;">
+        <h2 style="margin:0 0 10px 0;">Relatório por funcionário</h2>
+        ${funcionarioBlock_(nome, movs)}
+      </div>
+    `);
+
     btnImprimirTermo.disabled = false;
   }
 
-  // ===== termo por funcionário (qualquer época): saldo atual
+  // ===== termo por funcionário (saldo atual)
   function calcSaldoPorFuncionario_(db, funcId){
     const saldo = new Map(); // key itemId||tamanho -> qtd
     const movs = db.movimentos.filter(m => !m.hidden && m.funcionarioId===funcId);
@@ -1037,10 +1108,10 @@
     `).join("");
 
     setPrint(`
-      <div style="max-width:780px; margin:0 auto; padding:0 6px; font-size:14.5px;">
-        <h2 style="margin:0 0 14px 0; text-align:center; letter-spacing:.4px; font-size:16.5px;">TERMO DE RECEBIMENTO UNIFORME</h2>
+      <div style="max-width:780px; margin:0 auto; padding:0 2mm; font-size:14px;">
+        <h2 style="margin:0 0 12px 0; text-align:center; letter-spacing:.4px; font-size:16px;">TERMO DE RECEBIMENTO UNIFORME</h2>
 
-        <p style="margin:0 0 12px 0; text-align:justify; text-justify:inter-word; line-height:1.55;">
+        <p style="margin:0 0 10px 0; text-align:justify; line-height:1.45;">
           Eu, ${escapeHtml(nome)} Recebi da empresa: INTERCOL SERVIÇOS DE INTERNET LTDA
           CNPJ: 03.879.067/0001-36, os uniformes relacionados nesta ficha, declaro tê-los recebido gratuitamente e em perfeito estado de conservação.
           Comprometo-me a utilizá-los diariamente durante toda a jornada de trabalho, responsabilizando-me pela guarda e conservação dos mesmos.
@@ -1049,16 +1120,16 @@
         </p>
 
         <div class="tableWrap" style="max-height:none;">
-          <table style="width:100%; border-collapse:collapse; font-size:13.5px;">
+          <table style="width:100%; border-collapse:collapse; font-size:13px;">
             <thead><tr><th>Material entregue</th><th>Tam.</th><th class="right">Qtd</th></tr></thead>
             <tbody>${rows || `<tr><td colspan="3" class="note">—</td></tr>`}</tbody>
           </table>
         </div>
 
-        <div style="margin-top:18px; text-align:right;">${escapeHtml(TERMO_LOCAL)}, ${escapeHtml(hojeBR)}</div>
+        <div style="margin-top:14px; text-align:right;">${escapeHtml(TERMO_LOCAL)}, ${escapeHtml(hojeBR)}</div>
 
-        <div style="margin-top:28px;">
-          <div style="height:60px;"></div>
+        <div style="margin-top:24px;">
+          <div style="height:55px;"></div>
           <div style="border-top:1px solid #000; padding-top:6px; text-align:center;">${escapeHtml(nome)}</div>
         </div>
       </div>
@@ -1079,7 +1150,6 @@
       db.movimentos = Array.isArray(j.movimentos) ? j.movimentos : [];
       db.estoque = {};
 
-      // migra movimentos do Sheets para itemId (compat local)
       for(const m of db.movimentos){
         if(m && m.categoria && !m.itemId) m.itemId = ensureItemIdForName_(m.categoria);
       }
@@ -1103,6 +1173,7 @@
       saveDB(db);
       renderMov();
       renderEstoque();
+      fillRelFuncionariosSomenteQuemPegou();
       setSheetsStatus("ok","Sheets: sincronizado");
       alert("Dados carregados do Sheets.");
     }catch(err){
@@ -1130,7 +1201,7 @@
       id:makeId(), tipo, data:elData.value,
       funcionarioId:(tipo==="SAIDA"||tipo==="DEVOLUCAO")?elFuncSel.value:"",
       itemId,
-      categoria:elCat.value, // mantém por compatibilidade/visual
+      categoria:elCat.value,
       tamanho:elTam.value,
       quantidade:qtd,
       estado:(tipo==="DEVOLUCAO")?elEstado.value:"",
@@ -1250,50 +1321,12 @@
     imprimirTermoFuncionario();
   });
 
-  // ===== catálogo editor
-  function renderCatalogEditor(){
-    const cat = loadCatalog();
-    catJson.value = JSON.stringify(cat, null, 2);
-    catMsg.textContent = "";
-  }
-
-  btnSalvarCatalogo.addEventListener("click", ()=>{
-    try{
-      const raw = JSON.parse(catJson.value);
-      const norm = normalizeCatalog_(raw);
-      if(!norm) throw new Error("Catálogo inválido. Precisa ser uma lista com {categoria, tamanhos[]}.");
-
-      // garante itemId para novos nomes (não renomeia automaticamente IDs antigos aqui)
-      norm.forEach(c=>ensureItemIdForName_(c.categoria));
-
-      saveCatalog(norm);
-      catMsg.textContent = "Catálogo salvo.";
-      fillCategorias();
-      fillTamanhos();
-      alert("Catálogo salvo com sucesso.");
-    }catch(err){
-      catMsg.textContent = "Erro: " + String(err.message||err);
-      alert("Não foi possível salvar o catálogo: " + String(err.message||err));
-    }
-  });
-
-  btnRestaurarCatalogo.addEventListener("click", ()=>{
-    if(!confirm("Restaurar catálogo padrão?")) return;
-    DEFAULT_CATALOG.forEach(c=>ensureItemIdForName_(c.categoria));
-    saveCatalog(DEFAULT_CATALOG);
-    renderCatalogEditor();
-    fillCategorias();
-    fillTamanhos();
-    alert("Catálogo restaurado.");
-  });
-
-  // ===== Estoque: renomear item (sem quebrar)
+  // ===== Estoque: renomear item
   btnEditarItensEstoque.addEventListener("click", ()=>{
     try{
       const db = loadDB();
       const ids = new Set();
 
-      // pega itemIds presentes no estoque e/ou movimentos
       Object.keys(db.estoque||{}).forEach(k=>{
         const itemId = String(k).split("__")[0];
         if(itemId) ids.add(itemId);
@@ -1323,9 +1356,8 @@
       renameItem_(itemId, newName);
 
       msgEditarItens.style.display="block";
-      msgEditarItens.textContent="Nome atualizado. O app vai refletir automaticamente em estoque, histórico, relatórios e termo.";
+      msgEditarItens.textContent="Nome atualizado. Reflete automaticamente em estoque, histórico, relatórios e termo.";
 
-      // Atualiza a “categoria” de movimentos locais só para visual (sem perder itemId)
       const db2 = loadDB();
       (db2.movimentos||[]).forEach(m=>{
         if(m && m.itemId===itemId) m.categoria = getItemNameById_(itemId, m.categoria);
@@ -1340,6 +1372,70 @@
     }catch(err){
       alert(String(err.message||err));
     }
+  });
+
+  // ===== Catálogo UI handlers
+  function renderCatalogEditor_(){
+    const cat = getCatalog_();
+    catJson.value = JSON.stringify(cat, null, 2);
+    catMsg.textContent = "";
+  }
+
+  btnCarregarCatalogoSheets.addEventListener("click", async ()=>{
+    if(!requireLogin()) return;
+    const ok = await refreshCatalogPreferSheets_();
+    if(ok){
+      renderCatalogEditor_();
+      fillCategorias();
+      fillTamanhos();
+      alert("Catálogo carregado do Sheets.");
+    } else {
+      alert("Não foi possível carregar do Sheets (ou está vazio).");
+    }
+  });
+
+  btnPublicarCatalogoSheets.addEventListener("click", async ()=>{
+    if(!requireLogin()) return;
+    try{
+      const raw = JSON.parse(catJson.value);
+      const norm = normalizeCatalog_(raw);
+      if(!norm) return alert("Catálogo inválido.");
+      setSheetsStatus("warn","Sheets: salvando catálogo...");
+      await publishCatalogToSheets_(norm);
+      CATALOG_CACHE = norm;
+      saveCatalogLocal_(norm);
+      setSheetsStatus("ok","Sheets: catálogo salvo");
+      fillCategorias(); fillTamanhos();
+      alert("Catálogo salvo no Sheets.");
+    }catch(err){
+      setSheetsStatus("erro","Sheets: erro");
+      alert(String(err.message||err));
+    }
+  });
+
+  btnSalvarCatalogoLocal.addEventListener("click", ()=>{
+    try{
+      const raw = JSON.parse(catJson.value);
+      const norm = normalizeCatalog_(raw);
+      if(!norm) return alert("Catálogo inválido.");
+      saveCatalogLocal_(norm);
+      CATALOG_CACHE = norm;
+      catMsg.textContent = "Salvo local.";
+      fillCategorias(); fillTamanhos();
+      alert("Catálogo salvo localmente.");
+    }catch(err){
+      alert(String(err.message||err));
+    }
+  });
+
+  btnRestaurarCatalogo.addEventListener("click", ()=>{
+    if(!confirm("Restaurar catálogo padrão?")) return;
+    saveCatalogLocal_(DEFAULT_CATALOG);
+    CATALOG_CACHE = DEFAULT_CATALOG;
+    renderCatalogEditor_();
+    fillCategorias();
+    fillTamanhos();
+    alert("Catálogo restaurado.");
   });
 
   // ===== init
