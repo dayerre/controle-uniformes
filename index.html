@@ -88,7 +88,18 @@
 
     /* Impressão (definitivo: evita duplicar no PDF/Android) */
     @page { size: A4; margin: 8mm; }
-    @media print {
+   @media print {
+  .tableWrap { max-height: none !important; overflow: visible !important; }
+  table { page-break-inside: avoid; break-inside: avoid; }
+  tr, td, th { page-break-inside: avoid; break-inside: avoid; }
+  #printArea { page-break-inside: avoid; break-inside: avoid; }
+}
+function setPrint(html){
+  printBody.innerHTML = "";   // garante que não acumula
+  printBody.innerHTML = html;
+  printArea.style.display = "block";
+}
+
       html, body { margin:0 !important; padding:0 !important; height:auto !important; }
       body { background:#fff !important; color:#000 !important; }
 
@@ -1052,13 +1063,51 @@
 
     try{
       setSheetsStatus("warn","Sheets: atualizando funcionário...");
-      await sendKind("funcionario", { id: f.id, nome: f.nome, ativo: nextActive, evento: "TOGGLE" });
-      setSheetsStatus("ok","Sheets: salvo");
-    }catch(err){
-      setSheetsStatus("erro","Sheets: erro");
-      alert("Não foi possível salvar no Sheets: " + String(err.message||err));
-      return;
-    }
+await sendKind("funcionario", { id: f.id, nome: f.nome, ativo: nextActive, evento: "TOGGLE" });
+setSheetsStatus("ok","Sheets: salvo");
+
+// ===== NOVO: puxa snapshot do Sheets e atualiza o DB local =====
+try{
+  setSheetsStatus("warn","Sheets: sincronizando...");
+  const snap = await api({ action:"getSnapshot" });
+
+  const db = loadDB();
+  db.funcionarios = Array.isArray(snap.funcionarios) ? snap.funcionarios : db.funcionarios;
+  db.movimentos   = Array.isArray(snap.movimentos) ? snap.movimentos : db.movimentos;
+
+  // Recalcula estoque do zero baseado nos movimentos vindos do Sheets
+  db.estoque = {};
+  for(const m of db.movimentos){
+    if(!m || m.hidden) continue;
+
+    const qtd = Number(m.quantidade || 0);
+    if(!qtd) continue;
+
+    const itemId2 = m.itemId ? String(m.itemId) : ensureItemIdForName(m.categoria);
+    const k = itemId2 + "-" + m.tamanho;
+
+    let delta = 0;
+    if(m.tipo === "ENTRADA") delta = qtd;
+    if(m.tipo === "SAIDA") delta = -qtd;
+    if(m.tipo === "DEVOLUCAO") delta = (m.estado === "EMCONDICOES" ? qtd : 0);
+
+    db.estoque[k] = Number(db.estoque[k] || 0) + delta;
+  }
+
+  saveDB(db);
+
+  // Atualiza telas que dependem de funcionários
+  renderFuncionariosSelect();
+  fillRelFuncionariosSomenteQuemPegou();
+  renderMov();
+  renderEstoque();
+
+  setSheetsStatus("ok","Sheets: sincronizado");
+}catch(syncErr){
+  // Não falha o toggle por causa da sincronização
+  setSheetsStatus("warn","Sheets: salvo (sync falhou)");
+}
+
 
     f.ativo = nextActive;
     saveDB(db);
@@ -1415,6 +1464,24 @@
     const m=db.movimentos.find(x=>x.id===id);
     if(!m) return;
     m.hidden=true;
+// Recalcula estoque baseado nos movimentos visíveis
+db.estoque = {};
+for (const x of db.movimentos) {
+  if (!x || x.hidden) continue;
+  const qtd = Number(x.quantidade || 0);
+  if (!qtd) continue;
+
+  const itemId2 = x.itemId ? String(x.itemId) : ensureItemIdForName(x.categoria);
+  const k = itemId2 + "-" + x.tamanho;
+
+  let d = 0;
+  if (x.tipo === "ENTRADA") d = qtd;
+  if (x.tipo === "SAIDA") d = -qtd;
+  if (x.tipo === "DEVOLUCAO") d = (x.estado === "EMCONDICOES" ? qtd : 0);
+
+  db.estoque[k] = Number(db.estoque[k] || 0) + d;
+}
+
     saveDB(db);
     renderMov();
   }
