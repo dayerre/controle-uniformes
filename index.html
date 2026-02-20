@@ -87,7 +87,6 @@
     .loginTitle{ margin:0; font-size:16px; font-weight:900; letter-spacing:.2px; }
     .loginSub{ margin:6px 0 0; color:#4b5563; font-size:13px; line-height:1.35; }
 
-    /* impressão: evitar “folha em branco no final” por page-break forçado */
     @media print {
       body * { visibility: hidden !important; }
       #printArea, #printArea * { visibility: visible !important; }
@@ -95,9 +94,8 @@
       body { background:#fff !important; color:#000 !important; }
       .card, .tableWrap { box-shadow:none !important; border: 0 !important; background: transparent !important; }
       th { position: static !important; background: transparent !important; color:#000 !important; }
-      .printPage{ break-after: page; page-break-after: always; }
-      .printPage.last{ break-after: auto; page-break-after: auto; }
       .no-print{ display:none !important; }
+      /* Não forçar quebra: navegador quebra só quando encher [web:131] */
     }
   </style>
 </head>
@@ -230,7 +228,7 @@
 
       <div class="grid2 no-print">
         <div>
-          <label for="relFuncSel">Relatório por funcionário (somente quem pegou)</label>
+          <label for="relFuncSel">Relatório por funcionário</label>
           <select id="relFuncSel"></select>
         </div>
         <div class="btns" style="align-items:end; justify-content:flex-end;">
@@ -282,7 +280,12 @@
       <div class="chip"><span class="dot ok"></span><span id="pillTotal2">Total: —</span></div>
     </div>
     <div class="bd">
-      <div class="tableWrap" style="max-height:520px;">
+      <div class="btns no-print" style="margin-top:0;">
+        <button type="button" class="btn" id="btnEditarItensEstoque">Editar nomes dos itens</button>
+      </div>
+      <div class="note no-print" id="msgEditarItens" style="display:none;"></div>
+
+      <div class="tableWrap" style="max-height:520px; margin-top:10px;">
         <table id="tblEstoque">
           <thead><tr><th>Item</th><th>Tamanho</th><th class="right">Saldo</th></tr></thead>
           <tbody></tbody>
@@ -365,8 +368,9 @@
   // ==============================
 
   const DB_KEY="uniformes_db_site";
-  const SESSION_KEY="uniformes_session_sheet_v6_jsonp";
-  const CATALOG_KEY="uniformes_catalogo_v1";
+  const SESSION_KEY="uniformes_session_sheet_v7_jsonp";
+  const CATALOG_KEY="uniformes_catalogo_v2";
+  const ITEM_MAP_KEY="uniformes_item_map_v1";
 
   const DEFAULT_CATALOG=[
     { categoria:"Camisa masculina manga longa", tamanhos:["P","M","G","GG","XG"] },
@@ -374,6 +378,8 @@
     { categoria:"Calça brim c/ faixa refletiva (masc.)", tamanhos:["P","M","G","GG","XXG"] },
     { categoria:"Camisa feminina babylook", tamanhos:["P","M","G","GG","XXG"] },
   ];
+
+  const REL_ALL = "__ALL__";
 
   function todayISO(){ const d=new Date(); const pad=n=>String(n).padStart(2,"0"); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
   function formatBRDateFromISO(iso){ if(!iso||typeof iso!=="string"||iso.length<10) return ""; const [y,m,d]=iso.slice(0,10).split("-"); return `${d}/${m}/${y}`; }
@@ -399,7 +405,7 @@
     txt.textContent=msg;
   }
 
-  // JSONP (GitHub Pages sem CORS) [web:128]
+  // JSONP (GitHub Pages sem CORS)
   function apiJsonp(params, timeoutMs=12000){
     return new Promise((resolve, reject)=>{
       const cbName = "cb_" + Math.random().toString(16).slice(2);
@@ -457,7 +463,7 @@
     return j;
   }
 
-  // ===== Catálogo editável (localStorage)
+  // ===== Catálogo editável + Mapa de itens (renomear sem quebrar)
   function normalizeCatalog_(raw){
     if(!Array.isArray(raw)) return null;
     const out=[];
@@ -483,7 +489,87 @@
     localStorage.setItem(CATALOG_KEY, JSON.stringify(cat));
   }
 
-  // Login UI
+  // itemMap: { [itemId]: { name } , legacyKeyToId: { "Categoria": "itemId" } }
+  function loadItemMap_(){
+    try{
+      const raw = JSON.parse(localStorage.getItem(ITEM_MAP_KEY)) || {};
+      raw.items = raw.items && typeof raw.items==="object" ? raw.items : {};
+      raw.legacyNameToId = raw.legacyNameToId && typeof raw.legacyNameToId==="object" ? raw.legacyNameToId : {};
+      return raw;
+    }catch{
+      return { items:{}, legacyNameToId:{} };
+    }
+  }
+  function saveItemMap_(m){
+    localStorage.setItem(ITEM_MAP_KEY, JSON.stringify(m));
+  }
+
+  function ensureItemIdForName_(name){
+    const nm = String(name||"").trim();
+    const map = loadItemMap_();
+    const existing = map.legacyNameToId[nm];
+    if(existing) return existing;
+
+    const id = "itm_" + makeId();
+    map.legacyNameToId[nm] = id;
+    if(!map.items[id]) map.items[id] = { name: nm };
+    saveItemMap_(map);
+    return id;
+  }
+
+  function getItemNameById_(itemId, fallbackName){
+    const map = loadItemMap_();
+    const it = map.items[String(itemId||"")];
+    if(it && it.name) return String(it.name);
+    return String(fallbackName||"");
+  }
+
+  function renameItem_(itemId, newName){
+    const name = String(newName||"").trim();
+    if(!name) throw new Error("Nome inválido.");
+    const map = loadItemMap_();
+    if(!map.items[itemId]) map.items[itemId] = { name };
+    map.items[itemId].name = name;
+    saveItemMap_(map);
+  }
+
+  // Migração: garante itemId em movimentos e em estoque (local)
+  function migrateLocalData_(){
+    const db = loadDB();
+    let changed=false;
+
+    for(const m of db.movimentos){
+      if(!m) continue;
+      if(!m.categoria) continue;
+
+      if(!m.itemId){
+        m.itemId = ensureItemIdForName_(m.categoria);
+        changed=true;
+      }
+    }
+
+    // estoque local: converte chaves antigas categoria__tamanho para itemId__tamanho
+    const newEst = {};
+    const oldEst = db.estoque || {};
+    for(const [k,v] of Object.entries(oldEst)){
+      const parts = String(k).split("__");
+      if(parts.length>=2){
+        const catOrId = parts[0];
+        const tam = parts.slice(1).join("__");
+        // se já parece itemId, mantém
+        const isId = String(catOrId).startsWith("itm_");
+        const itemId = isId ? catOrId : ensureItemIdForName_(catOrId);
+        const nk = `${itemId}__${tam}`;
+        newEst[nk] = (Number(newEst[nk]||0) + Number(v||0));
+        if(nk!==k) changed=true;
+      }
+    }
+    db.estoque = newEst;
+
+    if(changed) saveDB(db);
+  }
+
+  // ===== Login UI
   const loginOverlay=document.getElementById("loginOverlay");
   const loginUser=document.getElementById("loginUser");
   const loginPass=document.getElementById("loginPass");
@@ -607,6 +693,10 @@
   const btnRestaurarCatalogo=document.getElementById("btnRestaurarCatalogo");
   const catMsg=document.getElementById("catMsg");
 
+  // Estoque rename UI
+  const btnEditarItensEstoque=document.getElementById("btnEditarItensEstoque");
+  const msgEditarItens=document.getElementById("msgEditarItens");
+
   // DEV users UI
   const devPin=document.getElementById("devPin");
   const btnLoadUsers=document.getElementById("btnLoadUsers");
@@ -695,16 +785,19 @@
   });
 
   // ===== app local
-  function upsertEstoque(db,c,t,delta){ const k=keyItem(c,t); db.estoque[k]=Number(db.estoque[k]??0)+delta; }
-
-  function getCatalog(){ return loadCatalog(); }
+  function upsertEstoque(db,itemId,t,delta){
+    const k=`${itemId}__${t}`;
+    db.estoque[k]=Number(db.estoque[k]??0)+delta;
+  }
 
   function fillCategorias(){
-    const catalog=getCatalog();
+    const catalog=loadCatalog();
+    // garante itemId para cada categoria existente
+    catalog.forEach(c=>ensureItemIdForName_(c.categoria));
     elCat.innerHTML=catalog.map(c=>`<option value="${escapeHtml(c.categoria)}">${escapeHtml(c.categoria)}</option>`).join("");
   }
   function fillTamanhos(){
-    const catalog=getCatalog();
+    const catalog=loadCatalog();
     const found=catalog.find(x=>x.categoria===elCat.value);
     const ts=found?found.tamanhos:[];
     elTam.innerHTML=ts.map(t=>`<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join("");
@@ -712,7 +805,6 @@
 
   function fillRelFuncionariosSomenteQuemPegou(){
     const db=loadDB();
-
     const pegouIds = new Set(
       db.movimentos
         .filter(m => !m.hidden && m.tipo==="SAIDA" && m.funcionarioId)
@@ -724,7 +816,10 @@
       .slice()
       .sort((a,b)=>a.nome.localeCompare(b.nome));
 
-    relFuncSel.innerHTML = [`<option value="">(Selecione)</option>`].concat(
+    relFuncSel.innerHTML = [
+      `<option value="">(Selecione)</option>`,
+      `<option value="${REL_ALL}">Todos</option>`
+    ].concat(
       lista.map(f=>`<option value="${escapeHtml(f.id)}">${escapeHtml(f.nome)}</option>`)
     ).join("");
   }
@@ -760,11 +855,15 @@
     let total=0;
     const rows=[];
     Object.entries(db.estoque).map(([k,v])=>{
-      const [c,t]=k.split("__");
-      return {c,t,s:Number(v)};
-    }).sort((a,b)=>(a.c+a.t).localeCompare(b.c+b.t)).forEach(it=>{
+      const [itemId,t]=String(k).split("__");
+      return {itemId,t,s:Number(v)};
+    }).sort((a,b)=>(getItemNameById_(a.itemId,a.itemId)+a.t).localeCompare(getItemNameById_(b.itemId,b.itemId)+b.t)).forEach(it=>{
       total += it.s;
-      rows.push(`<tr><td>${escapeHtml(it.c)}</td><td>${escapeHtml(it.t)}</td><td class="right">${it.s}</td></tr>`);
+      rows.push(`<tr>
+        <td>${escapeHtml(getItemNameById_(it.itemId, it.itemId))}</td>
+        <td>${escapeHtml(it.t||"")}</td>
+        <td class="right">${it.s}</td>
+      </tr>`);
     });
     tblEstoqueBody.innerHTML = rows.join("") || `<tr><td colspan="3" class="note">Sem itens.</td></tr>`;
     pillTotal.textContent = `Estoque: ${total} peça(s)`;
@@ -778,12 +877,13 @@
     const hist=[...db.movimentos].filter(m=>!m.hidden).reverse().slice(0,250);
     tblHistBody.innerHTML = hist.map(m=>{
       const f=m.funcionarioId?getFuncById(db,m.funcionarioId):null;
+      const itemName = m.itemId ? getItemNameById_(m.itemId, m.categoria) : (m.categoria||"");
       return `<tr>
         <td>${escapeHtml(m.data)}</td>
         <td>${escapeHtml(tipoLabel(m.tipo))}</td>
         <td>${escapeHtml(f?f.nome:"—")}</td>
-        <td>${escapeHtml(m.categoria)}</td>
-        <td>${escapeHtml(m.tamanho)}</td>
+        <td>${escapeHtml(itemName)}</td>
+        <td>${escapeHtml(m.tamanho||"")}</td>
         <td class="right">${Number(m.quantidade)}</td>
         <td>${escapeHtml(estadoLabel(m.estado))}</td>
         <td>${escapeHtml(m.motivo||"—")}</td>
@@ -805,7 +905,7 @@
     printArea.style.display="none";
   }
 
-  // ===== relatório por funcionário (detalhe: data, qtd, tipo, item)
+  // ===== relatório por funcionário (e Todos)
   function getMovsDoFuncionario_(db, funcId){
     return db.movimentos
       .filter(m => !m.hidden && m.funcionarioId === funcId && (m.tipo==="SAIDA" || m.tipo==="DEVOLUCAO"))
@@ -813,50 +913,79 @@
       .sort((a,b)=>String(a.data).localeCompare(String(b.data)));
   }
 
-  function gerarRelatorioFuncionario(){
-    const db = loadDB();
-    const id = relFuncSel.value;
-    if(!id){ clearPrint(); btnImprimirTermo.disabled=true; return; }
+  function reportBlock_(nome, movs){
+    const rows = movs.map(m=>{
+      const itemName = m.itemId ? getItemNameById_(m.itemId, m.categoria) : (m.categoria||"");
+      return `
+        <tr>
+          <td>${escapeHtml(m.data)}</td>
+          <td>${escapeHtml(tipoLabel(m.tipo))}</td>
+          <td>${escapeHtml(itemName)}</td>
+          <td>${escapeHtml(m.tamanho||"")}</td>
+          <td class="right">${Number(m.quantidade)}</td>
+          <td>${escapeHtml(estadoLabel(m.estado))}</td>
+          <td>${escapeHtml(m.motivo || "—")}</td>
+          <td>${escapeHtml(m.obs || "")}</td>
+        </tr>`;
+    }).join("");
 
-    const f = getFuncById(db, id);
-    const nome = f ? f.nome : id;
-
-    const movs = getMovsDoFuncionario_(db, id);
-
-    const rows = movs.map(m=>`
-      <tr>
-        <td>${escapeHtml(m.data)}</td>
-        <td>${escapeHtml(tipoLabel(m.tipo))}</td>
-        <td>${escapeHtml(m.categoria)}</td>
-        <td>${escapeHtml(m.tamanho)}</td>
-        <td class="right">${Number(m.quantidade)}</td>
-      </tr>
-    `).join("");
-
-    setPrint(`
-      <div class="printPage last" style="max-width:980px; margin:0 auto; padding:0 6px;">
-        <h2 style="margin:0 0 10px 0;">Relatório por funcionário</h2>
+    return `
+      <div style="margin:0 0 18px 0;">
+        <h2 style="margin:0 0 6px 0;">Relatório por funcionário</h2>
         <p class="note" style="margin:0 0 10px 0;">Funcionário: <b>${escapeHtml(nome)}</b></p>
+
         <div class="tableWrap" style="max-height:none;">
           <table style="width:100%; border-collapse:collapse;">
             <thead>
-              <tr><th>Data</th><th>Tipo</th><th>Item</th><th>Tam.</th><th class="right">Qtd</th></tr>
+              <tr>
+                <th>Data</th><th>Tipo</th><th>Item</th><th>Tam.</th><th class="right">Qtd</th><th>Estado</th><th>Motivo</th><th>Obs.</th>
+              </tr>
             </thead>
             <tbody>
-              ${rows || `<tr><td colspan="5" class="note">Sem registros.</td></tr>`}
+              ${rows || `<tr><td colspan="8" class="note">Sem registros.</td></tr>`}
             </tbody>
           </table>
         </div>
       </div>
-    `);
+    `;
+  }
 
-    // habilita termo para esse funcionário
+  function gerarRelatorioFuncionarioOuTodos(){
+    const db = loadDB();
+    const id = relFuncSel.value;
+    if(!id){ clearPrint(); btnImprimirTermo.disabled=true; return; }
+
+    if(id === REL_ALL){
+      // Todos: usa a mesma lista do select (somente quem pegou)
+      const pegouIds = new Set(
+        db.movimentos.filter(m=>!m.hidden && m.tipo==="SAIDA" && m.funcionarioId).map(m=>m.funcionarioId)
+      );
+      const lista = db.funcionarios
+        .filter(f=>pegouIds.has(f.id))
+        .slice()
+        .sort((a,b)=>a.nome.localeCompare(b.nome));
+
+      const blocks = lista.map(f=>{
+        const movs = getMovsDoFuncionario_(db, f.id);
+        return reportBlock_(f.nome, movs);
+      }).join("");
+
+      setPrint(`<div style="max-width:980px; margin:0 auto; padding:0 6px;">${blocks || `<div class="note">Sem funcionários.</div>`}</div>`);
+      btnImprimirTermo.disabled = true; // termo é individual
+      return;
+    }
+
+    const f = getFuncById(db, id);
+    const nome = f ? f.nome : id;
+    const movs = getMovsDoFuncionario_(db, id);
+
+    setPrint(`<div style="max-width:980px; margin:0 auto; padding:0 6px;">${reportBlock_(nome, movs)}</div>`);
     btnImprimirTermo.disabled = false;
   }
 
-  // ===== termo por funcionário (qualquer época): usa saldo atual (saídas - devoluções em condições)
+  // ===== termo por funcionário (qualquer época): saldo atual
   function calcSaldoPorFuncionario_(db, funcId){
-    const saldo = new Map(); // key categoria||tamanho -> qtd
+    const saldo = new Map(); // key itemId||tamanho -> qtd
     const movs = db.movimentos.filter(m => !m.hidden && m.funcionarioId===funcId);
 
     for(const m of movs){
@@ -866,102 +995,75 @@
       let delta = 0;
       if(m.tipo==="SAIDA") delta = +qtd;
       if(m.tipo==="DEVOLUCAO" && m.estado==="EM_CONDICOES") delta = -qtd;
-
       if(delta===0) continue;
 
-      const k = `${m.categoria}||${m.tamanho}`;
+      const itemId = m.itemId || ensureItemIdForName_(m.categoria);
+      const k = `${itemId}||${m.tamanho||""}`;
       saldo.set(k, (saldo.get(k)||0) + delta);
     }
 
-    // filtra só o que está “com o funcionário” (positivo)
     const out = [];
     for(const [k,q] of saldo.entries()){
       if(q>0){
-        const [categoria,tamanho] = k.split("||");
-        out.push({ categoria, tamanho, quantidade:q });
+        const [itemId,tamanho] = k.split("||");
+        out.push({ itemId, tamanho, quantidade:q });
       }
     }
-    out.sort((a,b)=>(a.categoria+a.tamanho).localeCompare(b.categoria+b.tamanho));
+    out.sort((a,b)=>(getItemNameById_(a.itemId,a.itemId)+a.tamanho).localeCompare(getItemNameById_(b.itemId,b.itemId)+b.tamanho));
     return out;
   }
 
   function imprimirTermoFuncionario(){
     const db = loadDB();
     const funcId = relFuncSel.value;
-    if(!funcId) return alert("Selecione o funcionário no relatório.");
+    if(!funcId || funcId===REL_ALL) return alert("Selecione um funcionário (não 'Todos').");
 
     const f = getFuncById(db, funcId);
     const nome = f ? f.nome : funcId;
 
     const itens = calcSaldoPorFuncionario_(db, funcId);
 
-    if(itens.length===0){
-      const ok = confirm("Este funcionário não tem saldo positivo de uniformes (pelo cálculo). Deseja imprimir o termo mesmo assim?");
-      if(!ok) return;
-    }
+    const ok = itens.length>0 ? true : confirm("Este funcionário não tem saldo positivo (pelo cálculo). Imprimir termo mesmo assim?");
+    if(!ok) return;
 
-    const hoje = todayISO();
-    const hojeBR = formatBRDateFromISO(hoje);
+    const hojeBR = formatBRDateFromISO(todayISO());
 
-    const linhas = itens.map(it=>`
+    const rows = itens.map(it=>`
       <tr>
-        <td>${escapeHtml(it.categoria)}</td>
-        <td>${escapeHtml(it.tamanho)}</td>
+        <td>${escapeHtml(getItemNameById_(it.itemId,it.itemId))}</td>
+        <td>${escapeHtml(it.tamanho||"")}</td>
         <td class="right">${Number(it.quantidade)}</td>
       </tr>
     `).join("");
 
-    // 1 página “se couber”: não forçamos page-break; só dividimos se muita linha
-    const pageSize = 18; // aprox. para caber numa folha
-    const pages = [];
-    const chunks = [];
-    for(let i=0;i<itens.length;i+=pageSize) chunks.push(itens.slice(i,i+pageSize));
-    const finalChunks = chunks.length ? chunks : [[]];
+    setPrint(`
+      <div style="max-width:780px; margin:0 auto; padding:0 6px; font-size:14.5px;">
+        <h2 style="margin:0 0 14px 0; text-align:center; letter-spacing:.4px; font-size:16.5px;">TERMO DE RECEBIMENTO UNIFORME</h2>
 
-    finalChunks.forEach((chunk, idx)=>{
-      const rows = chunk.map(it=>`
-        <tr>
-          <td>${escapeHtml(it.categoria)}</td>
-          <td>${escapeHtml(it.tamanho)}</td>
-          <td class="right">${Number(it.quantidade)}</td>
-        </tr>
-      `).join("");
+        <p style="margin:0 0 12px 0; text-align:justify; text-justify:inter-word; line-height:1.55;">
+          Eu, ${escapeHtml(nome)} Recebi da empresa: INTERCOL SERVIÇOS DE INTERNET LTDA
+          CNPJ: 03.879.067/0001-36, os uniformes relacionados nesta ficha, declaro tê-los recebido gratuitamente e em perfeito estado de conservação.
+          Comprometo-me a utilizá-los diariamente durante toda a jornada de trabalho, responsabilizando-me pela guarda e conservação dos mesmos.
+          Autorizo desde já, o desconto de seus respectivos valores em folha de pagamento/rescisão, quando por extravio e/ou danificação por uso inadequado,
+          conforme previsto no artigo 462 §1º da CLT.
+        </p>
 
-      const isLast = idx === finalChunks.length-1;
-
-      pages.push(`
-        <div class="printPage ${isLast ? "last" : ""}">
-          <div style="max-width:780px; margin:0 auto; padding:0 6px; font-size:14.5px;">
-            <h2 style="margin:0 0 14px 0; text-align:center; letter-spacing:.4px; font-size:16.5px;">TERMO DE RECEBIMENTO UNIFORME</h2>
-
-            <p style="margin:0 0 12px 0; text-align:justify; text-justify:inter-word; line-height:1.55;">
-              Eu, ${escapeHtml(nome)} Recebi da empresa: INTERCOL SERVIÇOS DE INTERNET LTDA
-              CNPJ: 03.879.067/0001-36, os uniformes relacionados nesta ficha, declaro tê-los recebido gratuitamente e em perfeito estado de conservação.
-              Comprometo-me a utilizá-los diariamente durante toda a jornada de trabalho, responsabilizando-me pela guarda e conservação dos mesmos.
-              Autorizo desde já, o desconto de seus respectivos valores em folha de pagamento/rescisão, quando por extravio e/ou danificação por uso inadequado,
-              conforme previsto no artigo 462 §1º da CLT.
-            </p>
-
-            <div class="tableWrap" style="max-height:none;">
-              <table style="width:100%; border-collapse:collapse; font-size:13.5px;">
-                <thead><tr><th>Material entregue</th><th>Tam.</th><th class="right">Qtd</th></tr></thead>
-                <tbody>${rows || `<tr><td colspan="3" class="note">—</td></tr>`}</tbody>
-              </table>
-            </div>
-
-            <div style="margin-top:18px; text-align:right;">${escapeHtml(TERMO_LOCAL)}, ${escapeHtml(hojeBR)}</div>
-
-            <div style="margin-top:28px;">
-              <div style="height:60px;"></div>
-              <div style="border-top:1px solid #000; padding-top:6px; text-align:center;">${escapeHtml(nome)}</div>
-            </div>
-          </div>
+        <div class="tableWrap" style="max-height:none;">
+          <table style="width:100%; border-collapse:collapse; font-size:13.5px;">
+            <thead><tr><th>Material entregue</th><th>Tam.</th><th class="right">Qtd</th></tr></thead>
+            <tbody>${rows || `<tr><td colspan="3" class="note">—</td></tr>`}</tbody>
+          </table>
         </div>
-      `);
-    });
 
-    setPrint(pages.join(""));
-    // Não “descrever na tela”: já manda imprimir
+        <div style="margin-top:18px; text-align:right;">${escapeHtml(TERMO_LOCAL)}, ${escapeHtml(hojeBR)}</div>
+
+        <div style="margin-top:28px;">
+          <div style="height:60px;"></div>
+          <div style="border-top:1px solid #000; padding-top:6px; text-align:center;">${escapeHtml(nome)}</div>
+        </div>
+      </div>
+    `);
+
     window.print();
   }
 
@@ -977,6 +1079,11 @@
       db.movimentos = Array.isArray(j.movimentos) ? j.movimentos : [];
       db.estoque = {};
 
+      // migra movimentos do Sheets para itemId (compat local)
+      for(const m of db.movimentos){
+        if(m && m.categoria && !m.itemId) m.itemId = ensureItemIdForName_(m.categoria);
+      }
+
       for(const m of db.movimentos){
         const qtd = Number(m.quantidade||0);
         if(!qtd) continue;
@@ -987,7 +1094,8 @@
         if(m.tipo==="DEVOLUCAO") delta=(m.estado==="EM_CONDICOES") ? qtd : 0;
 
         if(delta!==0){
-          const k = `${m.categoria}__${m.tamanho}`;
+          const itemId = m.itemId || ensureItemIdForName_(m.categoria);
+          const k = `${itemId}__${m.tamanho}`;
           db.estoque[k] = Number(db.estoque[k]||0) + delta;
         }
       }
@@ -1016,10 +1124,14 @@
     if((tipo==="SAIDA"||tipo==="DEVOLUCAO") && !elFuncSel.value) return alert("Selecione o funcionário.");
     if(tipo==="DEVOLUCAO" && elEstado.value==="SEM_CONDICOES" && !elMotivo.value.trim()) return alert("Informe o motivo.");
 
+    const itemId = ensureItemIdForName_(elCat.value);
+
     const mov={
       id:makeId(), tipo, data:elData.value,
       funcionarioId:(tipo==="SAIDA"||tipo==="DEVOLUCAO")?elFuncSel.value:"",
-      categoria:elCat.value, tamanho:elTam.value,
+      itemId,
+      categoria:elCat.value, // mantém por compatibilidade/visual
+      tamanho:elTam.value,
       quantidade:qtd,
       estado:(tipo==="DEVOLUCAO")?elEstado.value:"",
       motivo:(tipo==="DEVOLUCAO" && elEstado.value==="SEM_CONDICOES")?elMotivo.value.trim():"",
@@ -1033,7 +1145,7 @@
     if(tipo==="DEVOLUCAO") delta=(mov.estado==="EM_CONDICOES")?qtd:0;
 
     if(tipo==="SAIDA"){
-      const k=keyItem(mov.categoria,mov.tamanho);
+      const k=`${itemId}__${mov.tamanho}`;
       const saldo=Number(db.estoque[k]??0);
       if(saldo+delta<0) return alert("Saldo insuficiente.");
     }
@@ -1049,7 +1161,7 @@
       return;
     }
 
-    if(delta!==0) upsertEstoque(db,mov.categoria,mov.tamanho,delta);
+    if(delta!==0) upsertEstoque(db,itemId,mov.tamanho,delta);
     db.movimentos.push(mov);
     saveDB(db);
 
@@ -1110,10 +1222,10 @@
   }
   window.hideMovimento=hideMovimento;
 
-  // ===== eventos relatório/termo
+  // ===== Relatório / Termo eventos
   btnGerarRel.addEventListener("click", ()=>{
     if(!requireLogin()) return;
-    gerarRelatorioFuncionario();
+    gerarRelatorioFuncionarioOuTodos();
   });
 
   btnLimparRel.addEventListener("click", ()=>{
@@ -1123,12 +1235,12 @@
   });
 
   relFuncSel.addEventListener("change", ()=>{
-    btnImprimirTermo.disabled = !relFuncSel.value;
+    btnImprimirTermo.disabled = (!relFuncSel.value || relFuncSel.value===REL_ALL);
   });
 
   btnImprimirRel.addEventListener("click", ()=>{
     if(!requireLogin()) return;
-    if(printArea.style.display === "none") gerarRelatorioFuncionario();
+    if(printArea.style.display === "none") gerarRelatorioFuncionarioOuTodos();
     if(printArea.style.display === "none") return;
     window.print();
   });
@@ -1140,7 +1252,7 @@
 
   // ===== catálogo editor
   function renderCatalogEditor(){
-    const cat = getCatalog();
+    const cat = loadCatalog();
     catJson.value = JSON.stringify(cat, null, 2);
     catMsg.textContent = "";
   }
@@ -1150,9 +1262,12 @@
       const raw = JSON.parse(catJson.value);
       const norm = normalizeCatalog_(raw);
       if(!norm) throw new Error("Catálogo inválido. Precisa ser uma lista com {categoria, tamanhos[]}.");
+
+      // garante itemId para novos nomes (não renomeia automaticamente IDs antigos aqui)
+      norm.forEach(c=>ensureItemIdForName_(c.categoria));
+
       saveCatalog(norm);
       catMsg.textContent = "Catálogo salvo.";
-      // atualiza selects
       fillCategorias();
       fillTamanhos();
       alert("Catálogo salvo com sucesso.");
@@ -1164,6 +1279,7 @@
 
   btnRestaurarCatalogo.addEventListener("click", ()=>{
     if(!confirm("Restaurar catálogo padrão?")) return;
+    DEFAULT_CATALOG.forEach(c=>ensureItemIdForName_(c.categoria));
     saveCatalog(DEFAULT_CATALOG);
     renderCatalogEditor();
     fillCategorias();
@@ -1171,8 +1287,65 @@
     alert("Catálogo restaurado.");
   });
 
+  // ===== Estoque: renomear item (sem quebrar)
+  btnEditarItensEstoque.addEventListener("click", ()=>{
+    try{
+      const db = loadDB();
+      const ids = new Set();
+
+      // pega itemIds presentes no estoque e/ou movimentos
+      Object.keys(db.estoque||{}).forEach(k=>{
+        const itemId = String(k).split("__")[0];
+        if(itemId) ids.add(itemId);
+      });
+      (db.movimentos||[]).forEach(m=>{
+        if(m && m.itemId) ids.add(m.itemId);
+        else if(m && m.categoria) ids.add(ensureItemIdForName_(m.categoria));
+      });
+
+      const list = [...ids].sort((a,b)=>getItemNameById_(a,a).localeCompare(getItemNameById_(b,b)));
+      if(list.length===0) return alert("Nenhum item encontrado para editar.");
+
+      const choice = prompt(
+        "Digite o NÚMERO do item para renomear:\n" +
+        list.map((id,idx)=>`${idx+1}) ${getItemNameById_(id,id)}`).join("\n")
+      );
+      if(choice===null) return;
+
+      const n = Number(choice);
+      if(!Number.isFinite(n) || n<1 || n>list.length) return alert("Opção inválida.");
+
+      const itemId = list[n-1];
+      const current = getItemNameById_(itemId,itemId);
+      const newName = prompt("Novo nome do item:", current);
+      if(newName===null) return;
+
+      renameItem_(itemId, newName);
+
+      msgEditarItens.style.display="block";
+      msgEditarItens.textContent="Nome atualizado. O app vai refletir automaticamente em estoque, histórico, relatórios e termo.";
+
+      // Atualiza a “categoria” de movimentos locais só para visual (sem perder itemId)
+      const db2 = loadDB();
+      (db2.movimentos||[]).forEach(m=>{
+        if(m && m.itemId===itemId) m.categoria = getItemNameById_(itemId, m.categoria);
+      });
+      saveDB(db2);
+
+      renderMov();
+      renderEstoque();
+      fillCategorias();
+      fillTamanhos();
+      fillRelFuncionariosSomenteQuemPegou();
+    }catch(err){
+      alert(String(err.message||err));
+    }
+  });
+
   // ===== init
   function boot(){
+    migrateLocalData_();
+
     fillCategorias();
     fillTamanhos();
     elData.value=todayISO();
