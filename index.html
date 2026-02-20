@@ -87,15 +87,15 @@
     .loginTitle{ margin:0; font-size:16px; font-weight:900; letter-spacing:.2px; }
     .loginSub{ margin:6px 0 0; color:#4b5563; font-size:13px; line-height:1.35; }
 
-    /* Impressão (Chrome/Windows): força topo e evita folha extra quando possível */
-    @page { margin: 10mm; }
+    /* Impressão (Chrome/Windows) */
+    @page { size: A4; margin: 8mm; }
     @media print {
       html, body { margin:0 !important; padding:0 !important; height:auto !important; }
       body { background:#fff !important; color:#000 !important; }
+
       body * { visibility: hidden !important; }
       #printArea, #printArea * { visibility: visible !important; }
 
-      /* força começar no topo */
       #printArea{
         position: fixed !important;
         left: 0 !important;
@@ -107,7 +107,8 @@
         background: transparent !important;
       }
 
-      .card, .tableWrap { box-shadow:none !important; border: 0 !important; background: transparent !important; }
+      .card, .tableWrap { box-shadow:none !important; border:0 !important; background:transparent !important; overflow: visible !important; }
+      tr { page-break-inside: avoid; }
       th { position: static !important; background: transparent !important; color:#000 !important; }
       .no-print{ display:none !important; }
     }
@@ -129,11 +130,11 @@
       <div class="grid2" style="margin-top:10px;">
         <div>
           <label for="loginUser">Usuário</label>
-          <input id="loginUser" type="text" placeholder="Ex.: maria" autocomplete="username" />
+          <input id="loginUser" type="text" placeholder="Ex.: maria / teste" autocomplete="username" />
         </div>
         <div>
           <label for="loginPass">Senha (6 dígitos)</label>
-          <input id="loginPass" type="password" inputmode="numeric" placeholder="Ex.: 123456" autocomplete="current-password" />
+          <input id="loginPass" type="password" inputmode="numeric" placeholder="Ex.: 123456 / teste" autocomplete="current-password" />
         </div>
       </div>
 
@@ -143,7 +144,7 @@
 
       <div class="errText" id="loginErr" style="display:none;"></div>
       <div class="sep"></div>
-      <p class="note">DEV: usuário <b>dayerre@gmail.com</b> + PIN mestre (6 dígitos).</p>
+      <p class="note">DEV: usuário <b>dayerre@gmail.com</b> + PIN mestre (6 dígitos). DEMO: login <b>teste</b> e senha <b>teste</b>.</p>
     </div>
   </div>
 </div>
@@ -185,6 +186,7 @@
       <div class="chip"><span class="dot ok"></span><span id="pillTotal">Estoque: —</span></div>
     </div>
     <div class="bd">
+
       <div class="btns no-print" style="margin-top:0; margin-bottom:12px;">
         <button type="button" class="btn primary" id="btnCarregarSheetsUrl">Carregar Sheets</button>
       </div>
@@ -212,8 +214,8 @@
         <div id="boxEstado" class="hide">
           <label for="estadoItem">Estado (devolução)</label>
           <select id="estadoItem">
-            <option value="EM_CONDICOES">Em condições</option>
-            <option value="SEM_CONDICOES">Sem condições</option>
+            <option value="EMCONDICOES">Em condições</option>
+            <option value="SEMCONDICOES">Sem condições</option>
           </select>
         </div>
         <div id="boxMotivo" class="hide">
@@ -308,7 +310,7 @@
     </div>
   </section>
 
-  <!-- Uniformes (catálogo) - SEM JSON na tela -->
+  <!-- Uniformes catálogo - SEM JSON na tela -->
   <section id="screen-uni" class="card hide">
     <div class="hd">
       <div><h2>Uniformes (catálogo)</h2><p>Adicionar, editar e remover itens.</p></div>
@@ -417,6 +419,12 @@
   const TERMO_LOCAL = "Colatina/ES";
   // ==============================
 
+  // ======= DEMO (somente leitura) =======
+  const DEMO_LOGIN = "teste";
+  const DEMO_PIN = "teste";
+  let IS_DEMO = false;
+  // =====================================
+
   const DB_KEY="uniformes_db_site";
   const SESSION_KEY="uniformes_session_sheet_v8_jsonp";
   const CATALOG_KEY_LOCAL="uniformes_catalogo_local_v1";
@@ -437,11 +445,17 @@
   function makeId(){ try{ if(crypto?.randomUUID) return crypto.randomUUID(); }catch{} return String(Date.now())+"_"+Math.random().toString(16).slice(2); }
 
   function loadDB(){ try{ return JSON.parse(localStorage.getItem(DB_KEY)) ?? {movimentos:[],estoque:{},funcionarios:[]}; }catch{ return {movimentos:[],estoque:{},funcionarios:[]}; } }
-  function saveDB(db){ localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+  function saveDB(db){
+    if(IS_DEMO) return; // DEMO não grava nada
+    localStorage.setItem(DB_KEY, JSON.stringify(db));
+  }
   function getFuncById(db,id){ return db.funcionarios.find(f=>f.id===id)||null; }
 
   function loadSession(){ try{ return JSON.parse(localStorage.getItem(SESSION_KEY))||null; }catch{ return null; } }
-  function saveSession(s){ localStorage.setItem(SESSION_KEY, JSON.stringify(s)); }
+  function saveSession(s){
+    if(IS_DEMO && !s?.demo) return; // evita sobrescrever sessão DEMO por acidente
+    localStorage.setItem(SESSION_KEY, JSON.stringify(s));
+  }
   function clearSession(){ localStorage.removeItem(SESSION_KEY); }
   function getCurrentUser(){ const s=loadSession(); if(!s||!s.login) return null; return s; }
   function isDevSession(){ const s=getCurrentUser(); return !!(s && s.isDev); }
@@ -506,6 +520,10 @@
   }
 
   async function sendKind(kind, payload){
+    // DEMO: permite leitura, mas bloqueia qualquer gravação
+    if(IS_DEMO){
+      return { ok:true, demo:true };
+    }
     const j = await apiJsonp({ kind, payload: JSON.stringify(payload) });
     if(!j || typeof j !== "object") throw new Error("Resposta inválida do servidor.");
     if(!j.ok) throw new Error(j.error || "Erro ao salvar no Sheets.");
@@ -523,7 +541,10 @@
       return { items:{}, legacyNameToId:{} };
     }
   }
-  function saveItemMap_(m){ localStorage.setItem(ITEM_MAP_KEY, JSON.stringify(m)); }
+  function saveItemMap_(m){
+    if(IS_DEMO) return; // DEMO não grava
+    localStorage.setItem(ITEM_MAP_KEY, JSON.stringify(m));
+  }
 
   function ensureItemIdForName_(name){
     const nm = String(name||"").trim();
@@ -607,7 +628,10 @@
       return DEFAULT_CATALOG;
     }
   }
-  function saveCatalogLocal_(cat){ localStorage.setItem(CATALOG_KEY_LOCAL, JSON.stringify(cat)); }
+  function saveCatalogLocal_(cat){
+    if(IS_DEMO) return; // DEMO não grava
+    localStorage.setItem(CATALOG_KEY_LOCAL, JSON.stringify(cat));
+  }
 
   // fonte principal: Sheets (se conseguir)
   let CATALOG_CACHE = null;
@@ -633,14 +657,15 @@
       const cat = await loadCatalogFromSheets_();
       if(cat && cat.length){
         CATALOG_CACHE = cat;
+        // espelha no local SOMENTE se não for demo
         saveCatalogLocal_(cat);
-        setSheetsStatus("ok","Sheets: catálogo OK");
+        setSheetsStatus(IS_DEMO ? "warn" : "ok", IS_DEMO ? "Sheets: DEMO (somente leitura)" : "Sheets: catálogo OK");
         return true;
       }
       setSheetsStatus("warn","Sheets: catálogo vazio");
       return false;
     }catch(err){
-      setSheetsStatus("warn","Sheets: catálogo offline");
+      setSheetsStatus("warn", IS_DEMO ? "Sheets: DEMO (offline)" : "Sheets: catálogo offline");
       return false;
     }
   }
@@ -672,9 +697,10 @@
     setTimeout(()=>loginUser.focus(), 50);
   }
   function hideLogin(){ loginOverlay.style.display="none"; }
+
   function refreshUserChip(){
     const s=getCurrentUser();
-    txtUser.textContent = s ? `Logado: ${s.login}${s.isDev ? " (DEV)" : ""}` : "Não logado";
+    txtUser.textContent = s ? `Logado: ${s.login}${s.isDev ? " (DEV)" : ""}${s.demo ? " (DEMO)" : ""}` : "Não logado";
   }
   function applyDevVisibility(){
     const isDev=isDevSession();
@@ -691,16 +717,41 @@
   async function doLogin(){
     const login=String(loginUser.value||"").trim().toLowerCase();
     const pin=String(loginPass.value||"").trim();
+
     if(!login){ loginErr.textContent="Informe o usuário."; loginErr.style.display="block"; return; }
-    if(!/^\d{6}$/.test(pin)){ loginErr.textContent="Senha inválida (6 dígitos)."; loginErr.style.display="block"; return; }
+    // aceita DEMO com "teste"
+    const isDemoAttempt = (login===DEMO_LOGIN && pin===DEMO_PIN);
+    if(!isDemoAttempt && !/^\d{6}$/.test(pin)){ loginErr.textContent="Senha inválida (6 dígitos)."; loginErr.style.display="block"; return; }
+
+    // ===== DEMO: leitura real, sem salvar =====
+    if(isDemoAttempt){
+      IS_DEMO = true;
+      localStorage.setItem(SESSION_KEY, JSON.stringify({ login: "teste", isDev: false, at: new Date().toLocaleString("pt-BR"), demo: true }));
+      hideLogin();
+      refreshUserChip();
+      applyDevVisibility();
+      setSheetsStatus("warn","Sheets: DEMO (somente leitura)");
+
+      // tenta puxar catálogo real (leitura)
+      try{ await refreshCatalogPreferSheets_(); }catch{}
+
+      fillCategorias();
+      fillTamanhos();
+      alert("Modo DEMO: pode carregar do Sheets (leitura), mas não salva nada.");
+      return;
+    }
 
     try{
       setSheetsStatus("warn","Sheets: validando login...");
       const j = await api({ action:"login", login, pin });
-      saveSession({ login: j.login, isDev: !!j.isDev, at: new Date().toLocaleString("pt-BR") });
+
+      IS_DEMO = false;
+      localStorage.setItem(SESSION_KEY, JSON.stringify({ login: j.login, isDev: !!j.isDev, at: new Date().toLocaleString("pt-BR") }));
+
       hideLogin();
       refreshUserChip();
       applyDevVisibility();
+
       setSheetsStatus("ok","Sheets: conectado");
       await refreshCatalogPreferSheets_();
       fillCategorias();
@@ -717,6 +768,7 @@
   loginUser.addEventListener("keydown", e=>{ if(e.key==="Enter") loginPass.focus(); });
 
   btnLogout.addEventListener("click", ()=>{
+    IS_DEMO = false;
     clearSession();
     refreshUserChip();
     applyDevVisibility();
@@ -933,7 +985,7 @@
     const tipo=elTipo.value;
     const precisa=(tipo==="SAIDA"||tipo==="DEVOLUCAO");
     const isDev=(tipo==="DEVOLUCAO");
-    const isSem=isDev && (elEstado.value==="SEM_CONDICOES");
+    const isSem=isDev && (elEstado.value==="SEMCONDICOES");
     boxFunc.classList.toggle("hide", !precisa);
     boxEstado.classList.toggle("hide", !isDev);
     boxMotivo.classList.toggle("hide", !isSem);
@@ -943,7 +995,7 @@
     if(!isSem) elMotivo.value="";
   }
   function tipoLabel(t){ return t==="SAIDA" ? "SAÍDA" : (t==="DEVOLUCAO" ? "DEVOLUÇÃO" : t); }
-  function estadoLabel(e){ if(!e) return "—"; if(e==="EM_CONDICOES") return "Em condições"; if(e==="SEM_CONDICOES") return "Sem condições"; return e; }
+  function estadoLabel(e){ if(!e) return "—"; if(e==="EMCONDICOES") return "Em condições"; if(e==="SEMCONDICOES") return "Sem condições"; return e; }
 
   function renderEstoque(){
     const db=loadDB();
@@ -1000,7 +1052,7 @@
     printArea.style.display="none";
   }
 
-  // ===== relatório por funcionário (e Todos) com título 1x
+  // ===== relatório por funcionário (e Todos)
   function getMovsDoFuncionario_(db, funcId){
     return db.movimentos
       .filter(m => !m.hidden && m.funcionarioId === funcId && (m.tipo==="SAIDA" || m.tipo==="DEVOLUCAO"))
@@ -1089,7 +1141,7 @@
 
   // ===== termo por funcionário (saldo atual)
   function calcSaldoPorFuncionario_(db, funcId){
-    const saldo = new Map(); // key itemId||tamanho -> qtd
+    const saldo = new Map();
     const movs = db.movimentos.filter(m => !m.hidden && m.funcionarioId===funcId);
 
     for(const m of movs){
@@ -1098,7 +1150,7 @@
 
       let delta = 0;
       if(m.tipo==="SAIDA") delta = +qtd;
-      if(m.tipo==="DEVOLUCAO" && m.estado==="EM_CONDICOES") delta = -qtd;
+      if(m.tipo==="DEVOLUCAO" && m.estado==="EMCONDICOES") delta = -qtd;
       if(delta===0) continue;
 
       const itemId = m.itemId || ensureItemIdForName_(m.categoria);
@@ -1126,12 +1178,10 @@
     const nome = f ? f.nome : funcId;
 
     const itens = calcSaldoPorFuncionario_(db, funcId);
-
     const ok = itens.length>0 ? true : confirm("Este funcionário não tem saldo positivo (pelo cálculo). Imprimir termo mesmo assim?");
     if(!ok) return;
 
     const hojeBR = formatBRDateFromISO(todayISO());
-
     const rows = itens.map(it=>`
       <tr>
         <td>${escapeHtml(getItemNameById_(it.itemId,it.itemId))}</td>
@@ -1141,10 +1191,10 @@
     `).join("");
 
     setPrint(`
-      <div style="max-width:780px; margin:0; padding:0 2mm; font-size:14px;">
-        <h2 style="margin:0 0 12px 0; text-align:center; letter-spacing:.4px; font-size:16px;">TERMO DE RECEBIMENTO UNIFORME</h2>
+      <div style="max-width:780px; margin:0; padding:0 2mm; font-size:13px; line-height:1.25;">
+        <h2 style="margin:0 0 8px 0; text-align:center; letter-spacing:.4px; font-size:15px;">TERMO DE RECEBIMENTO UNIFORME</h2>
 
-        <p style="margin:0 0 10px 0; text-align:justify; line-height:1.45;">
+        <p style="margin:0 0 8px 0; text-align:justify; line-height:1.35;">
           Eu, ${escapeHtml(nome)} Recebi da empresa: INTERCOL SERVIÇOS DE INTERNET LTDA
           CNPJ: 03.879.067/0001-36, os uniformes relacionados nesta ficha, declaro tê-los recebido gratuitamente e em perfeito estado de conservação.
           Comprometo-me a utilizá-los diariamente durante toda a jornada de trabalho, responsabilizando-me pela guarda e conservação dos mesmos.
@@ -1153,16 +1203,16 @@
         </p>
 
         <div class="tableWrap" style="max-height:none;">
-          <table style="width:100%; border-collapse:collapse; font-size:13px;">
+          <table style="width:100%; border-collapse:collapse; font-size:12.5px;">
             <thead><tr><th>Material entregue</th><th>Tam.</th><th class="right">Qtd</th></tr></thead>
             <tbody>${rows || `<tr><td colspan="3" class="note">—</td></tr>`}</tbody>
           </table>
         </div>
 
-        <div style="margin-top:14px; text-align:right;">${escapeHtml(TERMO_LOCAL)}, ${escapeHtml(hojeBR)}</div>
+        <div style="margin-top:10px; text-align:right;">${escapeHtml(TERMO_LOCAL)}, ${escapeHtml(hojeBR)}</div>
 
-        <div style="margin-top:24px;">
-          <div style="height:55px;"></div>
+        <div style="margin-top:18px;">
+          <div style="height:38px;"></div>
           <div style="border-top:1px solid #000; padding-top:6px; text-align:center;">${escapeHtml(nome)}</div>
         </div>
       </div>
@@ -1175,8 +1225,45 @@
   document.getElementById("btnCarregarSheetsUrl").addEventListener("click", async ()=>{
     if(!requireLogin()) return;
     try{
-      setSheetsStatus("warn","Sheets: carregando...");
+      setSheetsStatus("warn", IS_DEMO ? "Sheets: DEMO (lendo...)" : "Sheets: carregando...");
       const j = await api({ action:"getSnapshot" });
+
+      if(IS_DEMO){
+        // DEMO: apenas visualiza (não grava localStorage)
+        const db = { movimentos:[], estoque:{}, funcionarios:[] };
+        db.funcionarios = Array.isArray(j.funcionarios) ? j.funcionarios : [];
+        db.movimentos = Array.isArray(j.movimentos) ? j.movimentos : [];
+        db.estoque = {};
+
+        for(const m of db.movimentos){
+          if(m && m.categoria && !m.itemId) m.itemId = ensureItemIdForName_(m.categoria);
+        }
+
+        for(const m of db.movimentos){
+          const qtd = Number(m.quantidade||0);
+          if(!qtd) continue;
+
+          let delta=0;
+          if(m.tipo==="ENTRADA") delta=qtd;
+          if(m.tipo==="SAIDA") delta=-qtd;
+          if(m.tipo==="DEVOLUCAO") delta=(m.estado==="EMCONDICOES") ? qtd : 0;
+
+          if(delta!==0){
+            const itemId = m.itemId || ensureItemIdForName_(m.categoria);
+            const k = `${itemId}__${m.tamanho}`;
+            db.estoque[k] = Number(db.estoque[k]||0) + delta;
+          }
+        }
+
+        // render “na mão” sem depender do localStorage
+        renderMovFromDb_(db);
+        renderEstoqueFromDb_(db);
+        fillRelFuncionariosFromDb_(db);
+
+        setSheetsStatus("warn","Sheets: DEMO (somente leitura)");
+        alert("DEMO: dados reais carregados (leitura). Nada foi salvo.");
+        return;
+      }
 
       const db = loadDB();
       db.funcionarios = Array.isArray(j.funcionarios) ? j.funcionarios : [];
@@ -1194,7 +1281,7 @@
         let delta=0;
         if(m.tipo==="ENTRADA") delta=qtd;
         if(m.tipo==="SAIDA") delta=-qtd;
-        if(m.tipo==="DEVOLUCAO") delta=(m.estado==="EM_CONDICOES") ? qtd : 0;
+        if(m.tipo==="DEVOLUCAO") delta=(m.estado==="EMCONDICOES") ? qtd : 0;
 
         if(delta!==0){
           const itemId = m.itemId || ensureItemIdForName_(m.categoria);
@@ -1215,9 +1302,77 @@
     }
   });
 
+  // ===== render helpers (para DEMO sem localStorage)
+  function renderEstoqueFromDb_(db){
+    let total=0;
+    const rows=[];
+    Object.entries(db.estoque||{}).map(([k,v])=>{
+      const [itemId,t]=String(k).split("__");
+      return {itemId,t,s:Number(v)};
+    }).sort((a,b)=>(getItemNameById_(a.itemId,a.itemId)+a.t).localeCompare(getItemNameById_(b.itemId,b.itemId)+b.t)).forEach(it=>{
+      total += it.s;
+      rows.push(`<tr>
+        <td>${escapeHtml(getItemNameById_(it.itemId, it.itemId))}</td>
+        <td>${escapeHtml(it.t||"")}</td>
+        <td class="right">${it.s}</td>
+      </tr>`);
+    });
+    tblEstoqueBody.innerHTML = rows.join("") || `<tr><td colspan="3" class="note">Sem itens.</td></tr>`;
+    pillTotal.textContent = `Estoque: ${total} peça(s)`;
+    pillTotal2.textContent = `Total: ${total} peça(s)`;
+  }
+
+  function fillRelFuncionariosFromDb_(db){
+    const pegouIds = new Set(
+      (db.movimentos||[])
+        .filter(m => !m.hidden && m.tipo==="SAIDA" && m.funcionarioId)
+        .map(m => m.funcionarioId)
+    );
+    const lista = (db.funcionarios||[])
+      .filter(f => pegouIds.has(f.id))
+      .slice()
+      .sort((a,b)=>a.nome.localeCompare(b.nome));
+
+    relFuncSel.innerHTML = [
+      `<option value="">(Selecione)</option>`,
+      `<option value="${REL_ALL}">Todos</option>`
+    ].concat(lista.map(f=>`<option value="${escapeHtml(f.id)}">${escapeHtml(f.nome)}</option>`)).join("");
+  }
+
+  function renderMovFromDb_(db){
+    // funcionário select
+    const ativos=(db.funcionarios||[]).filter(f=>f.ativo).sort((a,b)=>a.nome.localeCompare(b.nome));
+    elFuncSel.innerHTML=[`<option value="">(Selecione)</option>`].concat(
+      ativos.map(f=>`<option value="${escapeHtml(f.id)}">${escapeHtml(f.nome)}</option>`)
+    ).join("");
+    fillRelFuncionariosFromDb_(db);
+
+    // estoque + histórico
+    renderEstoqueFromDb_(db);
+
+    const hist=[...(db.movimentos||[])].filter(m=>!m.hidden).reverse().slice(0,250);
+    tblHistBody.innerHTML = hist.map(m=>{
+      const f=m.funcionarioId?getFuncById(db,m.funcionarioId):null;
+      const itemName = m.itemId ? getItemNameById_(m.itemId, m.categoria) : (m.categoria||"");
+      return `<tr>
+        <td>${escapeHtml(m.data)}</td>
+        <td>${escapeHtml(tipoLabel(m.tipo))}</td>
+        <td>${escapeHtml(f?f.nome:"—")}</td>
+        <td>${escapeHtml(itemName)}</td>
+        <td>${escapeHtml(m.tamanho||"")}</td>
+        <td class="right">${Number(m.quantidade)}</td>
+        <td>${escapeHtml(estadoLabel(m.estado))}</td>
+        <td>${escapeHtml(m.motivo||"—")}</td>
+        <td>${escapeHtml(m.obs||"")}</td>
+        <td class="no-print"><button type="button" class="btn danger" disabled>Excluir</button></td>
+      </tr>`;
+    }).join("") || `<tr><td colspan="10" class="note">Sem movimentações.</td></tr>`;
+  }
+
   // ===== salvar movimento (Sheets + local)
   btnSalvar.addEventListener("click", async ()=>{
     if(!requireLogin()) return;
+    if(IS_DEMO) return alert("Modo DEMO: alterações não são salvas.");
 
     const db=loadDB();
     const tipo=elTipo.value;
@@ -1226,7 +1381,7 @@
     const qtd=Number(elQtd.value);
     if(!Number.isFinite(qtd)||qtd<=0) return alert("Quantidade inválida.");
     if((tipo==="SAIDA"||tipo==="DEVOLUCAO") && !elFuncSel.value) return alert("Selecione o funcionário.");
-    if(tipo==="DEVOLUCAO" && elEstado.value==="SEM_CONDICOES" && !elMotivo.value.trim()) return alert("Informe o motivo.");
+    if(tipo==="DEVOLUCAO" && elEstado.value==="SEMCONDICOES" && !elMotivo.value.trim()) return alert("Informe o motivo.");
 
     const itemId = ensureItemIdForName_(elCat.value);
 
@@ -1238,7 +1393,7 @@
       tamanho:elTam.value,
       quantidade:qtd,
       estado:(tipo==="DEVOLUCAO")?elEstado.value:"",
-      motivo:(tipo==="DEVOLUCAO" && elEstado.value==="SEM_CONDICOES")?elMotivo.value.trim():"",
+      motivo:(tipo==="DEVOLUCAO" && elEstado.value==="SEMCONDICOES")?elMotivo.value.trim():"",
       obs:(tipo==="DEVOLUCAO") ? elObs.value.trim() : "",
       hidden:false
     };
@@ -1246,7 +1401,7 @@
     let delta=0;
     if(tipo==="ENTRADA") delta=qtd;
     if(tipo==="SAIDA") delta=-qtd;
-    if(tipo==="DEVOLUCAO") delta=(mov.estado==="EM_CONDICOES")?qtd:0;
+    if(tipo==="DEVOLUCAO") delta=(mov.estado==="EMCONDICOES")?qtd:0;
 
     if(tipo==="SAIDA"){
       const k=`${itemId}__${mov.tamanho}`;
@@ -1276,7 +1431,7 @@
   btnLimpar.addEventListener("click", ()=>{
     elTipo.value="ENTRADA";
     elFuncSel.value="";
-    elEstado.value="EM_CONDICOES";
+    elEstado.value="EMCONDICOES";
     elQtd.value="1";
     elMotivo.value="";
     elObs.value="";
@@ -1288,6 +1443,8 @@
   // ===== salvar funcionário (Sheets + local)
   btnAddFunc.addEventListener("click", async ()=>{
     if(!requireLogin()) return;
+    if(IS_DEMO) return alert("Modo DEMO: alterações não são salvas.");
+
     const nome=String(elNovoNome.value||"").trim();
     if(!nome) return alert("Informe o nome.");
 
@@ -1316,6 +1473,7 @@
 
   function hideMovimento(id){
     if(!requireLogin()) return;
+    if(IS_DEMO) return alert("Modo DEMO: alterações não são salvas.");
     if(!confirm("Ocultar este registro?")) return;
     const db=loadDB();
     const m=db.movimentos.find(x=>x.id===id);
@@ -1356,6 +1514,7 @@
 
   // ===== Estoque: renomear item
   btnEditarItensEstoque.addEventListener("click", ()=>{
+    if(IS_DEMO) return alert("Modo DEMO: alterações não são salvas.");
     try{
       const db = loadDB();
       const ids = new Set();
@@ -1407,7 +1566,7 @@
     }
   });
 
-  // ===== Catálogo (UI bonita)
+  // ===== Catálogo (UI)
   function parseSizes_(text){
     return [...new Set(
       String(text||"").split(",").map(s=>s.trim()).filter(Boolean)
@@ -1445,6 +1604,7 @@
   };
 
   window.removeCatItem = (categoria)=>{
+    if(IS_DEMO) return alert("Modo DEMO: alterações não são salvas.");
     const cat = getCatalog_();
     const it = cat.find(x=>x.categoria===categoria);
     if(!it) return;
@@ -1459,6 +1619,7 @@
   };
 
   btnAddCatItem.addEventListener("click", ()=>{
+    if(IS_DEMO) return alert("Modo DEMO: alterações não são salvas.");
     const categoria = String(catNome.value||"").trim();
     const tamanhos = parseSizes_(catTamanhos.value);
 
@@ -1509,6 +1670,7 @@
 
   btnSalvarCatalogoSheets.addEventListener("click", async ()=>{
     if(!requireLogin()) return;
+    if(IS_DEMO) return alert("Modo DEMO: alterações não são salvas.");
     try{
       const cat = getCatalog_();
       const norm = normalizeCatalog_(cat);
@@ -1526,6 +1688,7 @@
   });
 
   btnRestaurarCatalogo.addEventListener("click", ()=>{
+    if(IS_DEMO) return alert("Modo DEMO: alterações não são salvas.");
     if(!confirm("Restaurar catálogo padrão?")) return;
     saveCatalogLocal_(DEFAULT_CATALOG);
     CATALOG_CACHE = DEFAULT_CATALOG.slice();
@@ -1552,10 +1715,10 @@
     clearPrint();
     btnImprimirTermo.disabled = true;
 
-    clearSession();
+    // Não limpa sessão automaticamente (mantém DEMO/normal entre reloads)
     refreshUserChip();
     applyDevVisibility();
-    showLogin();
+    if(!getCurrentUser()) showLogin();
 
     setSheetsStatus("warn","Sheets: verificando...");
     api({ action:"ping" })
