@@ -87,20 +87,26 @@
     .loginTitle{ margin:0; font-size:16px; font-weight:900; letter-spacing:.2px; }
     .loginSub{ margin:6px 0 0; color:#4b5563; font-size:13px; line-height:1.35; }
 
-    /* Impressão: evita página extra (sem absolute) [web:131] */
-    @page { margin: 12mm; }
+    /* Impressão (Chrome/Windows): força topo e evita folha extra quando possível */
+    @page { margin: 10mm; }
     @media print {
+      html, body { margin:0 !important; padding:0 !important; height:auto !important; }
+      body { background:#fff !important; color:#000 !important; }
       body * { visibility: hidden !important; }
       #printArea, #printArea * { visibility: visible !important; }
 
+      /* força começar no topo */
       #printArea{
-        display:block !important;
-        position: static !important;
-        width: 100% !important;
+        position: fixed !important;
+        left: 0 !important;
+        top: 0 !important;
+        right: 0 !important;
         margin: 0 !important;
+        padding: 0 !important;
+        width: auto !important;
+        background: transparent !important;
       }
 
-      body { background:#fff !important; color:#000 !important; }
       .card, .tableWrap { box-shadow:none !important; border: 0 !important; background: transparent !important; }
       th { position: static !important; background: transparent !important; color:#000 !important; }
       .no-print{ display:none !important; }
@@ -302,63 +308,54 @@
     </div>
   </section>
 
+  <!-- Uniformes (catálogo) - SEM JSON na tela -->
   <section id="screen-uni" class="card hide">
     <div class="hd">
-      <div><h2>Uniformes (catálogo)</h2><p>Carrega e salva no Sheets (com fallback local).</p></div>
+      <div><h2>Uniformes (catálogo)</h2><p>Adicionar, editar e remover itens.</p></div>
     </div>
     <div class="bd">
-  <p class="note">Edite os itens do catálogo por aqui. Depois clique em <b>Salvar no Sheets</b> para publicar.</p>
+      <p class="note">Depois de editar, clique em <b>Salvar no Sheets</b> para publicar.</p>
 
-  <div class="btns no-print" style="margin-top:0;">
-    <button type="button" class="btn" id="btnCarregarCatalogoSheets">Carregar do Sheets</button>
-    <button type="button" class="btn primary" id="btnPublicarCatalogoSheets">Salvar no Sheets</button>
-    <button type="button" class="btn" id="btnRestaurarCatalogo">Restaurar padrão</button>
-  </div>
-
-  <div class="sep"></div>
-
-  <div class="grid2">
-    <div>
-      <label for="catNome">Categoria (nome do item)</label>
-      <input id="catNome" type="text" placeholder="Ex.: Camisa masculina manga longa" />
-    </div>
-    <div>
-      <label for="catTamanhos">Tamanhos (separe por vírgula)</label>
-      <input id="catTamanhos" type="text" placeholder="Ex.: P,M,G,GG,XG" />
-    </div>
-  </div>
-
-  <div class="btns">
-    <button type="button" class="btn primary" id="btnAddCatItem">Adicionar item</button>
-    <button type="button" class="btn" id="btnLimparCatForm">Limpar</button>
-  </div>
-
-  <div class="sep"></div>
-
-  <label>Itens cadastrados</label>
-  <div class="tableWrap" style="max-height:520px;">
-    <table id="tblCatalogo">
-      <thead>
-        <tr>
-          <th>Categoria</th>
-          <th>Tamanhos</th>
-          <th class="right">Ações</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
-  <div class="note" id="catMsg"></div>
-</div>
-
-      <label for="catJson">Catálogo (JSON)</label>
-      <textarea id="catJson" spellcheck="false"></textarea>
-
-      <div class="btns">
-        <button type="button" class="btn" id="btnSalvarCatalogoLocal">Salvar local</button>
+      <div class="btns no-print" style="margin-top:0;">
+        <button type="button" class="btn" id="btnCarregarCatalogoSheets">Carregar do Sheets</button>
+        <button type="button" class="btn primary" id="btnSalvarCatalogoSheets">Salvar no Sheets</button>
         <button type="button" class="btn" id="btnRestaurarCatalogo">Restaurar padrão</button>
       </div>
+
+      <div class="sep"></div>
+
+      <div class="grid2">
+        <div>
+          <label for="catNome">Categoria (nome do item)</label>
+          <input id="catNome" type="text" placeholder="Ex.: Camisa masculina manga longa" />
+        </div>
+        <div>
+          <label for="catTamanhos">Tamanhos (separe por vírgula)</label>
+          <input id="catTamanhos" type="text" placeholder="Ex.: P,M,G,GG,XG" />
+        </div>
+      </div>
+
+      <div class="btns">
+        <button type="button" class="btn primary" id="btnAddCatItem">Adicionar / Atualizar</button>
+        <button type="button" class="btn" id="btnLimparCatForm">Limpar</button>
+      </div>
+
+      <div class="sep"></div>
+
+      <label>Itens cadastrados</label>
+      <div class="tableWrap" style="max-height:520px;">
+        <table id="tblCatalogo">
+          <thead>
+            <tr>
+              <th>Categoria</th>
+              <th>Tamanhos</th>
+              <th class="right">Ações</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
       <div class="note" id="catMsg"></div>
     </div>
   </section>
@@ -457,7 +454,7 @@
     txt.textContent=msg;
   }
 
-  // JSONP (ContentService) [web:33]
+  // JSONP (ContentService)
   function apiJsonp(params, timeoutMs=12000){
     return new Promise((resolve, reject)=>{
       const cbName = "cb_" + Math.random().toString(16).slice(2);
@@ -588,7 +585,7 @@
     if(changed) saveDB(db);
   }
 
-  // ===== Catálogo: Local + Sheets
+  // ===== Catálogo: Local + Sheets (sem mostrar JSON na tela)
   function normalizeCatalog_(raw){
     if(!Array.isArray(raw)) return null;
     const out=[];
@@ -618,12 +615,10 @@
   async function loadCatalogFromSheets_(){
     const j = await api({ action:"getCatalogo" });
     const list = Array.isArray(j.catalog) ? j.catalog : [];
-    // converte para o formato do app: [{categoria,tamanhos}]
     const normalized = list
       .filter(x => x && x.ativo !== false)
       .map(x => ({ categoria: String(x.categoria||"").trim(), tamanhos: Array.isArray(x.tamanhos)?x.tamanhos:[] }))
       .filter(x => x.categoria && x.tamanhos.length);
-
     return normalized;
   }
 
@@ -638,7 +633,6 @@
       const cat = await loadCatalogFromSheets_();
       if(cat && cat.length){
         CATALOG_CACHE = cat;
-        // opcional: atualizar local como espelho
         saveCatalogLocal_(cat);
         setSheetsStatus("ok","Sheets: catálogo OK");
         return true;
@@ -652,8 +646,6 @@
   }
 
   async function publishCatalogToSheets_(cat){
-    // Precisamos também enviar itemId para a aba Catalogo
-    // Vamos gerar itemId por categoria (estável via itemMap)
     const payload = {
       catalog: cat.map(it => ({
         itemId: ensureItemIdForName_(it.categoria),
@@ -710,7 +702,6 @@
       refreshUserChip();
       applyDevVisibility();
       setSheetsStatus("ok","Sheets: conectado");
-      // carrega catálogo do sheets após logar
       await refreshCatalogPreferSheets_();
       fillCategorias();
       fillTamanhos();
@@ -748,7 +739,7 @@
     if(name==="mov") renderMov();
     if(name==="func") renderFuncionariosSelect();
     if(name==="est") renderEstoque();
-    if(name==="uni") renderCatalogEditor_();
+    if(name==="uni"){ renderCatalogUI_(); clearCatForm_(); }
     if(name==="cfg") document.getElementById("cfgUrl").value=SHEETS_URL;
   }
   navBtns.forEach(b=>b.addEventListener("click",()=>setScreen(b.dataset.screen)));
@@ -787,12 +778,15 @@
   const elNovoNome=document.getElementById("novoNome");
   const btnAddFunc=document.getElementById("btnAddFunc");
 
-  // Catálogo UI
-  const catJson=document.getElementById("catJson");
+  // ===== Catálogo UI (lista)
   const btnCarregarCatalogoSheets=document.getElementById("btnCarregarCatalogoSheets");
-  const btnPublicarCatalogoSheets=document.getElementById("btnPublicarCatalogoSheets");
-  const btnSalvarCatalogoLocal=document.getElementById("btnSalvarCatalogoLocal");
+  const btnSalvarCatalogoSheets=document.getElementById("btnSalvarCatalogoSheets");
   const btnRestaurarCatalogo=document.getElementById("btnRestaurarCatalogo");
+  const catNome=document.getElementById("catNome");
+  const catTamanhos=document.getElementById("catTamanhos");
+  const btnAddCatItem=document.getElementById("btnAddCatItem");
+  const btnLimparCatForm=document.getElementById("btnLimparCatForm");
+  const tblCatalogoBody=document.querySelector("#tblCatalogo tbody");
   const catMsg=document.getElementById("catMsg");
 
   // Estoque rename UI
@@ -1147,7 +1141,7 @@
     `).join("");
 
     setPrint(`
-      <div style="max-width:780px; margin:0 auto; padding:0 2mm; font-size:14px;">
+      <div style="max-width:780px; margin:0; padding:0 2mm; font-size:14px;">
         <h2 style="margin:0 0 12px 0; text-align:center; letter-spacing:.4px; font-size:16px;">TERMO DE RECEBIMENTO UNIFORME</h2>
 
         <p style="margin:0 0 10px 0; text-align:justify; line-height:1.45;">
@@ -1413,38 +1407,117 @@
     }
   });
 
-  // ===== Catálogo UI handlers
-  function renderCatalogEditor_(){
-    const cat = getCatalog_();
-    catJson.value = JSON.stringify(cat, null, 2);
+  // ===== Catálogo (UI bonita)
+  function parseSizes_(text){
+    return [...new Set(
+      String(text||"").split(",").map(s=>s.trim()).filter(Boolean)
+    )];
+  }
+
+  function renderCatalogUI_(){
+    const cat = getCatalog_().slice().sort((a,b)=>a.categoria.localeCompare(b.categoria));
+    tblCatalogoBody.innerHTML = cat.map((it)=>`
+      <tr>
+        <td>${escapeHtml(it.categoria)}</td>
+        <td>${escapeHtml((it.tamanhos||[]).join(", "))}</td>
+        <td class="right">
+          <button type="button" class="btn" onclick="editCatItem('${escapeHtml(it.categoria)}')">Editar</button>
+          <button type="button" class="btn danger" onclick="removeCatItem('${escapeHtml(it.categoria)}')">Remover</button>
+        </td>
+      </tr>
+    `).join("") || `<tr><td colspan="3" class="note">Sem itens.</td></tr>`;
+
     catMsg.textContent = "";
   }
 
+  function clearCatForm_(){
+    catNome.value = "";
+    catTamanhos.value = "";
+  }
+
+  window.editCatItem = (categoria)=>{
+    const cat = getCatalog_();
+    const it = cat.find(x=>x.categoria===categoria);
+    if(!it) return;
+    catNome.value = it.categoria;
+    catTamanhos.value = (it.tamanhos||[]).join(",");
+    catNome.focus();
+  };
+
+  window.removeCatItem = (categoria)=>{
+    const cat = getCatalog_();
+    const it = cat.find(x=>x.categoria===categoria);
+    if(!it) return;
+    if(!confirm(`Remover "${it.categoria}"?`)) return;
+
+    const next = cat.filter(x=>x.categoria!==categoria);
+    CATALOG_CACHE = next;
+    saveCatalogLocal_(next);
+
+    fillCategorias(); fillTamanhos();
+    renderCatalogUI_();
+  };
+
+  btnAddCatItem.addEventListener("click", ()=>{
+    const categoria = String(catNome.value||"").trim();
+    const tamanhos = parseSizes_(catTamanhos.value);
+
+    if(!categoria) return alert("Informe a categoria.");
+    if(tamanhos.length === 0) return alert("Informe pelo menos 1 tamanho.");
+
+    ensureItemIdForName_(categoria);
+
+    const cat = getCatalog_();
+    const idx = cat.findIndex(x => x.categoria.toLowerCase() === categoria.toLowerCase());
+
+    const next = cat.slice();
+    if(idx >= 0){
+      next[idx] = { categoria, tamanhos };
+    } else {
+      next.push({ categoria, tamanhos });
+    }
+
+    CATALOG_CACHE = next;
+    saveCatalogLocal_(next);
+
+    fillCategorias(); fillTamanhos();
+    renderCatalogUI_();
+    clearCatForm_();
+  });
+
+  btnLimparCatForm.addEventListener("click", ()=>{
+    clearCatForm_();
+    catNome.focus();
+  });
+
   btnCarregarCatalogoSheets.addEventListener("click", async ()=>{
     if(!requireLogin()) return;
-    const ok = await refreshCatalogPreferSheets_();
-    if(ok){
-      renderCatalogEditor_();
-      fillCategorias();
-      fillTamanhos();
-      alert("Catálogo carregado do Sheets.");
-    } else {
-      alert("Não foi possível carregar do Sheets (ou está vazio).");
+    try{
+      const ok = await refreshCatalogPreferSheets_();
+      if(ok){
+        fillCategorias();
+        fillTamanhos();
+        renderCatalogUI_();
+        alert("Catálogo carregado do Sheets.");
+      } else {
+        alert("Não foi possível carregar do Sheets (ou está vazio).");
+      }
+    }catch(err){
+      alert(String(err.message||err));
     }
   });
 
-  btnPublicarCatalogoSheets.addEventListener("click", async ()=>{
+  btnSalvarCatalogoSheets.addEventListener("click", async ()=>{
     if(!requireLogin()) return;
     try{
-      const raw = JSON.parse(catJson.value);
-      const norm = normalizeCatalog_(raw);
-      if(!norm) return alert("Catálogo inválido.");
+      const cat = getCatalog_();
+      const norm = normalizeCatalog_(cat);
+      if(!norm) return alert("Catálogo inválido/vazio.");
       setSheetsStatus("warn","Sheets: salvando catálogo...");
       await publishCatalogToSheets_(norm);
       CATALOG_CACHE = norm;
       saveCatalogLocal_(norm);
       setSheetsStatus("ok","Sheets: catálogo salvo");
-      fillCategorias(); fillTamanhos();
       alert("Catálogo salvo no Sheets.");
     }catch(err){
       setSheetsStatus("erro","Sheets: erro");
@@ -1452,28 +1525,14 @@
     }
   });
 
-  btnSalvarCatalogoLocal.addEventListener("click", ()=>{
-    try{
-      const raw = JSON.parse(catJson.value);
-      const norm = normalizeCatalog_(raw);
-      if(!norm) return alert("Catálogo inválido.");
-      saveCatalogLocal_(norm);
-      CATALOG_CACHE = norm;
-      catMsg.textContent = "Salvo local.";
-      fillCategorias(); fillTamanhos();
-      alert("Catálogo salvo localmente.");
-    }catch(err){
-      alert(String(err.message||err));
-    }
-  });
-
   btnRestaurarCatalogo.addEventListener("click", ()=>{
     if(!confirm("Restaurar catálogo padrão?")) return;
     saveCatalogLocal_(DEFAULT_CATALOG);
-    CATALOG_CACHE = DEFAULT_CATALOG;
-    renderCatalogEditor_();
+    CATALOG_CACHE = DEFAULT_CATALOG.slice();
     fillCategorias();
     fillTamanhos();
+    renderCatalogUI_();
+    clearCatForm_();
     alert("Catálogo restaurado.");
   });
 
@@ -1493,7 +1552,6 @@
     clearPrint();
     btnImprimirTermo.disabled = true;
 
-    // Exigir login sempre
     clearSession();
     refreshUserChip();
     applyDevVisibility();
