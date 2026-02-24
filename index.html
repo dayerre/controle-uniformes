@@ -285,15 +285,23 @@
   }
 
 @media print {
-  #printArea {
+  @page { margin: 10mm; } /* deixe 10mm para estabilidade */
+
+  #printArea, #printBody {
     margin: 0 !important;
     padding: 0 !important;
-    position: static !important;
   }
 
-  #printBody {
-    margin: 0 !important;
-    padding: 0 !important;
+  /* Garante que nada “reserve espaço” antes do conteúdo */
+  #printArea * {
+    margin-top: 0 !important;
+  }
+
+  /* Evita layout quebrar por altura/overflow */
+  #printArea, #printBody {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
   }
 }
 
@@ -481,7 +489,7 @@
         </div>
       </div>
 
-      <div id="printArea" class="card" style="margin-top:12px; display:none margin: 0 !important; padding: 0 !important;">
+      <div id="printArea" class="card" style="display:none">
         <div class="hd" id="printHeader"><div><h2>Impresso</h2><p></p></div></div>
         <div class="bd" id="printBody"><div class="note"></div></div>
       </div>
@@ -1719,7 +1727,7 @@ function imprimirTermoFuncionario(){
   `).join("");
 
   setPrint(`
-    <div style="max-width:780px; margin:0; padding:0 2mm; font-size:13px; line-height:1.25">
+    <div style="max-width:780px; margin:0; padding:0; font-size:13px; line-height:1.25">
       <h2 style="margin:0 0 8px 0; text-align:center; letter-spacing:.4px; font-size:15px">TERMO DE RECEBIMENTO UNIFORME</h2>
       <p style="margin:0 0 8px 0; text-align:justify; line-height:1.35">
         Eu, <b>${escapeHtml(nome)}</b>. Recebi da empresa INTERCOL SERVIÇOS DE INTERNET LTDA (CNPJ 03.879.067/0001-36),
