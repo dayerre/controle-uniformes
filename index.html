@@ -268,27 +268,47 @@
     .loginSub{ margin:6px 0 0; color:#4b5563; font-size:13px; line-height:1.35; }
 
     /* Print */
-    @media print{
-      .tableWrap{ max-height:none !important; overflow:visible !important; }
-      table{ page-break-inside: avoid; break-inside: avoid; }
-      tr, td, th{ page-break-inside: avoid; break-inside: avoid; }
-      #printArea{ page-break-inside: avoid; break-inside: avoid; }
+    @media print {
+  .tableWrap { max-height: none !important; overflow: visible !important; }
+  table { page-break-inside: auto; }
+  tr, td, th { page-break-inside: avoid; break-inside: avoid; }
 
-      html, body{ margin:0 !important; padding:0 !important; height:auto !important; }
-      body{ background:#fff !important; color:#000 !important; visibility:hidden !important; }
-      #printArea, #printArea *{ visibility:visible !important; }
-      #printArea{
-        position:fixed !important;
-        left:0 !important; top:0 !important; right:0 !important;
-        margin:0 !important;
-        padding:0 !important;
-        width:auto !important;
-        background:transparent !important;
-      }
-      .card, .tableWrap{ box-shadow:none !important; border:0 !important; background:transparent !important; overflow:visible !important; }
-      th{ position:static !important; background:transparent !important; color:#000 !important; }
-      .no-print{ display:none !important; }
-    }
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  body { visibility: hidden !important; }
+
+  #printArea, #printArea * { visibility: visible !important; }
+
+  /* IMPORTANTE: não use fixed (isso causa sobreposição na 2ª página) */
+  #printArea {
+    position: static !important; /* ou relative */
+    left: auto !important;
+    top: auto !important;
+    right: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: auto !important;
+    background: transparent !important;
+  }
+
+  .card, .tableWrap {
+    box-shadow: none !important;
+    border: 0 !important;
+    background: transparent !important;
+    overflow: visible !important;
+  }
+
+  th { position: static !important; background: transparent !important; color: #000 !important; }
+
+  .no-print { display: none !important; }
+}
+
   </style>
 </head>
 
