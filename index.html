@@ -268,9 +268,44 @@
     .loginSub{ margin:6px 0 0; color:#4b5563; font-size:13px; line-height:1.35; }
 
     /* Print */
+@media print {
+  @page { margin: 10mm; }
 
+  /* Esconde TUDO de verdade (não só visibility) */
+  body * {
+    display: none !important;
+  }
 
-   @page { margin: 10mm;  }
+  /* Mostra só o printArea e o conteúdo dele */
+  #printArea,
+  #printArea * {
+    display: block !important;
+  }
+
+  /* Mantém tabelas como tabelas (senão vira tudo block) */
+  #printArea table { display: table !important; width: 100% !important; border-collapse: collapse !important; }
+  #printArea thead { display: table-header-group !important; }
+  #printArea tbody { display: table-row-group !important; }
+  #printArea tr { display: table-row !important; }
+  #printArea th, #printArea td { display: table-cell !important; }
+
+  /* Coloca o printArea no topo da página */
+  #printArea {
+    position: fixed !important;  /* aqui o fixed é OK, porque só ele existe */
+    left: 0 !important;
+    top: 0 !important;
+    right: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  /* Remove limites do wrapper de tabela */
+  .tableWrap { max-height: none !important; overflow: visible !important; }
+
+  .no-print { display: none !important; }
+}
+
   </style>
 </head>
 
