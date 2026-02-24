@@ -1283,9 +1283,9 @@ function requireDev(){
   }
   return true;
 }
+
 // === DEV: Reativar funcionários inativos (somente DEV) ===
 function renderInativosDev(){
-  // Só desenha se for DEV e se os elementos existirem na tela
   if(!isDevSession()) return;
   if(!tblFuncsInativos || !searchInativo) return;
 
@@ -1338,6 +1338,11 @@ window.ativarFuncionarioDev = async function(funcId){
   }
 };
 
+// Listener da busca (DEV)
+if (searchInativo) {
+  searchInativo.addEventListener("input", renderInativosDev);
+}
+
 // Listener (pode ficar aqui porque refs já existem no seu arquivo)
 if (searchInativo) {
   searchInativo.addEventListener("input", renderInativosDev);
@@ -1348,32 +1353,69 @@ if (searchInativo) {
 ========================= */
 async function autoSyncAfterLogin(){
   if(!requireLogin()) return;
+
   try{
     setSheetsStatus("warn","Sheets sincronizando...");
-    const j = await api({ action:"getSnapshot" });
 
+    const j = await api({ action: "getSnapshot" });
     const db = loadDB();
-    db.funcionarios = Array.isArray(j.funcionarios) ? j.funcionarios : db.funcionarios;
-    db.movimentos = Array.isArray(j.movimentos) ? j.movimentos : db.movimentos;
 
-    // ===== FIX: popular ItemMap com nomes (categoria) vindos do Sheets =====
-    // Isso evita aparecer "itm-..." no estoque quando o itemId já existia no Sheets
+    db.funcionarios = Array.isArray(j.funcionarios) ? j.funcionarios : db.funcionarios;
+    db.movimentos   = Array.isArray(j.movimentos)   ? j.movimentos   : db.movimentos;
+
+    // FIX: popular ItemMap com nomes (categoria) vindos do Sheets
+    // Isso evita aparecer itm-... no estoque quando o itemId já existia no Sheets
     try{
       const map = loadItemMap();
       let changed = false;
-      for (const m of db.movimentos || []) {
-        if (!m) continue;
+
+      for(const m of db.movimentos){
+        if(!m) continue;
         const itemId2 = m.itemId ? String(m.itemId) : "";
-        const catName = String(m.categoria || "").trim();
-        if (!itemId2 || !catName) continue;
-        if (!map.items[itemId2] || !map.items[itemId2].name) {
+        const catName = String(m.categoria ?? "").trim();
+        if(!itemId2 || !catName) continue;
+
+        if(!map.items[itemId2] || !map.items[itemId2].name){
           map.items[itemId2] = { name: catName };
           changed = true;
         }
       }
-      if (changed) saveItemMap(map);
-    }catch(e){}
 
+      if(changed) saveItemMap(map);
+    } catch(e){
+      // não trava sync se falhar ItemMap
+    }
+    // fim FIX
+
+    // Recalcula estoque a partir dos movimentos
+    db.estoque = {};
+    for(const m of db.movimentos){
+      if(!m || m.hidden) continue;
+      const qtd = Number(m.quantidade || 0);
+      if(!qtd) continue;
+
+      const itemId2 = m.itemId ? String(m.itemId) : ensureItemIdForName(m.categoria);
+      const k = itemId2 + "-" + m.tamanho;
+
+      let delta = 0;
+      if(m.tipo === "ENTRADA") delta = qtd;
+      if(m.tipo === "SAIDA") delta = -qtd;
+      if(m.tipo === "DEVOLUCAO") delta = (m.estado === "EMCONDICOES" ? qtd : 0);
+
+      db.estoque[k] = Number(db.estoque[k] || 0) + delta;
+    }
+
+    saveDB(db);
+
+    renderMov();
+    renderEstoque();
+    fillRelFuncionariosSomenteQuemPegou();
+
+    setSheetsStatus("ok","Sheets sincronizado");
+  } catch(err){
+    setSheetsStatus("warn","Sheets offline");
+  }
+}
 
     // ===== fim FIX =====
 
@@ -2299,9 +2341,7 @@ btnCreateUser.addEventListener("click", async ()=>{
   if(!login) return alert("Informe o login.");
   if(login === DEVEMAIL.toLowerCase()) return alert("Login reservado ao DEV.");
   if(!/^\d{6}$/.test(pin)) return alert("Senha deve ter 6 dígitos.");
-  if (searchInativo) {
-  searchInativo.addEventListener("input", renderInativosDev);
-}
+  }
 
 
   const s = getCurrentUser();
