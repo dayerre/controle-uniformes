@@ -1885,22 +1885,26 @@ relFuncSel.addEventListener("change", ()=>{
 let printingLock = false;
 
 btnImprimirRel.addEventListener("click", () => {
+let printingLock = false;
+
+btnImprimirRel.addEventListener("click", () => {
   if (!requireLogin()) return;
   if (printingLock) return;
 
   printingLock = true;
   gerarRelatorioFuncionarioOuTodos();
+
   if (printArea.style.display === "none") {
     printingLock = false;
     return;
   }
 
-  // dá um “respiro” pro DOM aplicar antes do print
   setTimeout(() => {
     window.print();
-    setTimeout(() => (printingLock = false), 500);
-  }, 50);
+    setTimeout(() => (printingLock = false), 600);
+  }, 80);
 });
+
 
 btnImprimirTermo.addEventListener("click", ()=>{
   if(!requireLogin()) return;
