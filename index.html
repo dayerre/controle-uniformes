@@ -280,43 +280,36 @@
     color: #000 !important;
   }
 
-  /* Esconde tudo e não deixa ocupar espaço */
+  /* Esconde tudo */
   body * {
-    display: none !important;
     visibility: hidden !important;
   }
 
-  /* Mostra só o printArea */
+  /* Mostra só a área de impressão e o que está dentro */
+  #printArea, #printArea * {
+    visibility: visible !important;
+  }
+
   #printArea {
     display: block !important;
-    visibility: visible !important;
-    position: static !important;   /* multipágina */
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
     background: #fff !important;
   }
 
-  /* Mostra os filhos sem forçar tudo virar block */
-  #printArea * {
-    display: revert !important;
-    visibility: visible !important;
+  /* Remove sticky/scroll na impressão */
+  .tableWrap {
+    max-height: none !important;
+    overflow: visible !important;
   }
-
-  /* Garante tabela ok no print (fallback forte) */
-  #printArea table { display: table !important; width: 100% !important; border-collapse: collapse !important; }
-  #printArea thead { display: table-header-group !important; }
-  #printArea tbody { display: table-row-group !important; }
-  #printArea tr { display: table-row !important; }
-  #printArea th, #printArea td { display: table-cell !important; }
-
-  /* Remove sticky / scroll */
-  .tableWrap { max-height: none !important; overflow: visible !important; }
   th { position: static !important; }
 
   .no-print { display: none !important; }
 }
-
-
 
 
   </style>
