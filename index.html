@@ -267,44 +267,65 @@
     .loginTitle{ margin:0; font-size:16px; font-weight:900; letter-spacing:.2px; }
     .loginSub{ margin:6px 0 0; color:#4b5563; font-size:13px; line-height:1.35; }
 
-    /* Print */
+/* Print */
 @media print {
   @page { margin: 10mm; }
 
-  /* Esconde TUDO de verdade (não só visibility) */
-  body * {
-    display: none !important;
+  /* Mantém layout normal (não destrói table/tr/td) */
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+    background: #fff !important;
+    color: #000 !important;
   }
 
-  /* Mostra só o printArea e o conteúdo dele */
-  #printArea,
-  #printArea * {
-    display: block !important;
+  /* Esconde tudo SEM mexer no display (mais estável) */
+  body {
+    visibility: hidden !important;
+    background: #fff !important;
   }
 
-  /* Mantém tabelas como tabelas (senão vira tudo block) */
-  #printArea table { display: table !important; width: 100% !important; border-collapse: collapse !important; }
-  #printArea thead { display: table-header-group !important; }
-  #printArea tbody { display: table-row-group !important; }
-  #printArea tr { display: table-row !important; }
-  #printArea th, #printArea td { display: table-cell !important; }
+  /* Mostra só o printArea */
+  #printArea, #printArea * {
+    visibility: visible !important;
+  }
 
-  /* Coloca o printArea no topo da página */
+  /* Coloca o printArea no topo e remove “cara de card” */
   #printArea {
-    position: fixed !important;  /* aqui o fixed é OK, porque só ele existe */
+    position: fixed !important;
     left: 0 !important;
     top: 0 !important;
     right: 0 !important;
     margin: 0 !important;
     padding: 0 !important;
-    background: #fff !important;
+    background: transparent !important;
   }
 
-  /* Remove limites do wrapper de tabela */
-  .tableWrap { max-height: none !important; overflow: visible !important; }
+  .card, .tableWrap {
+    box-shadow: none !important;
+    border: 0 !important;
+    background: transparent !important;
+    overflow: visible !important;
+  }
+
+  .tableWrap {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  table { page-break-inside: avoid; break-inside: avoid; }
+  tr, td, th { page-break-inside: avoid; break-inside: avoid; }
+
+  th {
+    position: static !important; /* tira sticky no print */
+    background: transparent !important;
+    color: #000 !important;
+  }
 
   .no-print { display: none !important; }
 }
+
 
   </style>
 </head>
