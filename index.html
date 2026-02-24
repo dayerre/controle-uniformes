@@ -268,72 +268,9 @@
     .loginSub{ margin:6px 0 0; color:#4b5563; font-size:13px; line-height:1.35; }
 
     /* Print */
-@page { margin: 10mm;  }
-@page { margin: 10mm; }
-
-    @media print {
-  .tableWrap { max-height: none !important; overflow: visible !important; }
-  table { page-break-inside: auto; }
-  tr, td, th { page-break-inside: avoid; break-inside: avoid; }
-
-  html, body {
-    margin: 0 !important;
-    padding: 0 !important;
-    height: auto !important;
-    background: #fff !important;
-    color: #000 !important;
-  }
-
-@media print {
-  @page { margin: 10mm; } /* deixe 10mm para estabilidade */
-
-  #printArea, #printBody {
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-
-  /* Garante que nada “reserve espaço” antes do conteúdo */
-  #printArea * {
-    margin-top: 0 !important;
-  }
-
-  /* Evita layout quebrar por altura/overflow */
-  #printArea, #printBody {
-    height: auto !important;
-    min-height: 0 !important;
-    overflow: visible !important;
-  }
-}
 
 
-  body { visibility: hidden !important; }
-
-  #printArea, #printArea * { visibility: visible !important; }
-
-  /* IMPORTANTE: não use fixed (isso causa sobreposição na 2ª página) */
-  #printArea {
-    position: static !important; /* ou relative */
-    left: auto !important;
-    top: auto !important;
-    right: auto !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    width: auto !important;
-    background: transparent !important;
-  }
-
-  .card, .tableWrap {
-    box-shadow: none !important;
-    border: 0 !important;
-    background: transparent !important;
-    overflow: visible !important;
-  }
-
-  th { position: static !important; background: transparent !important; color: #000 !important; }
-
-  .no-print { display: none !important; }
-}
-
+   @page { margin: 10mm;  }
   </style>
 </head>
 
