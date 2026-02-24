@@ -1982,9 +1982,18 @@ window.hideMovimento = function(id){
 /* =========================
    Relatório / termo
 ========================= */
-btnGerarRel.addEventListener("click", () => {
+function waitNextFrame(){
+  return new Promise(r => requestAnimationFrame(() => r()));
+}
+
+let printingLock = false;
+
+btnGerarRel.addEventListener("click", async () => {
   if (!requireLogin()) return;
+  clearPrint();
   gerarRelatorioFuncionarioOuTodos();
+  await waitNextFrame();
+  await waitNextFrame();
 });
 
 btnLimparRel.addEventListener("click", () => {
@@ -1997,29 +2006,37 @@ relFuncSel.addEventListener("change", () => {
   btnImprimirTermo.disabled = !relFuncSel.value || relFuncSel.value === RELALL;
 });
 
-let printingLock = false;
-
-btnImprimirRel.addEventListener("click", () => {
+btnImprimirRel.addEventListener("click", async () => {
   if (!requireLogin()) return;
   if (printingLock) return;
 
   printingLock = true;
+
+  clearPrint();
   gerarRelatorioFuncionarioOuTodos();
+
+  await waitNextFrame();
+  await waitNextFrame();
 
   if (printArea.style.display === "none") {
     printingLock = false;
     return;
   }
 
-  setTimeout(() => {
-    window.print();
-    setTimeout(() => (printingLock = false), 600);
-  }, 80);
+  window.print();
+  setTimeout(() => (printingLock = false), 800);
 });
 
-btnImprimirTermo.addEventListener("click", () => {
+btnImprimirTermo.addEventListener("click", async () => {
   if (!requireLogin()) return;
+
+  clearPrint();
   imprimirTermoFuncionario();
+
+  await waitNextFrame();
+  await waitNextFrame();
+
+  window.print();
 });
 
 /* =========================
