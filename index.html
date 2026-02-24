@@ -268,6 +268,11 @@
     .loginSub{ margin:6px 0 0; color:#4b5563; font-size:13px; line-height:1.35; }
 
     /* Print */
+@page {
+  margin: 0;
+}
+@page { margin: 10mm; }
+
     @media print {
   .tableWrap { max-height: none !important; overflow: visible !important; }
   table { page-break-inside: auto; }
@@ -464,7 +469,7 @@
         </div>
       </div>
 
-      <div id="printArea" class="card" style="margin-top:12px; display:none">
+      <div id="printArea" class="card" style="margin-top:12px; display:none margin: 0 !important; padding: 0 !important;">
         <div class="hd" id="printHeader"><div><h2>Impresso</h2><p></p></div></div>
         <div class="bd" id="printBody"><div class="note"></div></div>
       </div>
