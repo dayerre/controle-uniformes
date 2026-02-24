@@ -268,10 +268,10 @@
     .loginSub{ margin:6px 0 0; color:#4b5563; font-size:13px; line-height:1.35; }
 
 /* Print */
+/* Print (topo + multipágina) */
 @media print {
   @page { margin: 10mm; }
 
-  /* Base */
   html, body {
     margin: 0 !important;
     padding: 0 !important;
@@ -280,52 +280,42 @@
     color: #000 !important;
   }
 
-  /* Esconde tudo (sem quebrar layout) */
-  body {
+  /* Esconde tudo e não deixa ocupar espaço */
+  body * {
+    display: none !important;
     visibility: hidden !important;
+  }
+
+  /* Mostra só o printArea */
+  #printArea {
+    display: block !important;
+    visibility: visible !important;
+    position: static !important;   /* multipágina */
+    margin: 0 !important;
+    padding: 0 !important;
     background: #fff !important;
   }
 
-  /* Mostra só a área de impressão */
-  #printArea, #printArea * {
+  /* Mostra os filhos sem forçar tudo virar block */
+  #printArea * {
+    display: revert !important;
     visibility: visible !important;
   }
 
-  /* IMPORTANTÍSSIMO: multi-página não pode ser fixed */
-  #printArea {
-    position: static !important; /* era fixed e sobrepunha a página 2 */
-    margin: 0 !important;
-    padding: 0 !important;
-    width: auto !important;
-    background: transparent !important;
-  }
+  /* Garante tabela ok no print (fallback forte) */
+  #printArea table { display: table !important; width: 100% !important; border-collapse: collapse !important; }
+  #printArea thead { display: table-header-group !important; }
+  #printArea tbody { display: table-row-group !important; }
+  #printArea tr { display: table-row !important; }
+  #printArea th, #printArea td { display: table-cell !important; }
 
-  /* Remove “cara de card” no papel */
-  .card, .tableWrap {
-    box-shadow: none !important;
-    border: 0 !important;
-    background: transparent !important;
-    overflow: visible !important;
-  }
-
-  .tableWrap {
-    max-height: none !important;
-    overflow: visible !important;
-  }
-
-  /* Evita sticky header atrapalhar */
-  th {
-    position: static !important;
-    background: transparent !important;
-    color: #000 !important;
-  }
-
-  /* Paginação mais previsível */
-  table { break-inside: auto; page-break-inside: auto; }
-  tr { break-inside: avoid; page-break-inside: avoid; }
+  /* Remove sticky / scroll */
+  .tableWrap { max-height: none !important; overflow: visible !important; }
+  th { position: static !important; }
 
   .no-print { display: none !important; }
 }
+
 
 
 
@@ -2238,30 +2228,31 @@ btnCreateUser.addEventListener("click", async ()=>{
 ========================= */
 function boot(){
   migrateLocalData();
-
   fillCategorias();
   fillTamanhos();
-
   elData.value = todayISO();
   updateMovUI();
-
   renderMov();
   renderEstoque();
   setScreen("mov");
-
   document.getElementById("cfgUrl").value = SHEETSURL;
-
   clearPrint();
   btnImprimirTermo.disabled = true;
-
   refreshUserChip();
   applyDevVisibility();
   applyEditLocks();
 
-  if(!getCurrentUser()) showLogin();
+  // Se não tem sessão, abre login.
+  if(!getCurrentUser()){
+    showLogin();
+  } else {
+    // Se já tem sessão (ex.: abriu em outro dia/PC), sincroniza já no início.
+    // Isso preenche o ItemMap e evita aparecer "itm-..." no estoque/histórico.
+    autoSyncAfterLogin();
+  }
 
-  setSheetsStatus("warn","Sheets verificando...");
-  api({ action:"ping" })
+  setSheetsStatus("warn", "Sheets verificando...");
+  api({ action: "ping" })
     .then(()=>setSheetsStatus("ok","Sheets conectado"))
     .catch(()=>setSheetsStatus("warn","Sheets offline"));
 
@@ -2269,6 +2260,7 @@ function boot(){
   elEstado.addEventListener("change", updateMovUI);
   elCat.addEventListener("change", fillTamanhos);
 }
+
 boot();
 </script>
 
