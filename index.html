@@ -1426,37 +1426,66 @@ window.toggleFuncionarioAtivo = async function(funcId){
   }
 };
 
-function renderEstoque(){
+function renderEstoque() {
   const db = loadDB();
   let total = 0;
 
-  const rows = Object.entries(db.estoque || {})
-    .map(([k,v])=>{
+  const rows = Object.entries(db.estoque)
+    .map(([k, v]) => {
       const ks = String(k);
-const p = ks.lastIndexOf("-");
-const itemId = p > 0 ? ks.slice(0, p) : ks;
-const t = p > 0 ? ks.slice(p + 1) : "";
+      const p = ks.lastIndexOf("-");
+      const itemId = p >= 0 ? ks.slice(0, p) : ks;
+      const t = p >= 0 ? ks.slice(p + 1) : "";
       return { itemId, t, s: Number(v || 0) };
     })
-    .sort((a,b)=>{
-      const an = getItemNameById(a.itemId, a.itemId) + a.t;
-      const bn = getItemNameById(b.itemId, b.itemId) + b.t;
-      return an.localeCompare(bn);
+    .sort((a, b) => {
+      const an = getBestItemName(db, a.itemId);
+      const bn = getBestItemName(db, b.itemId);
+      return an.localeCompare(bn) || a.t.localeCompare(b.t);
     });
 
-  const html = rows.length ? rows.map(it=>{
-    total += it.s;
-    return `<tr>
-      <td>${escapeHtml(getItemNameById(it.itemId, it.itemId))}</td>
-      <td>${escapeHtml(it.t)}</td>
-      <td class="right">${Number(it.s)}</td>
-    </tr>`;
-  }).join("") : `<tr><td colspan="3" class="note">Sem itens.</td></tr>`;
+  const html = rows.length
+    ? rows
+        .map((it) => {
+          total += it.s;
+          return `
+            <tr>
+              <td>${escapeHtml(getBestItemName(db, it.itemId))}</td>
+              <td>${escapeHtml(it.t)}</td>
+              <td class="right">${Number(it.s)}</td>
+            </tr>
+          `;
+        })
+        .join("")
+    : `<tr><td colspan="3" class="note">Sem itens.</td></tr>`;
 
   tblEstoqueBody.innerHTML = html;
   pillTotal.textContent = `Estoque total: ${total} peças`;
   pillTotal2.textContent = `Total: ${total} peças`;
 }
+
+function getBestItemName(db, itemId) {
+  // 1) tenta ItemMap (padrão do seu projeto)
+  const fromMap = getItemNameById(itemId, "");
+  if (fromMap && fromMap !== itemId) return String(fromMap);
+
+  // 2) tenta inferir pela última movimentação com categoria desse itemId
+  const last = [...(db.movimentos || [])]
+    .reverse()
+    .find(
+      (m) =>
+        m &&
+        !m.hidden &&
+        String(m.itemId || "") === String(itemId) &&
+        String(m.categoria || "").trim()
+    );
+
+  if (last) return String(last.categoria).trim();
+
+  // 3) fallback final
+  return String(itemId || "");
+}
+
 
 function renderMov(){
   renderFuncionariosSelect();
@@ -1493,12 +1522,12 @@ function renderMov(){
 /* =========================
    Impressão
 ========================= */
-function setPrint(html){
+function setPrint(html) {
   printHeader.style.display = "none";
-  printBody.innerHTML = "";
-  printBody.innerHTML = html;
+  printBody.innerHTML = html;   // importante: NÃO usar "+="
   printArea.style.display = "block";
 }
+
 function clearPrint(){
   printHeader.style.display = "flex";
   printBody.innerHTML = `<div class="note"></div>`;
