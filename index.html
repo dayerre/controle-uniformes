@@ -1524,9 +1524,10 @@ function renderMov(){
 ========================= */
 function setPrint(html) {
   printHeader.style.display = "none";
-  printBody.innerHTML = html;   // importante: NÃO usar "+="
+  printBody.innerHTML = html;     // não usar +=
   printArea.style.display = "block";
 }
+
 
 function clearPrint(){
   printHeader.style.display = "flex";
@@ -1619,32 +1620,35 @@ function gerarRelatorioFuncionarioOuTodos(){
   btnImprimirTermo.disabled = false;
 }
 
-function calcSaldoPorFuncionario(db, funcId){
+function calcSaldoPorFuncionario(db, funcId) {
   const saldo = new Map();
-  const movs = (db.movimentos || []).filter(m=>m && !m.hidden && m.funcionarioId === funcId);
 
-  for(const m of movs){
+  const movs = db.movimentos.filter((m) => m && !m.hidden && m.funcionarioId === funcId);
+
+  for (const m of movs) {
     const qtd = Number(m.quantidade || 0);
-    if(!qtd) continue;
+    if (!qtd) continue;
 
     let delta = 0;
-    if(m.tipo === "SAIDA") delta = qtd;
-    if(m.tipo === "DEVOLUCAO" && m.estado === "EMCONDICOES") delta = -qtd;
-    if(delta === 0) continue;
+    if (m.tipo === "SAIDA") delta = qtd;
+    if (m.tipo === "DEVOLUCAO" && m.estado === "EMCONDICOES") delta = -qtd;
+    if (!delta) continue;
 
     const itemId = m.itemId ? String(m.itemId) : ensureItemIdForName(m.categoria);
-    const k = itemId + "-" + m.tamanho;
-    saldo.set(k, (saldo.get(k) || 0) + delta);
+    const key = `${itemId}__${String(m.tamanho || "")}`; // separador seguro
+    saldo.set(key, (saldo.get(key) || 0) + delta);
   }
 
   const out = [];
-  for(const [k,q] of saldo.entries()){
-    if(q <= 0) continue;
-    const [itemId, ...rest] = k.split("-");
-    out.push({ itemId, tamanho: rest.join("-"), quantidade: q });
+  for (const [key, q] of saldo.entries()) {
+    if (!q) continue;
+    const p = key.indexOf("__");
+    const itemId = p >= 0 ? key.slice(0, p) : key;
+    const tamanho = p >= 0 ? key.slice(p + 2) : "";
+    out.push({ itemId, tamanho, quantidade: q });
   }
 
-  out.sort((a,b)=>{
+  out.sort((a, b) => {
     const an = getItemNameById(a.itemId, a.itemId) + a.tamanho;
     const bn = getItemNameById(b.itemId, b.itemId) + b.tamanho;
     return an.localeCompare(bn);
@@ -1652,6 +1656,7 @@ function calcSaldoPorFuncionario(db, funcId){
 
   return out;
 }
+
 
 function imprimirTermoFuncionario(){
   const db = loadDB();
@@ -1877,12 +1882,26 @@ btnLimparRel.addEventListener("click", ()=>{
 relFuncSel.addEventListener("change", ()=>{
   btnImprimirTermo.disabled = (!relFuncSel.value || relFuncSel.value === RELALL);
 });
-btnImprimirRel.addEventListener("click", ()=>{
-  if(!requireLogin()) return;
-  if(printArea.style.display === "none") gerarRelatorioFuncionarioOuTodos();
-  if(printArea.style.display === "none") return;
-  window.print();
+let printingLock = false;
+
+btnImprimirRel.addEventListener("click", () => {
+  if (!requireLogin()) return;
+  if (printingLock) return;
+
+  printingLock = true;
+  gerarRelatorioFuncionarioOuTodos();
+  if (printArea.style.display === "none") {
+    printingLock = false;
+    return;
+  }
+
+  // dá um “respiro” pro DOM aplicar antes do print
+  setTimeout(() => {
+    window.print();
+    setTimeout(() => (printingLock = false), 500);
+  }, 50);
 });
+
 btnImprimirTermo.addEventListener("click", ()=>{
   if(!requireLogin()) return;
   imprimirTermoFuncionario();
