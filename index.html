@@ -1870,21 +1870,22 @@ window.hideMovimento = function(id){
 /* =========================
    Relatório / termo
 ========================= */
-btnGerarRel.addEventListener("click", ()=>{
-  if(!requireLogin()) return;
+
+btnGerarRel.addEventListener("click", () => {
+  if (!requireLogin()) return;
   gerarRelatorioFuncionarioOuTodos();
 });
-btnLimparRel.addEventListener("click", ()=>{
+
+btnLimparRel.addEventListener("click", () => {
   relFuncSel.value = "";
   clearPrint();
   btnImprimirTermo.disabled = true;
 });
-relFuncSel.addEventListener("change", ()=>{
-  btnImprimirTermo.disabled = (!relFuncSel.value || relFuncSel.value === RELALL);
-});
-let printingLock = false;
 
-btnImprimirRel.addEventListener("click", () => {
+relFuncSel.addEventListener("change", () => {
+  btnImprimirTermo.disabled = !relFuncSel.value || relFuncSel.value === RELALL;
+});
+
 let printingLock = false;
 
 btnImprimirRel.addEventListener("click", () => {
@@ -1905,11 +1906,11 @@ btnImprimirRel.addEventListener("click", () => {
   }, 80);
 });
 
-
-btnImprimirTermo.addEventListener("click", ()=>{
-  if(!requireLogin()) return;
+btnImprimirTermo.addEventListener("click", () => {
+  if (!requireLogin()) return;
   imprimirTermoFuncionario();
 });
+
 
 /* =========================
    Estoque: renomear itens
