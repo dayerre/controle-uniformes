@@ -268,9 +268,7 @@
     .loginSub{ margin:6px 0 0; color:#4b5563; font-size:13px; line-height:1.35; }
 
     /* Print */
-@page {
-  margin: 0;
-}
+@page { margin: 10mm;  }
 @page { margin: 10mm; }
 
     @media print {
@@ -285,6 +283,20 @@
     background: #fff !important;
     color: #000 !important;
   }
+
+@media print {
+  #printArea {
+    margin: 0 !important;
+    padding: 0 !important;
+    position: static !important;
+  }
+
+  #printBody {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
+
 
   body { visibility: hidden !important; }
 
