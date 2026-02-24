@@ -562,6 +562,7 @@
     </div>
   </section>
 
+BLOCO 02
   <!-- Catálogo -->
   <section id="screen-uni" class="card hide">
     <div class="hd">
@@ -629,6 +630,7 @@
   <!-- Acessos DEV -->
   <section id="screen-log" class="card hide devOnlyScreen">
     <div class="hd"><div><h2>Acessos (DEV)</h2><p>Usuários no Sheets.</p></div></div>
+
     <div class="bd">
       <label for="devPin">PIN do DEV para gerenciar usuários</label>
       <input id="devPin" type="password" inputmode="numeric" placeholder="6 dígitos" autocomplete="off" />
@@ -685,29 +687,29 @@
           <tbody><tr><td colspan="5" class="note">Carregue os usuários.</td></tr></tbody>
         </table>
       </div>
+
+      <div class="sep"></div>
+
+      <h3 style="margin:0 0 8px 0">Reativar funcionário (DEV)</h3>
+
+      <label for="searchInativo">Pesquisar (somente inativos)</label>
+      <input id="searchInativo" type="text" placeholder="Ex.: oruam" autocomplete="off" />
+
+      <div class="tableWrap" style="max-height:320px; margin-top:10px">
+        <table>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Status</th>
+              <th class="right">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tblFuncsInativos">
+            <tr><td colspan="3" class="note">Nenhum inativo carregado.</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-<div class="sep"></div>
-
-<h3 style="margin:0 0 8px 0">Reativar funcionário (DEV)</h3>
-
-<label for="searchInativo">Pesquisar (somente inativos)</label>
-<input id="searchInativo" type="text" placeholder="Ex.: oruam" autocomplete="off" />
-
-<div class="tableWrap" style="max-height:320px; margin-top:10px">
-  <table>
-    <thead>
-      <tr>
-        <th>Nome</th>
-        <th>Status</th>
-        <th class="right">Ações</th>
-      </tr>
-    </thead>
-    <tbody id="tblFuncsInativos">
-      <tr><td colspan="3" class="note">Carregue os usuários/aguarde o sync.</td></tr>
-    </tbody>
-  </table>
-</div>
-
   </section>
 
 </main>
@@ -1148,6 +1150,7 @@ async function doLogin(){
   }
 }
 
+BLOCO 03
 btnLogin.addEventListener("click", doLogin);
 loginPass.addEventListener("keydown",(e)=>{ if(e.key === "Enter") doLogin(); });
 loginUser.addEventListener("keydown",(e)=>{ if(e.key === "Enter") loginPass.focus(); });
@@ -1183,7 +1186,7 @@ function setScreen(name){
   if(name === "est") renderEstoque();
   if(name === "uni"){ renderCatalogUI(); clearCatForm(); }
   if(name === "cfg") document.getElementById("cfgUrl").value = SHEETSURL;
-  if(name === "log") { renderInativosDev();
+  if(name === "log") renderInativosDev();
 }
 
 navBtns.forEach(b=>b.addEventListener("click", ()=>setScreen(b.dataset.screen)));
@@ -1249,9 +1252,9 @@ const newUserPin = document.getElementById("newUserPin");
 const newUserCanEdit = document.getElementById("newUserCanEdit");
 const btnCreateUser = document.getElementById("btnCreateUser");
 const tblUsersBody = document.querySelector("#tblUsers tbody");
+
 const searchInativo = document.getElementById("searchInativo");
 const tblFuncsInativos = document.getElementById("tblFuncsInativos");
-
 
 /* =========================
    Guards
@@ -1284,7 +1287,9 @@ function requireDev(){
   return true;
 }
 
-// === DEV: Reativar funcionários inativos (somente DEV) ===
+/* =========================
+   DEV: Inativos
+========================= */
 function renderInativosDev(){
   if(!isDevSession()) return;
   if(!tblFuncsInativos || !searchInativo) return;
@@ -1298,20 +1303,18 @@ function renderInativosDev(){
     .slice()
     .sort((a,b)=>String(a.nome).localeCompare(String(b.nome)));
 
-  tblFuncsInativos.innerHTML = list.length
-    ? list.map(f => `
-        <tr>
-          <td>${escapeHtml(f.nome)}</td>
-          <td>Inativo</td>
-          <td class="right">
-            <button type="button" class="btn"
-              onclick="ativarFuncionarioDev('${String(f.id).replaceAll("'", "\\'")}')">
-              Ativar
-            </button>
-          </td>
-        </tr>
-      `).join("")
-    : `<tr><td colspan="3" class="note">Nenhum inativo encontrado.</td></tr>`;
+  tblFuncsInativos.innerHTML = list.length ? list.map(f => `
+    <tr>
+      <td>${escapeHtml(f.nome)}</td>
+      <td>Inativo</td>
+      <td class="right">
+        <button type="button" class="btn"
+          onclick="ativarFuncionarioDev('${String(f.id).replaceAll("'", "\\'")}')">
+          Ativar
+        </button>
+      </td>
+    </tr>
+  `).join("") : `<tr><td colspan="3" class="note">Nenhum inativo encontrado.</td></tr>`;
 }
 
 window.ativarFuncionarioDev = async function(funcId){
@@ -1338,12 +1341,6 @@ window.ativarFuncionarioDev = async function(funcId){
   }
 };
 
-// Listener da busca (DEV)
-if (searchInativo) {
-  searchInativo.addEventListener("input", renderInativosDev);
-}
-
-// Listener (pode ficar aqui porque refs já existem no seu arquivo)
 if (searchInativo) {
   searchInativo.addEventListener("input", renderInativosDev);
 }
@@ -1364,7 +1361,6 @@ async function autoSyncAfterLogin(){
     db.movimentos   = Array.isArray(j.movimentos)   ? j.movimentos   : db.movimentos;
 
     // FIX: popular ItemMap com nomes (categoria) vindos do Sheets
-    // Isso evita aparecer itm-... no estoque quando o itemId já existia no Sheets
     try{
       const map = loadItemMap();
       let changed = false;
@@ -1382,10 +1378,9 @@ async function autoSyncAfterLogin(){
       }
 
       if(changed) saveItemMap(map);
-    } catch(e){
+    }catch(e){
       // não trava sync se falhar ItemMap
     }
-    // fim FIX
 
     // Recalcula estoque a partir dos movimentos
     db.estoque = {};
@@ -1412,39 +1407,11 @@ async function autoSyncAfterLogin(){
     fillRelFuncionariosSomenteQuemPegou();
 
     setSheetsStatus("ok","Sheets sincronizado");
-  } catch(err){
+  }catch(err){
     setSheetsStatus("warn","Sheets offline");
   }
 }
 
-    // ===== fim FIX =====
-
-    db.estoque = {};
-    for(const m of db.movimentos){
-      if(!m || m.hidden) continue;
-      const qtd = Number(m.quantidade || 0);
-      if(!qtd) continue;
-
-      const itemId2 = m.itemId ? String(m.itemId) : ensureItemIdForName(m.categoria);
-      const k = itemId2 + "-" + m.tamanho;
-
-      let delta = 0;
-      if(m.tipo === "ENTRADA") delta = qtd;
-      if(m.tipo === "SAIDA") delta = -qtd;
-      if(m.tipo === "DEVOLUCAO") delta = (m.estado === "EMCONDICOES" ? qtd : 0);
-
-      db.estoque[k] = Number(db.estoque[k] || 0) + delta;
-    }
-
-    saveDB(db);
-    renderMov();
-    renderEstoque();
-    fillRelFuncionariosSomenteQuemPegou();
-    setSheetsStatus("ok","Sheets sincronizado");
-  }catch(e){
-    setSheetsStatus("warn","Sheets offline");
-  }
-}
 document.getElementById("btnCarregarSheetsUrl").addEventListener("click", async ()=>{
   if(!requireLogin()) return;
   await autoSyncAfterLogin();
@@ -1541,31 +1508,29 @@ function renderListaFuncionarios(){
   const db = loadDB();
 
   const all = (db.funcionarios || [])
-    .filter(f => f && f.ativo) // só ativos na tela normal
+    .filter(f => f && f.ativo)
     .slice()
     .sort((a,b)=>String(a.nome).localeCompare(String(b.nome)));
 
-  tblFuncsBody.innerHTML = all.length
-    ? all.map(f => `
-        <tr>
-          <td>${escapeHtml(f.nome)}</td>
-          <td>Ativo</td>
-          <td class="right">
-            <button type="button" class="btn" ${canEditSession() ? "" : "disabled"}
-              onclick="toggleFuncionarioAtivo('${String(f.id).replaceAll("'", "\\'")}')">
-              Inativar
-            </button>
-          </td>
-        </tr>
-      `).join("")
-    : `<tr><td colspan="3" class="note">Sem funcionários ativos.</td></tr>`;
+  tblFuncsBody.innerHTML = all.length ? all.map(f => `
+    <tr>
+      <td>${escapeHtml(f.nome)}</td>
+      <td>Ativo</td>
+      <td class="right">
+        <button type="button" class="btn" ${canEditSession() ? "" : "disabled"}
+          onclick="toggleFuncionarioAtivo('${String(f.id).replaceAll("'", "\\'")}')">
+          Inativar
+        </button>
+      </td>
+    </tr>
+  `).join("") : `<tr><td colspan="3" class="note">Sem funcionários ativos.</td></tr>`;
 
   funcMsg.textContent = canEditSession() ? "" : "Seu usuário está em modo somente visualização.";
 }
 
-
 window.toggleFuncionarioAtivo = async function(funcId){
   if(!requireEdit()) return;
+
   const db = loadDB();
   const f = (db.funcionarios || []).find(x=>x && x.id === funcId);
   if(!f) return alert("Funcionário não encontrado.");
@@ -1579,7 +1544,6 @@ window.toggleFuncionarioAtivo = async function(funcId){
     setSheetsStatus("ok","Sheets salvo");
 
     await autoSyncAfterLogin();
-
     renderFuncionariosSelect();
     renderListaFuncionarios();
     renderMov();
@@ -1594,7 +1558,7 @@ function renderEstoque() {
   const db = loadDB();
   let total = 0;
 
-  const rows = Object.entries(db.estoque)
+  const rows = Object.entries(db.estoque || {})
     .map(([k, v]) => {
       const ks = String(k);
       const p = ks.lastIndexOf("-");
@@ -1609,18 +1573,16 @@ function renderEstoque() {
     });
 
   const html = rows.length
-    ? rows
-        .map((it) => {
-          total += it.s;
-          return `
-            <tr>
-              <td>${escapeHtml(getBestItemName(db, it.itemId))}</td>
-              <td>${escapeHtml(it.t)}</td>
-              <td class="right">${Number(it.s)}</td>
-            </tr>
-          `;
-        })
-        .join("")
+    ? rows.map((it) => {
+        total += it.s;
+        return `
+          <tr>
+            <td>${escapeHtml(getBestItemName(db, it.itemId))}</td>
+            <td>${escapeHtml(it.t)}</td>
+            <td class="right">${Number(it.s)}</td>
+          </tr>
+        `;
+      }).join("")
     : `<tr><td colspan="3" class="note">Sem itens.</td></tr>`;
 
   tblEstoqueBody.innerHTML = html;
@@ -1629,27 +1591,16 @@ function renderEstoque() {
 }
 
 function getBestItemName(db, itemId) {
-  // 1) tenta ItemMap (padrão do seu projeto)
   const fromMap = getItemNameById(itemId, "");
   if (fromMap && fromMap !== itemId) return String(fromMap);
 
-  // 2) tenta inferir pela última movimentação com categoria desse itemId
   const last = [...(db.movimentos || [])]
     .reverse()
-    .find(
-      (m) =>
-        m &&
-        !m.hidden &&
-        String(m.itemId || "") === String(itemId) &&
-        String(m.categoria || "").trim()
-    );
+    .find(m => m && !m.hidden && String(m.itemId || "") === String(itemId) && String(m.categoria || "").trim());
 
   if (last) return String(last.categoria).trim();
-
-  // 3) fallback final
   return String(itemId || "");
 }
-
 
 function renderMov(){
   renderFuncionariosSelect();
@@ -1665,6 +1616,7 @@ function renderMov(){
   tblHistBody.innerHTML = hist.length ? hist.map(m=>{
     const f = m.funcionarioId ? getFuncById(db, m.funcionarioId) : null;
     const itemName = m.itemId ? getItemNameById(m.itemId, m.categoria) : m.categoria;
+
     return `<tr>
       <td>${escapeHtml(m.data)}</td>
       <td>${escapeHtml(tipoLabel(m.tipo))}</td>
@@ -1683,15 +1635,17 @@ function renderMov(){
   }).join("") : `<tr><td colspan="10" class="note">Sem movimentações.</td></tr>`;
 }
 
+BLOCO 04
+
 /* =========================
    Impressão
 ========================= */
 function setPrint(html) {
+  // garante estado limpo
   printHeader.style.display = "none";
   printBody.innerHTML = html;     // não usar +=
   printArea.style.display = "block";
 }
-
 
 function clearPrint(){
   printHeader.style.display = "flex";
@@ -1705,8 +1659,9 @@ function getMovsDoFuncionario(db, funcId){
     .slice()
     .sort((a,b)=>String(a.data).localeCompare(String(b.data)));
 }
+
 function funcionarioBlock(nome, movs){
-  const rows = movs.map(m=>{
+  const rows = (movs || []).map(m=>{
     const itemName = m.itemId ? getItemNameById(m.itemId, m.categoria) : m.categoria;
     return `<tr>
       <td>${escapeHtml(m.data)}</td>
@@ -1751,7 +1706,9 @@ function gerarRelatorioFuncionarioOuTodos(){
 
   if(id === RELALL){
     const pegouIds = new Set(
-      (db.movimentos || []).filter(m=>m && !m.hidden && m.tipo === "SAIDA" && m.funcionarioId).map(m=>m.funcionarioId)
+      (db.movimentos || [])
+        .filter(m=>m && !m.hidden && m.tipo === "SAIDA" && m.funcionarioId)
+        .map(m=>m.funcionarioId)
     );
 
     const lista = (db.funcionarios || [])
@@ -1787,7 +1744,7 @@ function gerarRelatorioFuncionarioOuTodos(){
 function calcSaldoPorFuncionario(db, funcId) {
   const saldo = new Map();
 
-  const movs = db.movimentos.filter((m) => m && !m.hidden && m.funcionarioId === funcId);
+  const movs = (db.movimentos || []).filter((m) => m && !m.hidden && m.funcionarioId === funcId);
 
   for (const m of movs) {
     const qtd = Number(m.quantidade || 0);
@@ -1820,7 +1777,6 @@ function calcSaldoPorFuncionario(db, funcId) {
 
   return out;
 }
-
 
 function imprimirTermoFuncionario(){
   const db = loadDB();
@@ -1927,17 +1883,14 @@ btnSalvar.addEventListener("click", async ()=>{
     await sendKind("movimento", { ...mov, funcionarioNome });
     setSheetsStatus("ok","Sheets salvo");
 
-    await autoSyncAfterLogin();
+    await autoSyncAfterLogin(); // fonte da verdade
   }catch(err){
     setSheetsStatus("erro","Sheets erro");
     alert("Não foi possível salvar no Sheets: " + String(err?.message ? err.message : err));
     return;
   }
 
-  if(delta !== 0) upsertEstoque(db, itemId, mov.tamanho, delta);
-  db.movimentos.push(mov);
-  saveDB(db);
-
+  // limpa form e re-render (sync já atualizou db local via saveDB lá)
   elObs.value = "";
   elQtd.value = 1;
   elMotivo.value = "";
@@ -1977,15 +1930,13 @@ btnAddFunc.addEventListener("click", async ()=>{
     setSheetsStatus("warn","Sheets salvando...");
     await sendKind("funcionario", func);
     setSheetsStatus("ok","Sheets salvo");
-    await autoSyncAfterLogin();
+    await autoSyncAfterLogin(); // fonte da verdade
   }catch(err){
     setSheetsStatus("erro","Sheets erro");
     alert("Não foi possível salvar no Sheets: " + String(err?.message ? err.message : err));
     return;
   }
 
-  db.funcionarios.push({ id: func.id, nome: func.nome, ativo: true });
-  saveDB(db);
   elNovoNome.value = "";
   renderFuncionariosSelect();
   renderListaFuncionarios();
@@ -2034,7 +1985,6 @@ window.hideMovimento = function(id){
 /* =========================
    Relatório / termo
 ========================= */
-
 btnGerarRel.addEventListener("click", () => {
   if (!requireLogin()) return;
   gerarRelatorioFuncionarioOuTodos();
@@ -2075,7 +2025,8 @@ btnImprimirTermo.addEventListener("click", () => {
   imprimirTermoFuncionario();
 });
 
-
+BLOCO 05
+<script>
 /* =========================
    Estoque: renomear itens
 ========================= */
@@ -2339,10 +2290,8 @@ btnCreateUser.addEventListener("click", async ()=>{
   const canEdit = (String(newUserCanEdit.value) === "EDIT");
 
   if(!login) return alert("Informe o login.");
-  if(login === DEVEMAIL.toLowerCase()) return alert("Login reservado ao DEV.");
+  if(login === "dev") return alert("Login reservado.");
   if(!/^\d{6}$/.test(pin)) return alert("Senha deve ter 6 dígitos.");
-  }
-
 
   const s = getCurrentUser();
   await api({
@@ -2378,12 +2327,9 @@ function boot(){
   applyDevVisibility();
   applyEditLocks();
 
-  // Se não tem sessão, abre login.
   if(!getCurrentUser()){
     showLogin();
   } else {
-    // Se já tem sessão (ex.: abriu em outro dia/PC), sincroniza já no início.
-    // Isso preenche o ItemMap e evita aparecer "itm-..." no estoque/histórico.
     autoSyncAfterLogin();
   }
 
