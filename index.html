@@ -686,6 +686,28 @@
         </table>
       </div>
     </div>
+<div class="sep"></div>
+
+<h3 style="margin:0 0 8px 0">Reativar funcionário (DEV)</h3>
+
+<label for="searchInativo">Pesquisar (somente inativos)</label>
+<input id="searchInativo" type="text" placeholder="Ex.: oruam" autocomplete="off" />
+
+<div class="tableWrap" style="max-height:320px; margin-top:10px">
+  <table>
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Status</th>
+        <th class="right">Ações</th>
+      </tr>
+    </thead>
+    <tbody id="tblFuncsInativos">
+      <tr><td colspan="3" class="note">Carregue os usuários/aguarde o sync.</td></tr>
+    </tbody>
+  </table>
+</div>
+
   </section>
 
 </main>
@@ -1161,8 +1183,9 @@ function setScreen(name){
   if(name === "est") renderEstoque();
   if(name === "uni"){ renderCatalogUI(); clearCatForm(); }
   if(name === "cfg") document.getElementById("cfgUrl").value = SHEETSURL;
-  if(name === "log"){} // nada
+  if(name === "log") { renderInativosDev();
 }
+
 navBtns.forEach(b=>b.addEventListener("click", ()=>setScreen(b.dataset.screen)));
 
 /* =========================
@@ -1226,6 +1249,9 @@ const newUserPin = document.getElementById("newUserPin");
 const newUserCanEdit = document.getElementById("newUserCanEdit");
 const btnCreateUser = document.getElementById("btnCreateUser");
 const tblUsersBody = document.querySelector("#tblUsers tbody");
+const searchInativo = document.getElementById("searchInativo");
+const tblFuncsInativos = document.getElementById("tblFuncsInativos");
+
 
 /* =========================
    Guards
@@ -1288,6 +1314,58 @@ async function autoSyncAfterLogin(){
       }
       if (changed) saveItemMap(map);
     }catch(e){}
+
+function renderInativosDev(){
+  if(!isDevSession()) return; // a tela já é devOnly, mas garante
+
+  const db = loadDB();
+  const q = String(searchInativo?.value ?? "").trim().toLowerCase();
+
+  const list = db.funcionarios
+    .filter(f => f && !f.ativo)
+    .filter(f => !q || String(f.nome).toLowerCase().includes(q))
+    .sort((a,b)=>String(a.nome).localeCompare(String(b.nome)));
+
+  if(!tblFuncsInativos) return;
+
+  tblFuncsInativos.innerHTML = list.length ? list.map(f => `
+    <tr>
+      <td>${escapeHtml(f.nome)}</td>
+      <td>Inativo</td>
+      <td class="right">
+        <button type="button" class="btn"
+          onclick="ativarFuncionarioDev('${String(f.id).replaceAll("'", "\\'")}')">
+          Ativar
+        </button>
+      </td>
+    </tr>
+  `).join("") : `<tr><td colspan="3" class="note">Nenhum inativo encontrado.</td></tr>`;
+}
+
+window.ativarFuncionarioDev = async function(funcId){
+  if(!requireDev()) return; // exige PIN DEV [file:6]
+
+  const db = loadDB();
+  const f = db.funcionarios.find(x => x && x.id === funcId);
+  if(!f) return alert("Funcionário não encontrado.");
+
+  if(!confirm(`Ativar ${f.nome}?`)) return;
+
+  try{
+    setSheetsStatus("warn","Sheets ativando funcionário...");
+    await sendKind("funcionario", { id: f.id, nome: f.nome, ativo: true, evento: "TOGGLE" });
+    setSheetsStatus("ok","Sheets salvo");
+
+    await autoSyncAfterLogin();     // puxa do Sheets de novo
+    renderFuncionariosSelect();     // listas de selects usam só ativos [file:6]
+    renderListaFuncionarios();      // lista de Funcionários (agora só ativos)
+    renderInativosDev();            // atualiza a lista DEV de inativos
+  } catch(err){
+    setSheetsStatus("erro","Sheets erro");
+    alert(String(err?.message ? err.message : err));
+  }
+};
+
     // ===== fim FIX =====
 
     db.estoque = {};
@@ -1409,10 +1487,11 @@ function renderFuncionariosSelect(){
 }
 
 function renderListaFuncionarios(){
-  const db = loadDB();
-  const all = (db.funcionarios || [])
-    .slice()
-    .sort((a,b)=>String(a.nome).localeCompare(String(b.nome)));
+  const all = db.funcionarios
+  .filter(f => f && f.ativo) // <-- só ativos aparecem na lista
+  .slice()
+  .sort((a,b)=>String(a.nome).localeCompare(String(b.nome)));
+
 
   tblFuncsBody.innerHTML = all.length ? all.map(f=>`
     <tr>
@@ -2207,6 +2286,10 @@ btnCreateUser.addEventListener("click", async ()=>{
   if(!login) return alert("Informe o login.");
   if(login === DEVEMAIL.toLowerCase()) return alert("Login reservado ao DEV.");
   if(!/^\d{6}$/.test(pin)) return alert("Senha deve ter 6 dígitos.");
+  if (searchInativo) {
+  searchInativo.addEventListener("input", renderInativosDev);
+}
+
 
   const s = getCurrentUser();
   await api({
