@@ -1283,6 +1283,65 @@ function requireDev(){
   }
   return true;
 }
+// === DEV: Reativar funcionários inativos (somente DEV) ===
+function renderInativosDev(){
+  // Só desenha se for DEV e se os elementos existirem na tela
+  if(!isDevSession()) return;
+  if(!tblFuncsInativos || !searchInativo) return;
+
+  const db = loadDB();
+  const q = String(searchInativo.value ?? "").trim().toLowerCase();
+
+  const list = (db.funcionarios || [])
+    .filter(f => f && f.ativo === false)
+    .filter(f => !q || String(f.nome || "").toLowerCase().includes(q))
+    .slice()
+    .sort((a,b)=>String(a.nome).localeCompare(String(b.nome)));
+
+  tblFuncsInativos.innerHTML = list.length
+    ? list.map(f => `
+        <tr>
+          <td>${escapeHtml(f.nome)}</td>
+          <td>Inativo</td>
+          <td class="right">
+            <button type="button" class="btn"
+              onclick="ativarFuncionarioDev('${String(f.id).replaceAll("'", "\\'")}')">
+              Ativar
+            </button>
+          </td>
+        </tr>
+      `).join("")
+    : `<tr><td colspan="3" class="note">Nenhum inativo encontrado.</td></tr>`;
+}
+
+window.ativarFuncionarioDev = async function(funcId){
+  if(!requireDev()) return;
+
+  const db = loadDB();
+  const f = (db.funcionarios || []).find(x => x && x.id === funcId);
+  if(!f) return alert("Funcionário não encontrado.");
+
+  if(!confirm(`Ativar ${f.nome}?`)) return;
+
+  try{
+    setSheetsStatus("warn","Sheets ativando funcionário...");
+    await sendKind("funcionario", { id: f.id, nome: f.nome, ativo: true, evento: "TOGGLE" });
+    setSheetsStatus("ok","Sheets salvo");
+
+    await autoSyncAfterLogin();
+    renderFuncionariosSelect();
+    renderListaFuncionarios();
+    renderInativosDev();
+  } catch(err){
+    setSheetsStatus("erro","Sheets erro");
+    alert(String(err?.message ? err.message : err));
+  }
+};
+
+// Listener (pode ficar aqui porque refs já existem no seu arquivo)
+if (searchInativo) {
+  searchInativo.addEventListener("input", renderInativosDev);
+}
 
 /* =========================
    Sync from Sheets
@@ -1315,56 +1374,6 @@ async function autoSyncAfterLogin(){
       if (changed) saveItemMap(map);
     }catch(e){}
 
-function renderInativosDev(){
-  if(!isDevSession()) return; // a tela já é devOnly, mas garante
-
-  const db = loadDB();
-  const q = String(searchInativo?.value ?? "").trim().toLowerCase();
-
-  const list = db.funcionarios
-    .filter(f => f && !f.ativo)
-    .filter(f => !q || String(f.nome).toLowerCase().includes(q))
-    .sort((a,b)=>String(a.nome).localeCompare(String(b.nome)));
-
-  if(!tblFuncsInativos) return;
-
-  tblFuncsInativos.innerHTML = list.length ? list.map(f => `
-    <tr>
-      <td>${escapeHtml(f.nome)}</td>
-      <td>Inativo</td>
-      <td class="right">
-        <button type="button" class="btn"
-          onclick="ativarFuncionarioDev('${String(f.id).replaceAll("'", "\\'")}')">
-          Ativar
-        </button>
-      </td>
-    </tr>
-  `).join("") : `<tr><td colspan="3" class="note">Nenhum inativo encontrado.</td></tr>`;
-}
-
-window.ativarFuncionarioDev = async function(funcId){
-  if(!requireDev()) return; // exige PIN DEV [file:6]
-
-  const db = loadDB();
-  const f = db.funcionarios.find(x => x && x.id === funcId);
-  if(!f) return alert("Funcionário não encontrado.");
-
-  if(!confirm(`Ativar ${f.nome}?`)) return;
-
-  try{
-    setSheetsStatus("warn","Sheets ativando funcionário...");
-    await sendKind("funcionario", { id: f.id, nome: f.nome, ativo: true, evento: "TOGGLE" });
-    setSheetsStatus("ok","Sheets salvo");
-
-    await autoSyncAfterLogin();     // puxa do Sheets de novo
-    renderFuncionariosSelect();     // listas de selects usam só ativos [file:6]
-    renderListaFuncionarios();      // lista de Funcionários (agora só ativos)
-    renderInativosDev();            // atualiza a lista DEV de inativos
-  } catch(err){
-    setSheetsStatus("erro","Sheets erro");
-    alert(String(err?.message ? err.message : err));
-  }
-};
 
     // ===== fim FIX =====
 
@@ -1487,27 +1496,31 @@ function renderFuncionariosSelect(){
 }
 
 function renderListaFuncionarios(){
-  const all = db.funcionarios
-  .filter(f => f && f.ativo) // <-- só ativos aparecem na lista
-  .slice()
-  .sort((a,b)=>String(a.nome).localeCompare(String(b.nome)));
+  const db = loadDB();
 
+  const all = (db.funcionarios || [])
+    .filter(f => f && f.ativo) // só ativos na tela normal
+    .slice()
+    .sort((a,b)=>String(a.nome).localeCompare(String(b.nome)));
 
-  tblFuncsBody.innerHTML = all.length ? all.map(f=>`
-    <tr>
-      <td>${escapeHtml(f.nome)}</td>
-      <td>${f.ativo ? "Ativo" : "Inativo"}</td>
-      <td class="right">
-        <button type="button" class="btn" ${canEditSession() ? "" : "disabled"}
-          onclick="toggleFuncionarioAtivo('${escapeHtml(f.id)}')">
-          ${f.ativo ? "Inativar" : "Ativar"}
-        </button>
-      </td>
-    </tr>
-  `).join("") : `<tr><td colspan="3" class="note">Sem funcionários.</td></tr>`;
+  tblFuncsBody.innerHTML = all.length
+    ? all.map(f => `
+        <tr>
+          <td>${escapeHtml(f.nome)}</td>
+          <td>Ativo</td>
+          <td class="right">
+            <button type="button" class="btn" ${canEditSession() ? "" : "disabled"}
+              onclick="toggleFuncionarioAtivo('${String(f.id).replaceAll("'", "\\'")}')">
+              Inativar
+            </button>
+          </td>
+        </tr>
+      `).join("")
+    : `<tr><td colspan="3" class="note">Sem funcionários ativos.</td></tr>`;
 
   funcMsg.textContent = canEditSession() ? "" : "Seu usuário está em modo somente visualização.";
 }
+
 
 window.toggleFuncionarioAtivo = async function(funcId){
   if(!requireEdit()) return;
