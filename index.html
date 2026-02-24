@@ -271,7 +271,7 @@
 @media print {
   @page { margin: 10mm; }
 
-  /* Mantém layout normal (não destrói table/tr/td) */
+  /* Base */
   html, body {
     margin: 0 !important;
     padding: 0 !important;
@@ -280,28 +280,27 @@
     color: #000 !important;
   }
 
-  /* Esconde tudo SEM mexer no display (mais estável) */
+  /* Esconde tudo (sem quebrar layout) */
   body {
     visibility: hidden !important;
     background: #fff !important;
   }
 
-  /* Mostra só o printArea */
+  /* Mostra só a área de impressão */
   #printArea, #printArea * {
     visibility: visible !important;
   }
 
-  /* Coloca o printArea no topo e remove “cara de card” */
+  /* IMPORTANTÍSSIMO: multi-página não pode ser fixed */
   #printArea {
-    position: fixed !important;
-    left: 0 !important;
-    top: 0 !important;
-    right: 0 !important;
+    position: static !important; /* era fixed e sobrepunha a página 2 */
     margin: 0 !important;
     padding: 0 !important;
+    width: auto !important;
     background: transparent !important;
   }
 
+  /* Remove “cara de card” no papel */
   .card, .tableWrap {
     box-shadow: none !important;
     border: 0 !important;
@@ -314,17 +313,20 @@
     overflow: visible !important;
   }
 
-  table { page-break-inside: avoid; break-inside: avoid; }
-  tr, td, th { page-break-inside: avoid; break-inside: avoid; }
-
+  /* Evita sticky header atrapalhar */
   th {
-    position: static !important; /* tira sticky no print */
+    position: static !important;
     background: transparent !important;
     color: #000 !important;
   }
 
+  /* Paginação mais previsível */
+  table { break-inside: auto; page-break-inside: auto; }
+  tr { break-inside: avoid; page-break-inside: avoid; }
+
   .no-print { display: none !important; }
 }
+
 
 
   </style>
