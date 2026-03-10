@@ -2596,22 +2596,43 @@ elData.addEventListener('input', (e) => {
 function initEntrega() {
   const agora = new Date();
   document.getElementById("dataEntregaMat").value = agora.toISOString().split('T')[0];
+  
+  // Configuração dos botões
   document.getElementById("btnSalvarEntrega").onclick = salvarEntregaMaterial;
   document.getElementById("btnImprimirRelEntrega").onclick = imprimirRelatorioEntrega;
   document.getElementById("btnLimparEntrega").onclick = () => {
     document.getElementById("materialEntrega").value = "";
+    document.getElementById("qtdEntregaMat").value = 1;
+    document.getElementById("filtroNomeEntrega").value = "";
   };
+
   const db = loadDB();
-  const sel = document.getElementById("funcEntregaMat");
-  if(sel){
+  
+  // 1. PREENCHE O SELECT DE LANÇAMENTO (Todos os ativos)
+  const selCadastro = document.getElementById("funcEntregaMat");
+  if(selCadastro){
     const ativos = (db.funcionarios || []).filter(f => f.ativo !== false);
-    sel.innerHTML = ativos.map(f => `<option value="${f.nome}">${f.nome}</option>`).join("");
     if (ativos.length > 0) {
-      // Cria as opções e adiciona uma instrução no topo
-      sel.innerHTML = '<option value="">-- Selecione um Funcionário --</option>' + 
-                      ativos.map(f => `<option value="${f.nome}">${f.nome}</option>`).join("");
+      selCadastro.innerHTML = '<option value="">-- Selecione um Funcionário --</option>' + 
+                              ativos.map(f => `<option value="${f.nome}">${f.nome}</option>`).join("");
     } else {
-      sel.innerHTML = '<option value="">Nenhum funcionário ativo encontrado</option>';
+      selCadastro.innerHTML = '<option value="">Nenhum funcionário ativo encontrado</option>';
+    }
+  }
+
+  // 2. NOVA FUNÇÃO: FILTRO INTELIGENTE PARA O RELATÓRIO
+  // Isso garante que no campo de filtro só apareça quem tem histórico
+  const entregas = db.entregas || [];
+  const nomesComEntrega = [...new Set(entregas.map(e => e.funcionario))].sort();
+  
+  // Se o seu campo de filtro for um <select id="filtroNomeEntrega">, use o código abaixo:
+  const selFiltro = document.getElementById("filtroNomeEntrega");
+  if(selFiltro && selFiltro.tagName === "SELECT"){
+    if (nomesComEntrega.length > 0) {
+      selFiltro.innerHTML = '<option value="">-- Ver Todos com Histórico --</option>' + 
+                            nomesComEntrega.map(nome => `<option value="${nome}">${nome}</option>`).join("");
+    } else {
+      selFiltro.innerHTML = '<option value="">Nenhuma entrega registrada ainda</option>';
     }
   }
 }
