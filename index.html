@@ -2658,22 +2658,61 @@ async function salvarEntregaMaterial() {
 function imprimirRelatorioEntrega() {
   const db = loadDB();
   const entregas = db.entregas || [];
-  const nome = document.getElementById("filtroNomeEntrega").value.toLowerCase();
+  
+  // Pegamos os valores dos filtros
+  const filtroNome = document.getElementById("filtroNomeEntrega").value.toLowerCase().trim();
   const d1 = document.getElementById("filtroDataInicio").value;
   const d2 = document.getElementById("filtroDataFim").value;
+
+  // Filtragem inteligente
   const filtrados = entregas.filter(e => {
-    const batNome = e.funcionario.toLowerCase().includes(nome);
-    const batData = (!d1 || e.data >= d1) && (!d2 || e.data <= d2);
-    return batNome && batData;
+    const nomeBate = e.funcionario.toLowerCase().includes(filtroNome);
+    const dataBate = (!d1 || e.data >= d1) && (!d2 || e.data <= d2);
+    return nomeBate && dataBate;
   });
-  let h = `<h3>Relatório de Entrega</h3><table border="1" style="width:100%; border-collapse:collapse"><tr><th>Data</th><th>Func.</th><th>Mat.</th><th>Qtd</th></tr>`;
-  filtrados.forEach(e => { h += `<tr><td>${formatDateDisplay(e.data)}</td><td>${e.funcionario}</td><td>${e.material}</td><td>${e.quantidade}</td></tr>`; });
-  h += `</table>`;
+
+  // Se não encontrar nada para aquele nome/data, avisa e para aqui
+  if (filtrados.length === 0) {
+    alert("Nenhum lançamento de material encontrado para os filtros selecionados.");
+    return;
+  }
+
+  // Se encontrou, gera a tabela para impressão
+  let h = `<div style="font-family: Arial, sans-serif; padding: 20px;">
+             <h2 style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px;">
+               Relatório de Entrega de Materiais
+             </h2>
+             <p><b>Filtro:</b> ${filtroNome || 'Todos'} | <b>Período:</b> ${formatDateDisplay(d1) || 'Início'} até ${formatDateDisplay(d2) || 'Fim'}</p>
+             <table border="1" style="width:100%; border-collapse:collapse; margin-top: 20px;">
+               <thead>
+                 <tr style="background: #f2f2f2;">
+                   <th style="padding: 8px;">Data</th>
+                   <th style="padding: 8px;">Funcionário</th>
+                   <th style="padding: 8px;">Material</th>
+                   <th style="padding: 8px;">Qtd</th>
+                 </tr>
+               </thead>
+               <tbody>`;
+
+  filtrados.forEach(e => {
+    h += `<tr>
+            <td style="padding: 8px; text-align: center;">${formatDateDisplay(e.data)}</td>
+            <td style="padding: 8px;">${e.funcionario}</td>
+            <td style="padding: 8px;">${e.material}</td>
+            <td style="padding: 8px; text-align: center;">${e.quantidade}</td>
+          </tr>`;
+  });
+
+  h += `</tbody></table></div>`;
+
   const pb = document.getElementById("printBody");
   pb.innerHTML = h;
-  document.getElementById("printArea").style.display = "block";
+  
+  // Exibe a área de impressão, imprime e esconde
+  const printArea = document.getElementById("printArea");
+  printArea.style.display = "block";
   window.print();
-  document.getElementById("printArea").style.display = "none";
+  printArea.style.display = "none";
 }
 
 boot();
