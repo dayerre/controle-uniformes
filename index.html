@@ -1464,27 +1464,40 @@ if (searchInativo) {
 ========================= */
 async function autoSyncAfterLogin(){
   if(!requireLogin()) return;
-
   try{
     setSheetsStatus("warn","Sheets sincronizando...");
-
     const j = await api({ action: "getSnapshot" });
     const db = loadDB();
 
-    // Sincroniza Funcionários e Movimentos (seu código atual)
     db.funcionarios = Array.isArray(j.funcionarios) ? j.funcionarios : db.funcionarios;
     db.movimentos   = Array.isArray(j.movimentos)   ? j.movimentos   : db.movimentos;
+    db.entregas     = Array.isArray(j.entregas)     ? j.entregas     : (db.entregas || []);
 
-    // === ADICIONE ESTA LINHA ABAIXO PARA AS ENTREGAS ===
-    db.entregas = Array.isArray(j.entregas) ? j.entregas : (db.entregas || []);
-    // ===================================================
-
-    saveDB(db); // Salva o banco atualizado com as entregas
-
-    // Chame a inicialização da entrega para atualizar os filtros do relatório na tela
+    saveDB(db);
     if (typeof initEntrega === "function") initEntrega();
+    setSheetsStatus("ok", "Sincronizado");
+  } catch(err) {
+    setSheetsStatus("err", "Erro ao sincronizar");
+    console.error(err);
+  }
+}
+    
+    // Parte do ItemMap (Catálogo)
+    const map = loadItemMap();
+    let changed = false;
+    (db.movimentos || []).forEach(m => {
+      if(m && m.categoria && (!map.items[m.categoria])) {
+         map.items[m.categoria] = { name: m.categoria };
+         changed = true;
+      }
+    });
+    if(changed) saveItemMap(map);
 
-    // FIX: popular ItemMap (seu código continua igual abaixo...)
+  } catch(err) {
+    setSheetsStatus("err", "Erro ao sincronizar");
+    console.error("Erro no Sync:", err);
+  }
+}
     try{
       const map = loadItemMap();
       let changed = false;
@@ -2653,7 +2666,7 @@ function initEntrega() {
 }
 
 async function salvarEntregaMaterial() {
-  const user = getCurrentUser(); // Pega o usuário logado (login e pin)
+  const user = getCurrentUser(); 
   if (!user || !user.pin) {
     alert("Sessão inválida. Por favor, faça login novamente.");
     return;
@@ -2664,42 +2677,53 @@ async function salvarEntregaMaterial() {
   const elQtd = document.getElementById("qtdEntregaMat");
   const elData = document.getElementById("dataEntregaMat");
 
-  const dados = {
-    id: makeId(),
-    data: elData.value,
-    funcionario: elFunc.value,
-    material: elMat.value,
-    quantidade: elQtd.value,
-    usuarioLogado: user.login,
-    // Adicionamos as credenciais para o Sheets aceitar
+  // Criamos o objeto exatamente como o seu handleKindPayload_ do Sheets espera
+  const payloadEnvio = {
+    entrega: {
+      id: makeId(),
+      data: elData.value,
+      funcionario: elFunc.value,
+      material: elMat.value,
+      quantidade: elQtd.value,
+      usuarioLogado: user.login
+    },
     actorLogin: user.login,
     actorPin: user.pin
   };
 
-  if(!dados.material) return alert("Informe o material.");
-  if(!dados.funcionario) return alert("Selecione um funcionário.");
-
-  const db = loadDB();
-  if(!db.entregas) db.entregas = [];
-  db.entregas.push(dados);
-  saveDB(db);
+  if(!payloadEnvio.entrega.material) return alert("Informe o material.");
+  if(!payloadEnvio.entrega.funcionario) return alert("Selecione um funcionário.");
 
   try { 
-    // Enviamos o objeto completo com actorLogin e actorPin
-    await sendKind("entrega", dados); 
+    // Mostra um aviso de processando
+    setSheetsStatus("warn", "Salvando...");
+
+    // Enviamos para o Google Sheets
+    await sendKind("entrega", payloadEnvio); 
+
+    // Se deu certo no Sheets, salvamos no banco de dados local para o relatório
+    const db = loadDB();
+    if(!db.entregas) db.entregas = [];
+    db.entregas.push(payloadEnvio.entrega);
+    saveDB(db);
+
     alert("Salvo com sucesso no sistema e na planilha!");
     
-    // Limpa os campos
+    // Limpa os campos e reseta o status
     elMat.value = "";
     elQtd.value = 1;
-    initEntrega(); // Atualiza os filtros do relatório na hora
+    setSheetsStatus("ok", "Sincronizado");
+    
+    // Atualiza a lista de nomes do relatório
+    if(typeof initEntrega === "function") initEntrega(); 
+
   } catch(e) {
     console.error("Erro ao enviar para o Sheets:", e);
-    alert("Salvo localmente, mas houve um erro com o Sheets: " + e.message);
+    setSheetsStatus("err", "Erro ao salvar");
+    alert("Erro ao salvar na planilha: " + e.message);
   }
 }
-
-  alert("Salvo com sucesso!");
+// O alert que estava aqui fora foi removido para não quebrar o código!
 
   // --- LIMPEZA DOS CAMPOS ---
   elFunc.value = "";       // Volta para o "Selecione"
