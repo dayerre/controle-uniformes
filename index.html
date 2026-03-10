@@ -27,1468 +27,519 @@
       margin:0;
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
       color:var(--text);
-      background:linear-gradient(180deg,#f3f4f6 0,#eef2f7 100%);
+      background:linear-gradient(180deg,#f3f4f6 0,#e5e7eb 100%);
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
     }
-    header{
+    button,input,select,textarea{ font-family:inherit; color:inherit; font-size:1rem; }
+    button{ cursor:pointer; border:none; background:none; display:inline-flex; align-items:center; justify-content:center; transition:all .2s; }
+    input:focus,select:focus,textarea:focus{ outline:none; border-color:var(--primary); box-shadow:0 0 0 3px var(--focus); }
+
+    .app-header{
+      height:64px;
+      background:var(--panel);
+      border-bottom:1px solid var(--line);
+      padding:0 20px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
       position:sticky;
       top:0;
-      z-index:10;
-      background:rgba(255,255,255,.85);
-      backdrop-filter: blur(10px);
-      border-bottom:1px solid var(--line);
+      z-index:100;
     }
-    .topbar{
-      max-width:1300px;
-      margin:0 auto;
-      padding:14px 16px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-    }
-    .title{ display:flex; flex-direction:column; gap:2px; }
-    .title h1{ font-size:16px; margin:0; font-weight:750; letter-spacing:.2px; }
-    .title small{ color:var(--muted); }
+    .app-logo{ font-weight:800; font-size:1.25rem; letter-spacing:-0.02em; display:flex; align-items:center; gap:8px; }
+    .app-logo i{ color:var(--primary); font-size:1.5rem; }
 
-    .chip{
+    .status-badge{
+      font-size:.75rem;
+      font-weight:600;
+      padding:4px 10px;
+      border-radius:20px;
       display:inline-flex;
       align-items:center;
-      gap:8px;
-      padding:6px 10px;
-      border:1px solid var(--line);
-      border-radius:999px;
-      color:var(--muted);
-      font-size:12px;
-      background:rgba(255,255,255,.9);
-      white-space:nowrap;
+      gap:6px;
+      background:var(--bg);
     }
-    .dot{ width:8px; height:8px; border-radius:999px; background:var(--muted); }
-    .dot.ok{ background:var(--ok); }
-    .dot.err{ background:var(--danger); }
-    .dot.warn{ background:var(--warn); }
+    .status-badge.ok{ color:var(--ok); background:rgba(5,150,105,.1); }
+    .status-badge.err{ color:var(--danger); background:rgba(185,28,28,.1); }
+    .status-badge.warn{ color:var(--warn); background:rgba(180,83,9,.1); }
 
-    .app{
-      max-width:1300px;
-      margin:0 auto;
-      padding:16px;
-      display:grid;
-      grid-template-columns:260px 1fr;
-      gap:14px;
-    }
-    @media(max-width:980px){ .app{ grid-template-columns:1fr; } }
-
-    .nav{
-      border:1px solid var(--line);
-      border-radius:var(--radius);
+    .main-layout{ display:flex; flex:1; }
+    .sidebar{
+      width:260px;
       background:var(--panel);
-      box-shadow:var(--shadow);
-      padding:10px;
-      position:sticky;
-      top:66px;
-      height:fit-content;
-    }
-    .nav button{
-      width:100%;
-      text-align:left;
-      border:1px solid transparent;
-      background:transparent;
-      color:var(--text);
-      padding:10px 12px;
-      border-radius:12px;
-      cursor:pointer;
+      border-right:1px solid var(--line);
       display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      font-size:13px;
+      flex-direction:column;
+      padding:20px 12px;
+      gap:4px;
     }
-    .nav button:hover{ background:rgba(17,24,39,.04); }
-    .nav button.active{
-      background:rgba(17,24,39,.07);
-      border-color: rgba(17,24,39,.12);
-    }
-    .tag{
-      display:inline-block;
-      padding:2px 8px;
-      border-radius:999px;
-      border:1px solid var(--line);
+    .nav-item{
+      width:100%;
+      height:44px;
+      padding:0 12px;
+      border-radius:10px;
+      justify-content:flex-start;
+      gap:12px;
       color:var(--muted);
-      font-size:12px;
+      font-weight:500;
+    }
+    .nav-item i{ font-size:1.2rem; width:24px; text-align:center; }
+    .nav-item:hover{ background:var(--panel2); color:var(--text); }
+    .nav-item.active{ background:var(--primary); color:#fff; }
+
+    .content{ flex:1; padding:32px; max-width:1200px; margin:0 auto; width:100%; }
+
+    .card{
+      background:var(--panel);
+      border-radius:var(--radius);
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+      padding:24px;
+      margin-bottom:24px;
+    }
+    .card-title{ font-size:1.1rem; font-weight:700; margin-bottom:20px; display:flex; align-items:center; gap:10px; }
+
+    .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+    .grid-3{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+
+    .form-group{ margin-bottom:16px; }
+    .form-group label{ display:block; font-size:.875rem; font-weight:600; margin-bottom:6px; color:var(--muted); }
+    .form-control{
+      width:100%;
+      height:42px;
+      padding:0 12px;
+      border-radius:8px;
+      border:1.5px solid var(--line);
       background:var(--panel2);
     }
 
-    .card{
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      background:var(--panel);
-      box-shadow:var(--shadow);
-      overflow:hidden;
-    }
-    .card .hd{
-      padding:14px 14px 10px;
-      border-bottom:1px solid var(--line2);
-      display:flex;
-      align-items:flex-end;
-      justify-content:space-between;
-      gap:12px;
-      background:linear-gradient(180deg, rgba(249,250,251,.95), rgba(255,255,255,.95));
-    }
-    .card .hd h2{ margin:0; font-size:14px; font-weight:750; }
-    .card .hd p{ margin:0; color:var(--muted); font-size:12px; }
-    .card .bd{ padding:14px; }
+    .btn-primary{ background:var(--primary); color:#fff; font-weight:600; padding:10px 20px; border-radius:10px; width:100%; height:44px; }
+    .btn-primary:hover{ opacity:.9; transform:translateY(-1px); }
+    .btn-secondary{ background:var(--bg); color:var(--text); font-weight:600; padding:10px 20px; border-radius:10px; border:1px solid var(--line); }
 
-    .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-    .grid3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
-    @media(max-width:780px){ .grid2,.grid3{ grid-template-columns:1fr; } }
-
-    label{ display:block; font-size:12px; color:var(--muted); margin:10px 0 6px; }
-    input,select,textarea{
-      width:100%;
-      padding:10px 12px;
-      border:1px solid rgba(17,24,39,.16);
-      border-radius:12px;
-      outline:none;
-      background:#fff;
-      color:var(--text);
-    }
-    textarea{
-      min-height:140px;
-      font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;
-      font-size:12px;
-    }
-    input:focus,select:focus,textarea:focus{
-      border-color: rgba(17,24,39,.35);
-      box-shadow: 0 0 0 4px var(--focus);
-    }
-
-    .btns{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
-    button.btn{
-      border:1px solid rgba(17,24,39,.16);
-      background:#fff;
-      color:var(--text);
-      padding:10px 12px;
-      border-radius:12px;
-      cursor:pointer;
-      font-size:13px;
-    }
-    button.btn:hover{ background:rgba(17,24,39,.03); }
-    button.btn.primary{
-      background:var(--primary);
-      border-color:var(--primary);
-      color:#fff;
-    }
-    button.btn.primary:hover{ background:#000; border-color:#000; }
-    button.btn.danger{
-      background:#fff;
-      border-color: rgba(185,28,28,.35);
-      color: var(--danger);
-    }
-    button.btn.danger:hover{ background: rgba(185,28,28,.05); }
-    button.btn:disabled{ opacity:.55; cursor:not-allowed; }
-
-    .sep{ height:1px; background:var(--line2); margin:14px 0; }
-    .tableWrap{
-      border:1px solid var(--line);
-      border-radius:14px;
-      overflow:auto;
-      max-height:520px;
-      background:#fff;
-    }
     table{ width:100%; border-collapse:collapse; }
-    th,td{
-      padding:10px 10px;
-      border-bottom:1px solid rgba(17,24,39,.08);
-      font-size:13px;
-      vertical-align:top;
+    th{ text-align:left; padding:12px; font-size:.75rem; text-transform:uppercase; color:var(--muted); border-bottom:1px solid var(--line); }
+    td{ padding:12px; border-bottom:1px solid var(--line2); font-size:.9rem; }
+    tr:last-child td{ border-bottom:none; }
+
+    .badge{ padding:4px 8px; border-radius:6px; font-size:.7rem; font-weight:700; text-transform:uppercase; }
+    .badge-in{ background:rgba(5,150,105,.1); color:var(--ok); }
+    .badge-out{ background:rgba(185,28,28,.1); color:var(--danger); }
+
+    #view-login{
+      position:fixed; inset:0; z-index:1000;
+      background:var(--bg);
+      display:flex; align-items:center; justify-content:center;
     }
-    th{
-      position:sticky;
-      top:0;
-      background:#f9fafb;
-      color:#374151;
-      font-weight:700;
-      text-align:left;
-      font-size:12px;
-      border-bottom:1px solid rgba(17,24,39,.10);
+    .login-box{
+      width:100%; max-width:400px;
+      background:var(--panel);
+      padding:40px;
+      border-radius:24px;
+      box-shadow:var(--shadow);
+      text-align:center;
     }
-    td.right,th.right{ text-align:right; }
-    .hide{ display:none !important; }
-    .note{ color:var(--muted); font-size:12px; margin:8px 0 0; }
-    .errText{ color:#991b1b; font-size:12px; margin-top:10px; }
 
-    /* Login */
-    .overlay{
-      position:fixed; inset:0;
-      z-index:9999;
-      background:rgba(17,24,39,.55);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:16px;
+    .tab-content{ display:none; }
+    .tab-content.active{ display:block; animation:fadeIn .3s; }
+
+    @keyframes fadeIn{ from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+    @media(max-width:768px){
+      .grid-2,.grid-3{ grid-template-columns:1fr; }
+      .sidebar{ display:none; }
+      .content{ padding:16px; }
     }
-    .loginBox{
-      width:min(640px,100%);
-      border:1px solid rgba(255,255,255,.18);
-      border-radius:16px;
-      background:#fff;
-      box-shadow:0 18px 50px rgba(0,0,0,.35);
-      overflow:hidden;
-    }
-    .brandBar{
-      background:#111;
-      color:#fff;
-      padding:14px 16px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-    }
-    .brandLogo{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      font-weight:900;
-      letter-spacing:.6px;
-      font-size:14px;
-      user-select:none;
-    }
-    .brandLogo .mark{
-      display:inline-block;
-      padding:4px 8px;
-      background:#fff;
-      color:#111;
-      border-radius:4px;
-      line-height:1;
-      font-weight:950;
-      letter-spacing:.8px;
-    }
-    .brandBar small{ opacity:.9; font-weight:600; }
-    .loginBody{ padding:16px; }
-    .loginTitle{ margin:0; font-size:16px; font-weight:900; letter-spacing:.2px; }
-    .loginSub{ margin:6px 0 0; color:#4b5563; font-size:13px; line-height:1.35; }
-
-/* Print */
-/* Print (topo + multipágina) */
-@media print {
-  @page { margin: 10mm; }
-
-  html, body {
-    margin: 0 !important;
-    padding: 0 !important;
-    height: auto !important;
-    background: #fff !important;
-    color: #000 !important;
-  }
-
-  /* Esconde tudo */
-  body * {
-    visibility: hidden !important;
-  }
-
-  /* Mostra só a área de impressão e o que está dentro */
-  #printArea, #printArea * {
-    visibility: visible !important;
-  }
-
-  #printArea {
-    display: block !important;
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    background: #fff !important;
-  }
-
-  /* Remove sticky/scroll na impressão */
-  .tableWrap {
-    max-height: none !important;
-    overflow: visible !important;
-  }
-  th { position: static !important; }
-
-  .no-print { display: none !important; }
-}
-
-
   </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 </head>
-
 <body>
 
-<!-- Login -->
-<div class="overlay" id="loginOverlay" style="display:none">
-  <div class="loginBox">
-    <div class="brandBar">
-      <div class="brandLogo" aria-label="INTERCOL"><span class="mark">INTERCOL</span></div>
-      <small>Controle de Uniformes</small>
+<div id="view-login">
+  <div class="login-box">
+    <div style="font-size:3rem; margin-bottom:20px;">📦</div>
+    <h1 style="font-size:1.5rem; margin-bottom:8px;">Almoxarifado</h1>
+    <p style="color:var(--muted); margin-bottom:32px;">Acesse com seu usuário e PIN</p>
+    
+    <div class="form-group" style="text-align:left;">
+      <label>Usuário (E-mail)</label>
+      <input type="text" id="login-user" class="form-control" placeholder="ex: jose@email.com">
     </div>
-    <div class="loginBody">
-      <h2 class="loginTitle">Entrar</h2>
-      <p class="loginSub">Use seu usuário e a senha (6 dígitos). Usuários são gerenciados pelo DEV no Sheets.</p>
-
-      <div class="grid2" style="margin-top:10px">
-        <div>
-          <label for="loginUser">Usuário</label>
-          <input id="loginUser" type="text" placeholder="Ex. maria" autocomplete="username" />
-        </div>
-        <div>
-          <label for="loginPass">Senha (6 dígitos)</label>
-          <input id="loginPass" type="password" inputmode="numeric" placeholder="Ex. 123456" autocomplete="current-password" />
-        </div>
-      </div>
-
-      <div class="btns">
-        <button type="button" class="btn primary" id="btnLogin">Entrar</button>
-      </div>
-      <div class="errText" id="loginErr" style="display:none"></div>
+    <div class="form-group" style="text-align:left;">
+      <label>PIN (6 dígitos)</label>
+      <input type="password" id="login-pin" class="form-control" maxlength="6" placeholder="••••••">
     </div>
+    <button class="btn-primary" id="btn-do-login" onclick="doLogin()">Entrar no Sistema</button>
   </div>
 </div>
 
-<header>
-  <div class="topbar">
-    <div class="title">
-      <h1>Controle de Uniformes</h1>
-      <small>Saída Devoluções</small>
+<header class="app-header">
+  <div class="app-logo">
+    <i class="fas fa-box-open"></i>
+    <span>Controle Uniformes</span>
+  </div>
+
+  <div style="display:flex; align-items:center; gap:16px;">
+    <div id="sheets-status" class="status-badge warn">
+      <i class="fas fa-circle"></i>
+      <span>Sheets conectando...</span>
     </div>
-    <div style="display:flex; gap:10px; align-items:center">
-      <div class="chip" id="chipUser" title="Usuário atual">
-        <span class="dot ok"></span>
-        <span id="txtUser">No logado</span>
-      </div>
-      <div class="chip">
-        <span class="dot warn" id="dotSheets"></span>
-        <span id="txtSheets">Sheets</span>
-      </div>
-      <div>
-        <button type="button" class="btn" id="btnLogout" style="padding:8px 10px">Sair</button>
-      </div>
+    <div style="height:24px; width:1px; background:var(--line);"></div>
+    <div style="text-align:right;">
+      <div id="user-name" style="font-size:.875rem; font-weight:700;">Usuário</div>
+      <button onclick="doLogout()" style="font-size:.7rem; color:var(--danger); font-weight:600;">Sair do sistema</button>
     </div>
   </div>
 </header>
 
-<main class="app">
-  <aside class="nav">
-    <button type="button" class="navBtn active" data-screen="mov">Movimentar <span class="tag">principal</span></button>
-    <button type="button" class="navBtn" data-screen="func">Funcionários <span class="tag">cadastro</span></button>
-    <button type="button" class="navBtn" data-screen="est">Estoque <span class="tag">saldos</span></button>
-    <button type="button" class="navBtn" data-screen="uni">Uniformes <span class="tag">catálogo</span></button>
-    <button type="button" class="navBtn devOnly hide" data-screen="cfg">Config <span class="tag">DEV</span></button>
-    <button type="button" class="navBtn devOnly hide" data-screen="log">Acessos <span class="tag">DEV</span></button>
-    <button type="button" class="navBtn" data-screen="entrega">Entrega de Material <span class="tag">novo</span></button>
+<div class="main-layout">
+  <aside class="sidebar">
+    <button class="nav-item active" onclick="showTab('dashboard', this)">
+      <i class="fas fa-chart-pie"></i> Painel Geral
+    </button>
+    <button class="nav-item" onclick="showTab('inventory', this)">
+      <i class="fas fa-boxes-stacked"></i> Estoque Atual
+    </button>
+    <button class="nav-item" onclick="showTab('movements', this)">
+      <i class="fas fa-exchange-alt"></i> Movimentações
+    </button>
+    <button class="nav-item" onclick="showTab('entregas', this)">
+      <i class="fas fa-hand-holding"></i> Entrega Material
+    </button>
+    
+    <div style="margin-top:auto; padding-top:20px; border-top:1px solid var(--line);">
+      <button class="nav-item" onclick="showTab('settings', this)" id="nav-admin" style="display:none;">
+        <i class="fas fa-cog"></i> Configurações
+      </button>
+    </div>
   </aside>
 
-  <!-- Movimentar -->
-  <section id="screen-mov" class="card">
-    <div class="hd">
-      <div>
-        <h2>Movimentação</h2>
-        <p>Observação aparece somente em devolução.</p>
-      </div>
-      <div class="chip"><span class="dot ok"></span><span id="pillTotal">Estoque total</span></div>
-    </div>
-
-    <div class="bd">
-      <div class="btns no-print" style="margin-top:0; margin-bottom:12px">
-        <button type="button" class="btn" id="btnCarregarSheetsUrl">Carregar Sheets</button>
-      </div>
-
-      <div class="grid3">
-  <div>
-    <label for="tipoMov">Tipo:</label>
-    <select id="tipoMov">
-      <option value="SAIDA">Saída</option>
-      <option value="DEVOLUCAO">Devolução</option>
-    </select>
-  </div>
-</div>
-
-        <div>
-          <label for="dataMov">Data:</label>
-         <input id="dataMov" type="text" placeholder="DD/MM/AAAA" maxlength="10" style="text-align: center;">
-       </div>
-
-        <div id="boxFunc" class="hide">
-          <label for="funcionarioSel">Funcionário</label>
-          <select id="funcionarioSel"></select>
+  <main class="content">
+    
+    <div id="tab-dashboard" class="tab-content active">
+      <div class="grid-3" id="stats-summary">
+        <div class="card">
+          <div style="color:var(--muted); font-size:.8rem; font-weight:600; margin-bottom:8px;">TOTAL EM ESTOQUE</div>
+          <div id="stat-total-items" style="font-size:2rem; font-weight:800;">0</div>
+        </div>
+        <div class="card">
+          <div style="color:var(--muted); font-size:.8rem; font-weight:600; margin-bottom:8px;">ENTRADAS (MÊS)</div>
+          <div id="stat-entries" style="font-size:2rem; font-weight:800; color:var(--ok);">0</div>
+        </div>
+        <div class="card">
+          <div style="color:var(--muted); font-size:.8rem; font-weight:600; margin-bottom:8px;">SAÍDAS (MÊS)</div>
+          <div id="stat-exits" style="font-size:2rem; font-weight:800; color:var(--danger);">0</div>
         </div>
       </div>
 
-      <div class="grid2">
-        <div id="boxEstado" class="hide">
-          <label for="estadoItem">Estado (devolução)</label>
-          <select id="estadoItem">
-            <option value="EMCONDICOES">Em condições</option>
-            <option value="SEMCONDICOES">Sem condições</option>
-          </select>
-        </div>
-        <div id="boxMotivo" class="hide">
-          <label for="motivoRuim">Motivo (obrigatório)</label>
-          <input id="motivoRuim" type="text" />
-        </div>
-      </div>
-
-      <div class="grid3">
-        <div>
-          <label for="categoria">Categoria</label>
-          <select id="categoria"></select>
-        </div>
-        <div>
-          <label for="tamanho">Tamanho</label>
-          <select id="tamanho"></select>
-        </div>
-        <div>
-          <label for="quantidade">Quantidade</label>
-          <input id="quantidade" type="number" min="1" step="1" value="1" />
-        </div>
-          <div>
-          <label forsaldoAtualSaldo Atual:</label>
-          <input id="saldoAtual" type="number" readonly style="background: #f0f9ff; color: #0369a1; font-weight: 600;">
-        </div>
-      </div>
-
-      <div id="boxObs" class="hide">
-        <label for="obs">Observação</label>
-        <input id="obs" type="text" />
-      </div>
-
-      <div class="btns">
-        <button type="button" class="btn primary" id="btnSalvar">Salvar</button>
-        <button type="button" class="btn" id="btnLimpar">Limpar</button>
-      </div>
-
-      <div class="sep no-print"></div>
-
-      <div class="grid2 no-print">
-        <div>
-          <label for="relFuncSel">Relatório por funcionário</label>
-          <select id="relFuncSel"></select>
-        </div>
-        <div class="btns" style="align-items:end; justify-content:flex-end">
-          <button type="button" class="btn" id="btnGerarRel">Gerar relatório</button>
-          <button type="button" class="btn" id="btnLimparRel">Limpar</button>
-          <button type="button" class="btn primary" id="btnImprimirRel">Imprimir relatório</button>
-          <button type="button" class="btn primary" id="btnImprimirTermo" disabled>Imprimir termo</button>
-        </div>
-      </div>
-
-      <div id="printArea" class="card" style="display:none">
-        <div class="hd" id="printHeader"><div><h2>Impresso</h2><p></p></div></div>
-        <div class="bd" id="printBody"><div class="note"></div></div>
-      </div>
-
-      <h2 style="margin-top:14px">Histórico</h2>
-      <div class="tableWrap">
-        <table id="tblHistorico">
+      <div class="card">
+        <div class="card-title"><i class="fas fa-history"></i> Atividade Recente</div>
+        <table id="table-recent">
           <thead>
             <tr>
               <th>Data</th>
               <th>Tipo</th>
-              <th>Funcionário</th>
-              <th>Item</th>
-              <th>Tam.</th>
-              <th class="right">Qtd</th>
-              <th>Estado</th>
-              <th>Motivo</th>
-              <th>Obs.</th>
-              <th class="no-print">Ações</th>
+              <th>Categoria</th>
+              <th>Tamanho</th>
+              <th>Qtd</th>
             </tr>
           </thead>
           <tbody></tbody>
         </table>
       </div>
     </div>
-  </section>
 
-<section id="screen-entrega" class="card hide">
-    <div class="hd">
-      <div>
-        <h2>Entrega de Material</h2>
-        <p>Registro de entrega de materiais aos funcionários.</p>
-      </div>
-    </div>
-    <div class="bd">
-      <div class="grid3">
-        <div>
-          <label for="dataEntregaMat">Data:</label>
-          <input id="dataEntregaMat" type="date">
+    <div id="tab-inventory" class="tab-content">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+          <div class="card-title" style="margin:0;"><i class="fas fa-boxes-stacked"></i> Estoque Disponível</div>
+          <button class="btn-secondary" onclick="exportStock()">Exportar Excel</button>
         </div>
-        <div>
-          <label for="funcEntregaMat">Funcionário:</label>
-          <select id="funcEntregaMat"></select>
-        </div>
-        <div>
-          <label for="materialEntrega">Material:</label>
-          <input id="materialEntrega" type="text" placeholder="Ex: Luvas, Capacete...">
-        </div>
-      </div>
-      <div class="grid3">
-        <div>
-          <label for="qtdEntregaMat">Quantidade:</label>
-          <input id="qtdEntregaMat" type="number" min="1" value="1">
-        </div>
-      </div>
-      <div class="btns">
-        <button type="button" class="btn primary" id="btnSalvarEntrega">Salvar Entrega</button>
-        <button type="button" class="btn" id="btnLimparEntrega">Limpar</button>
-      </div>
-      <div class="sep"></div>
-      <h3>Filtrar Relatório</h3>
-      <div class="grid3">
-        <div><label>Nome:</label><input id="filtroNomeEntrega" type="text" placeholder="Funcionário"></div>
-        <div><label>Início:</label><input id="filtroDataInicio" type="date"></div>
-        <div><label>Fim:</label><input id="filtroDataFim" type="date"></div>
-      </div>
-      <div class="btns">
-        <button type="button" class="btn primary" id="btnImprimirRelEntrega">Imprimir Relatório Filtrado</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- Funcionários -->
-  <section id="screen-func" class="card hide">
-    <div class="hd">
-      <div>
-        <h2>Funcionários</h2>
-        <p>Cadastro e status.</p>
-      </div>
-    </div>
-    <div class="bd">
-      <label for="novoNome">Novo funcionário</label>
-      <input id="novoNome" type="text" />
-
-      <div class="btns">
-        <button type="button" class="btn primary" id="btnAddFunc">Adicionar</button>
-        <button type="button" class="btn" id="btnListarFuncs">Listar todos</button>
-      </div>
-
-      <div class="sep"></div>
-
-      <label>Todos os funcionários</label>
-      <div class="tableWrap" style="max-height:420px">
-        <table id="tblFuncs">
-          <thead>
-            <tr>
-              <th>Nome</th>
-              <th>Status</th>
-              <th class="right">Ações</th>
-            </tr>
-          </thead>
-          <tbody><tr><td colspan="3" class="note">Clique em “Listar todos”.</td></tr></tbody>
-        </table>
-      </div>
-      <div class="note" id="funcMsg"></div>
-    </div>
-  </section>
-
-  <!-- Estoque -->
-  <section id="screen-est" class="card hide">
-    <div class="hd">
-      <div>
-        <h2>Estoque</h2>
-        <p>Saldos atuais por item e tamanho.</p>
-      </div>
-      <div class="chip"><span class="dot ok"></span><span id="pillTotal2">Total</span></div>
-    </div>
-    <div class="bd">
-      <div class="btns no-print" style="margin-top:0">
-        <button type="button" class="btn" id="btnEditarItensEstoque">Editar nomes dos itens</button>
-      </div>
-<div class="grid3" style="margin-bottom: 14px;">
-  <div>
-    <label for="tipoEntrada">Tipo:</label>
-    <select id="tipoEntrada">
-      <option value="ENTRADA">Entrada</option>
-    </select>
-  </div>
-  <div>
-    <label for="dataEntrada">Data:</label>
-    <input id="dataEntrada" type="text" placeholder="DD/MM/AAAA" maxlength="10" style="text-align: center;">
-  </div>
-  <div style="align-self: end;">
-    <button type="button" class="btn primary" id="btnEntradaSalvar">Adicionar Entrada</button>
-  </div>
-</div>
-<div class="grid3">
-  <div>
-    <label for="catEntrada">Categoria:</label>
-    <select id="catEntrada"></select>
-  </div>
-  <div>
-    <label for="tamEntrada">Tamanho:</label>
-    <select id="tamEntrada"></select>
-  </div>
-  <div>
-    <label for="qtdEntrada">Quantidade:</label>
-    <input id="qtdEntrada" type="number" min="1" step="1" value="1">
-  </div>
-</div>
-      <div class="note no-print" id="msgEditarItens" style="display:none"></div>
-
-      <div class="tableWrap" style="max-height:520px; margin-top:10px">
-        <table id="tblEstoque">
-          <thead><tr><th>Item</th><th>Tamanho</th><th class="right">Saldo</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <!-- Catálogo -->
-  <section id="screen-uni" class="card hide">
-    <div class="hd">
-      <div>
-        <h2>Uniformes (catálogo)</h2>
-        <p>Adicionar, editar e remover itens.</p>
-      </div>
-    </div>
-    <div class="bd">
-      <p class="note">Depois de editar, clique em <b>Salvar no Sheets</b> para publicar.</p>
-
-      <div class="btns no-print" style="margin-top:0">
-        <button type="button" class="btn" id="btnCarregarCatalogoSheets">Carregar do Sheets</button>
-        <button type="button" class="btn primary" id="btnSalvarCatalogoSheets">Salvar no Sheets</button>
-        <button type="button" class="btn" id="btnRestaurarCatalogo">Restaurar padrão</button>
-      </div>
-
-      <div class="sep"></div>
-
-      <div class="grid2">
-        <div>
-          <label for="catNome">Categoria (nome do item)</label>
-          <input id="catNome" type="text" />
-        </div>
-        <div>
-          <label for="catTamanhos">Tamanhos (separe por vírgula)</label>
-          <input id="catTamanhos" type="text" />
-        </div>
-      </div>
-
-      <div class="btns">
-        <button type="button" class="btn primary" id="btnAddCatItem">Adicionar / Atualizar</button>
-        <button type="button" class="btn" id="btnLimparCatForm">Limpar</button>
-      </div>
-
-      <div class="sep"></div>
-
-      <label>Itens cadastrados</label>
-      <div class="tableWrap" style="max-height:520px">
-        <table id="tblCatalogo">
+        <table id="table-stock">
           <thead>
             <tr>
               <th>Categoria</th>
-              <th>Tamanhos</th>
-              <th class="right">Ações</th>
+              <th>Tamanho</th>
+              <th>Novo</th>
+              <th>Usado</th>
+              <th>Total</th>
             </tr>
           </thead>
           <tbody></tbody>
         </table>
       </div>
-      <div class="note" id="catMsg"></div>
     </div>
-  </section>
 
-  <!-- Config DEV -->
-  <section id="screen-cfg" class="card hide devOnlyScreen">
-    <div class="hd"><div><h2>Config (DEV)</h2><p>Somente DEV.</p></div></div>
-    <div class="bd">
-      <label>URL do Web App (exec)</label>
-      <input id="cfgUrl" type="text" readonly />
-      <p class="note">Se o login funcionar, esta URL já está correta.</p>
-    </div>
-  </section>
-
-  <!-- Acessos DEV -->
-  <section id="screen-log" class="card hide devOnlyScreen">
-    <div class="hd"><div><h2>Acessos (DEV)</h2><p>Usuários no Sheets.</p></div></div>
-
-    <div class="bd">
-      <label for="devPin">PIN do DEV para gerenciar usuários</label>
-      <input id="devPin" type="password" inputmode="numeric" placeholder="6 dígitos" autocomplete="off" />
-
-      <div class="btns">
-        <button type="button" class="btn" id="btnLoadUsers">Carregar usuários</button>
-      </div>
-
-      <div class="sep"></div>
-
-      <div class="grid3">
-        <div>
-          <label for="newUserLogin">Novo login</label>
-          <input id="newUserLogin" type="text" placeholder="ex. maria" />
+    <div id="tab-movements" class="tab-content">
+      <div class="card">
+        <div class="card-title"><i class="fas fa-plus-circle"></i> Novo Lançamento</div>
+        <div class="grid-3">
+          <div class="form-group">
+            <label>Tipo de Movimento</label>
+            <select id="mov-tipo" class="form-control">
+              <option value="ENTRADA">Entrada (+)</option>
+              <option value="SAIDA">Saída (-)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Data</label>
+            <input type="date" id="mov-data" class="form-control">
+          </div>
+          <div class="form-group">
+            <label>Funcionário</label>
+            <select id="mov-func" class="form-control"></select>
+          </div>
         </div>
-        <div>
-          <label for="newUserName">Nome (opcional)</label>
-          <input id="newUserName" type="text" placeholder="ex. Maria Silva" />
+
+        <div class="grid-3">
+          <div class="form-group">
+            <label>Categoria de Item</label>
+            <select id="mov-cat" class="form-control"></select>
+          </div>
+          <div class="form-group">
+            <label>Tamanho</label>
+            <select id="mov-tam" class="form-control"></select>
+          </div>
+          <div class="form-group">
+            <label>Quantidade</label>
+            <input type="number" id="mov-qtd" class="form-control" value="1" min="1">
+          </div>
         </div>
-        <div>
-          <label for="newUserPin">Senha (6 dígitos)</label>
-          <input id="newUserPin" type="password" inputmode="numeric" placeholder="ex. 123456" />
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Estado do Item</label>
+            <select id="mov-estado" class="form-control">
+              <option value="NOVO">Novo</option>
+              <option value="USADO">Usado</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Motivo</label>
+            <select id="mov-motivo" class="form-control">
+              <option value="REPOSICAO">Reposição</option>
+              <option value="ADMISSAO">Admissão</option>
+              <option value="DESLIGAMENTO">Desligamento (Devolução)</option>
+              <option value="EXTRA">Extra / Outros</option>
+            </select>
+          </div>
         </div>
-      </div>
-
-      <div class="grid2">
-        <div>
-          <label for="newUserCanEdit">Permissão</label>
-          <select id="newUserCanEdit">
-            <option value="EDIT">Pode editar</option>
-            <option value="VIEW">Somente visualizar</option>
-          </select>
+        
+        <div class="form-group">
+          <label>Observações</label>
+          <textarea id="mov-obs" class="form-control" style="height:80px; padding:10px;"></textarea>
         </div>
-        <div class="note" style="align-self:end">Definido pelo DEV e salvo no Sheets.</div>
-      </div>
 
-      <div class="btns">
-        <button type="button" class="btn primary" id="btnCreateUser">Criar usuário</button>
-      </div>
-
-      <div class="sep"></div>
-
-      <div class="tableWrap" style="max-height:420px">
-        <table id="tblUsers">
-          <thead>
-            <tr>
-              <th>Login</th>
-              <th>Nome</th>
-              <th>Status</th>
-              <th>Permissão</th>
-              <th class="right">Ações</th>
-            </tr>
-          </thead>
-          <tbody><tr><td colspan="5" class="note">Carregue os usuários.</td></tr></tbody>
-        </table>
-      </div>
-
-      <div class="sep"></div>
-
-      <h3 style="margin:0 0 8px 0">Reativar funcionário (DEV)</h3>
-
-      <label for="searchInativo">Pesquisar (somente inativos)</label>
-      <input id="searchInativo" type="text" placeholder="Ex.: oruam" autocomplete="off" />
-
-      <div class="tableWrap" style="max-height:320px; margin-top:10px">
-        <table>
-          <thead>
-            <tr>
-              <th>Nome</th>
-              <th>Status</th>
-              <th class="right">Ações</th>
-            </tr>
-          </thead>
-          <tbody id="tblFuncsInativos">
-            <tr><td colspan="3" class="note">Nenhum inativo carregado.</td></tr>
-          </tbody>
-        </table>
+        <button class="btn-primary" onclick="salvarMovimento()" id="btn-save-mov">Salvar Movimentação</button>
       </div>
     </div>
-  </section>
 
-</main>
+    <div id="tab-entregas" class="tab-content">
+      <div class="card">
+        <div class="card-title"><i class="fas fa-hand-holding"></i> Registrar Entrega de Materiais</div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Funcionário</label>
+            <select id="funcEntregaMat" class="form-control"></select>
+          </div>
+          <div class="form-group">
+            <label>Data da Entrega</label>
+            <input type="date" id="dataEntregaMat" class="form-control">
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Material / Equipamento</label>
+            <input type="text" id="materialEntrega" class="form-control" placeholder="Ex: Luva, Bota, Camiseta...">
+          </div>
+          <div class="form-group">
+            <label>Quantidade</label>
+            <input type="number" id="qtdEntregaMat" class="form-control" value="1">
+          </div>
+        </div>
+        <button class="btn-primary" onclick="salvarEntregaMaterial()">Confirmar Registro de Entrega</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><i class="fas fa-file-alt"></i> Relatório de Entregas Realizadas</div>
+        <div class="grid-3" style="margin-bottom:20px; align-items:flex-end;">
+          <div class="form-group">
+            <label>Filtrar por Nome</label>
+            <input type="text" id="filterEntregaNome" class="form-control" placeholder="Digite o nome...">
+          </div>
+          <div class="form-group">
+            <label>Início</label>
+            <input type="date" id="filterEntregaD1" class="form-control">
+          </div>
+          <div class="form-group">
+            <label>Fim</label>
+            <input type="date" id="filterEntregaD2" class="form-control">
+          </div>
+        </div>
+        <button class="btn-secondary" style="width:100%;" onclick="gerarRelatorioEntrega()">Visualizar e Imprimir Relatório</button>
+      </div>
+    </div>
+
+    <div id="tab-settings" class="tab-content">
+      <div class="card">
+        <div class="card-title"><i class="fas fa-users-cog"></i> Gestão de Usuários</div>
+        <p style="color:var(--muted); font-size:.85rem; margin-bottom:20px;">Apenas administradores podem gerenciar acessos.</p>
+        
+        <div id="admin-user-list">
+           </div>
+
+        <div style="margin-top:24px; padding-top:24px; border-top:1px solid var(--line);">
+          <div class="card-title" style="font-size:.9rem;">Cadastrar Novo Usuário</div>
+          <div class="grid-3">
+            <input type="text" id="new-user-name" class="form-control" placeholder="Nome Completo">
+            <input type="text" id="new-user-login" class="form-control" placeholder="E-mail / Login">
+            <input type="text" id="new-user-pin" class="form-control" maxlength="6" placeholder="PIN 6 dígitos">
+          </div>
+          <button class="btn-secondary" style="margin-top:12px;" onclick="adminCreateUser()">Adicionar Usuário</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><i class="fas fa-tags"></i> Gerenciar Catálogo (Categorias e Tamanhos)</div>
+        <div id="catalog-editor-list"></div>
+        <button class="btn-secondary" style="margin-top:12px;" onclick="addCatalogRow()">+ Nova Categoria</button>
+        <button class="btn-primary" style="margin-top:20px;" onclick="saveCatalog()">Salvar Alterações do Catálogo</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><i class="fas fa-user-plus"></i> Cadastro de Funcionários</div>
+        <div class="grid-2">
+           <input type="text" id="new-func-id" class="form-control" placeholder="Matrícula / ID">
+           <input type="text" id="new-func-nome" class="form-control" placeholder="Nome Completo">
+        </div>
+        <button class="btn-secondary" style="margin-top:12px;" onclick="salvarFuncionario()">Cadastrar Funcionário</button>
+        
+        <div style="margin-top:20px;">
+          <table id="table-admin-funcs">
+            <thead><tr><th>ID</th><th>Nome</th><th>Status</th><th>Ação</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
 
 <script>
-/* =========================
-   CONFIG
-========================= */
-const SHEETSURL = "https://script.google.com/macros/s/AKfycbzef2t-ivoNG_Hu5ACUby0VStJ4ald49HU6W-2sL2ixDKfJZpEz3cfvw5PKAKeLP-lkzQ/exec";
-const DEVEMAIL = "dayerre@gmail.com";
-const TERMOLOCAL = "Colatina/ES";
-let ISDEMO = false;
+// CONFIGURAÇÕES DO GOOGLE SHEETS
+const API_URL = "https://script.google.com/macros/s/AKfycbwYyQ-933vJ7vshK7v9sA8D7HwL1L0L0_L0/exec"; // Substitua pela sua URL de implantação
 
-const DBKEY = "uniformesdbsite";
-const SESSIONKEY = "uniformessessionsheetv9jsonp";
-const CATALOGKEYLOCAL = "uniformescatalogolocalv1";
-const ITEMMAPKEY = "uniformesitemmapv1";
+// DATABASE LOCAL (Cache para funcionamento Offline/Rápido)
+const DB_KEY = "almox_db_v1";
+const USER_KEY = "almox_session";
+const CATALOG_KEY = "almox_catalog";
 
-const DEFAULTCATALOG = [
-  { categoria: "Camisa masculina manga longa", tamanhos: ["P","M","G","GG","XG"] },
-  { categoria: "Camisa masculina manga curta", tamanhos: ["P","M","G","GG","XG"] },
-  { categoria: "Calça brim c/ faixa refletiva masc.", tamanhos: ["P","M","G","GG","XXG"] },
-  { categoria: "Camisa feminina babylook", tamanhos: ["P","M","G","GG","XXG"] },
-];
-
-const RELALL = "ALL";
-
-/* =========================
-   Utils
-========================= */
-function todayISO(){
-  const d = new Date();
-  const pad = (n) => String(n).padStart(2,"0");
-  return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
-}
-function formatBRDateFromISO(iso){
-  if(!iso || typeof iso !== "string" || iso.length < 10) return "";
-  const [y,m,d] = iso.slice(0,10).split("-");
-  return `${d}/${m}/${y}`;
-}
-function formatDateDisplay(dateStr) {
-  if (!dateStr) return '';
-  if (typeof dateStr === 'string' && dateStr.length === 10 && dateStr.includes('-')) {
-    return formatBRDateFromISO(dateStr);
-  }
-  const d = new Date(dateStr);
-  if (isNaN(d.getTime())) return dateStr;
-  const pad = n => String(n).padStart(2, '0');
-  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
-}
-
-function escapeHtml(s){
-  return String(s ?? "")
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-}
-function makeId(){
-  try{
-    if(crypto?.randomUUID) return crypto.randomUUID();
-  }catch(e){}
-  return String(Date.now()) + Math.random().toString(16).slice(2);
-}
-
-/* =========================
-   Local DB + Session
-========================= */
 function loadDB(){
-  try{
-    return JSON.parse(localStorage.getItem(DBKEY) ?? "null") || { movimentos:[], estoque:{}, funcionarios:[] };
-  }catch(e){
-    return { movimentos:[], estoque:{}, funcionarios:[] };
-  }
+  const d = localStorage.getItem(DB_KEY);
+  return d ? JSON.parse(d) : { movimentos:[], funcionarios:[], entregas:[] };
 }
-function saveDB(db){
-  if(ISDEMO) return;
-  localStorage.setItem(DBKEY, JSON.stringify(db));
-}
-function loadSession(){
-  try{
-    return JSON.parse(localStorage.getItem(SESSIONKEY) ?? "null");
-  }catch(e){
-    return null;
-  }
-}
-function saveSessions(s){
-  localStorage.setItem(SESSIONKEY, JSON.stringify(s));
-}
-/* alias */
-function saveSession(s){
-  return saveSessions(s);
-}
-function clearSession(){
-  localStorage.removeItem(SESSIONKEY);
-  sessionStorage.removeItem("actorPin");
-}
+function saveDB(db){ localStorage.setItem(DB_KEY, JSON.stringify(db)); }
 
+function loadItemMap(){
+  const d = localStorage.getItem(CATALOG_KEY);
+  return d ? JSON.parse(d) : { items: {} };
+}
+function saveItemMap(m){ localStorage.setItem(CATALOG_KEY, JSON.stringify(m)); }
+
+// SESSÃO
 function getCurrentUser(){
-  const s = loadSession();
-  if(!s || !s.login) return null;
-  return s;
+  const s = localStorage.getItem(USER_KEY);
+  return s ? JSON.parse(s) : null;
 }
-function isDevSession(){
-  const s = getCurrentUser();
-  return !!(s && s.isDev);
-}
-function canEditSession(){
-  const s = getCurrentUser();
-  return !!(s && (s.isDev || s.canEdit));
-}
-
-function setSheetsStatus(mode, msg){
-  const dot = document.getElementById("dotSheets");
-  const txt = document.getElementById("txtSheets");
-  dot.classList.remove("ok","err","warn");
-  dot.classList.add(mode === "ok" ? "ok" : (mode === "erro" ? "err" : "warn"));
-  txt.textContent = msg;
+function requireLogin(){
+  const u = getCurrentUser();
+  if(!u){
+    document.getElementById("view-login").style.display = "flex";
+    return false;
+  }
+  document.getElementById("view-login").style.display = "none";
+  document.getElementById("user-name").innerText = u.name || u.login;
+  if(u.isDev) document.getElementById("nav-admin").style.display = "flex";
+  return true;
 }
 
-/* =========================
-   JSONP calls (Apps Script)
-========================= */
-function apiJsonp(params, timeoutMs=12000){
-  return new Promise((resolve, reject)=>{
-    const cbName = "cb" + Math.random().toString(16).slice(2);
-    const u = new URL(SHEETSURL);
-    Object.entries(params).forEach(([k,v])=>u.searchParams.set(k, v));
-    u.searchParams.set("callback", cbName);
-    u.searchParams.set("ts", String(Date.now()));
-
-    const s = document.createElement("script");
-    let done = false;
-
-    window[cbName] = (data)=>{
-      if(done) return;
-      done = true;
-      cleanup();
-      resolve(data);
+// COMUNICAÇÃO COM API
+async function api(params){
+  const url = new URL(API_URL);
+  Object.keys(params).forEach(k => url.searchParams.append(k, params[k]));
+  
+  // Usamos JSONP para evitar problemas de CORS no navegador
+  return new Promise((resolve, reject) => {
+    const callbackName = "cb_" + Math.round(Math.random() * 1000000);
+    window[callbackName] = (data) => {
+      delete window[callbackName];
+      document.body.removeChild(script);
+      if(data && data.ok) resolve(data);
+      else reject(data ? data.error : "Erro desconhecido");
     };
-
-    const t = setTimeout(()=>{
-      if(done) return;
-      done = true;
-      cleanup();
-      reject(new Error("Timeout ao comunicar com o Sheets."));
-    }, timeoutMs);
-
-    function cleanup(){
-      clearTimeout(t);
-      try{ delete window[cbName]; }catch(e){ window[cbName] = undefined; }
-      s.remove();
-    }
-
-    s.onerror = ()=>{
-      if(done) return;
-      done = true;
-      cleanup();
-      reject(new Error("Falha ao carregar resposta do servidor."));
-    };
-
-    s.src = u.toString();
-    document.head.appendChild(s);
+    const script = document.createElement("script");
+    script.src = `${url.href}&callback=${callbackName}`;
+    document.body.appendChild(script);
   });
 }
 
-async function api(params){
-  const j = await apiJsonp(params);
-  if(!j || typeof j !== "object") throw new Error("Resposta inválida do servidor.");
-  if(!j.ok) throw new Error(j.error || "Erro.");
-  return j;
-}
-
 async function sendKind(kind, payload){
-  const s = getCurrentUser();
-  if(!s || !s.login) throw new Error("Sem sessão.");
-  const actorPin = sessionStorage.getItem("actorPin");
-  if(!actorPin) throw new Error("PIN da sessão não definido. Faça login novamente.");
-
-  const fullPayload = { ...payload, actorLogin: s.login, actorPin };
-  const j = await apiJsonp({ kind, payload: JSON.stringify(fullPayload) });
-  if(!j || typeof j !== "object") throw new Error("Resposta inválida do servidor.");
-  if(!j.ok) throw new Error(j.error || "Erro ao salvar no Sheets.");
-  return j;
-}
-
-/* =========================
-   ItemMap (IDs de itens)
-========================= */
-function loadItemMap(){
-  try{
-    const raw = JSON.parse(localStorage.getItem(ITEMMAPKEY) ?? "null") || {};
-    raw.items = (raw.items && typeof raw.items === "object") ? raw.items : {};
-    raw.legacyNameToId = (raw.legacyNameToId && typeof raw.legacyNameToId === "object") ? raw.legacyNameToId : {};
-    return raw;
-  }catch(e){
-    return { items:{}, legacyNameToId:{} };
+  const user = getCurrentUser();
+  // Se não for login, injetamos as credenciais
+  if(kind !== "login"){
+    payload.actorLogin = user.login;
+    payload.actorPin = user.pin;
   }
-}
-function saveItemMap(m){
-  if(ISDEMO) return;
-  localStorage.setItem(ITEMMAPKEY, JSON.stringify(m));
-}
-function ensureItemIdForName(name){
-  const nm = String(name ?? "").trim();
-  const map = loadItemMap();
-  const existing = map.legacyNameToId[nm];
-  if(existing) return existing;
-
-  const id = "itm-" + makeId();
-  map.legacyNameToId[nm] = id;
-  if(!map.items[id]) map.items[id] = { name: nm };
-  saveItemMap(map);
-  return id;
-}
-function getItemNameById(itemId, fallbackName){
-  const map = loadItemMap();
-  const it = map.items[String(itemId)];
-  if(it && it.name) return String(it.name);
-  return String(fallbackName ?? itemId ?? "");
-}
-function renameItem(itemId, newName){
-  const name = String(newName ?? "").trim();
-  if(!name) throw new Error("Nome inválido.");
-  const map = loadItemMap();
-  if(!map.items[itemId]) map.items[itemId] = { name };
-  map.items[itemId].name = name;
-  saveItemMap(map);
-}
-
-function migrateLocalData(){
-  const db = loadDB();
-  let changed = false;
-
-  // Garante que todo itemId do Sheets tenha um nome no ItemMap
-  for (const m of db.movimentos) {
-    if (!m) continue;
-    const itemId2 = m.itemId ? String(m.itemId) : "";
-    const catName = String(m.categoria || "").trim();
-    if (itemId2 && catName) {
-      const map = loadItemMap();
-      if (!map.items[itemId2] || !map.items[itemId2].name) {
-        map.items[itemId2] = { name: catName };
-        saveItemMap(map);
-      }
-    }
-  }
-
-  for(const m of db.movimentos){
-    if(!m || !m.categoria) continue;
-    if(!m.itemId){
-      m.itemId = ensureItemIdForName(m.categoria);
-      changed = true;
-    }
-  }
-
-  const newEst = {};
-  const oldEst = db.estoque || {};
-  for(const [k,v] of Object.entries(oldEst)){
-    const parts = String(k).split("-");
-    if(parts.length < 2) continue;
-    const catOrId = parts[0];
-    const tam = parts.slice(1).join("-");
-    const isId = String(catOrId).startsWith("itm-");
-    const itemId = isId ? catOrId : ensureItemIdForName(catOrId);
-    const nk = itemId + "-" + tam;
-    newEst[nk] = Number(newEst[nk] || 0) + Number(v || 0);
-    if(nk !== k) changed = true;
-  }
-  db.estoque = newEst;
-
-  if(changed) saveDB(db);
-}
-
-/* =========================
-   Catálogo
-========================= */
-function normalizeCatalog(raw){
-  if(!Array.isArray(raw)) return null;
-  const out = [];
-  for(const it of raw){
-    const categoria = String(it?.categoria ?? "").trim();
-    const tamanhosRaw = Array.isArray(it?.tamanhos) ? it.tamanhos : [];
-    const tamanhos = [...new Set(tamanhosRaw.map(x=>String(x).trim()).filter(Boolean))];
-    if(!categoria || tamanhos.length === 0) continue;
-    out.push({ categoria, tamanhos });
-  }
-  return out.length ? out : null;
-}
-function loadCatalogLocal(){
-  try{
-    const raw = JSON.parse(localStorage.getItem(CATALOGKEYLOCAL) ?? "null");
-    return normalizeCatalog(raw) || DEFAULTCATALOG.slice();
-  }catch(e){
-    return DEFAULTCATALOG.slice();
-  }
-}
-function saveCatalogLocal(cat){
-  if(ISDEMO) return;
-  localStorage.setItem(CATALOGKEYLOCAL, JSON.stringify(cat));
-}
-
-let CATALOGCACHE = null;
-
-async function loadCatalogFromSheets(){
-  const j = await api({ action:"getCatalogo" });
-  const list = Array.isArray(j.catalog) ? j.catalog : [];
-  return list
-    .filter(x => x && x.ativo !== false)
-    .map(x => ({
-      categoria: String(x.categoria ?? "").trim(),
-      tamanhos: Array.isArray(x.tamanhos) ? x.tamanhos.map(t=>String(t).trim()).filter(Boolean) : []
-    }))
-    .filter(x => x.categoria && x.tamanhos.length);
-}
-function getCatalog(){
-  if(Array.isArray(CATALOGCACHE) && CATALOGCACHE.length) return CATALOGCACHE;
-  return loadCatalogLocal();
-}
-async function refreshCatalogPreferSheets(){
-  try{
-    setSheetsStatus("warn","Sheets carregando catálogo...");
-    const cat = await loadCatalogFromSheets();
-    if(cat && cat.length){
-      CATALOGCACHE = cat;
-      saveCatalogLocal(cat);
-      setSheetsStatus("ok","Sheets catálogo OK");
-      return true;
-    }
-    setSheetsStatus("warn","Sheets catálogo vazio");
-    return false;
-  }catch(e){
-    setSheetsStatus("warn","Sheets catálogo offline");
-    return false;
-  }
-}
-async function publishCatalogToSheets(cat){
-  const payload = {
-    catalog: cat.map(it => ({
-      itemId: ensureItemIdForName(it.categoria),
-      categoria: it.categoria,
-      tamanhos: it.tamanhos,
-      ativo: true
-    }))
-  };
-  return await sendKind("catalogo", payload);
-}
-
-/* =========================
-   Login UI
-========================= */
-const loginOverlay = document.getElementById("loginOverlay");
-const loginUser = document.getElementById("loginUser");
-const loginPass = document.getElementById("loginPass");
-const btnLogin = document.getElementById("btnLogin");
-const loginErr = document.getElementById("loginErr");
-const txtUser = document.getElementById("txtUser");
-const btnLogout = document.getElementById("btnLogout");
-
-function showLogin(){
-  loginErr.style.display = "none";
-  loginErr.textContent = "";
-  loginOverlay.style.display = "flex";
-  setTimeout(()=>loginUser.focus(), 50);
-}
-function hideLogin(){
-  loginOverlay.style.display = "none";
-}
-function refreshUserChip(){
-  const s = getCurrentUser();
-  if(!s){
-    txtUser.textContent = "No logado";
-    return;
-  }
-  if(s.isDev){
-    txtUser.textContent = `Logado: ${s.login} (DEV)`;
-    return;
-  }
-  txtUser.textContent = `Logado: ${s.login} (${s.canEdit ? "Edita" : "Somente visualização"})`;
-}
-function applyDevVisibility(){
-  const isDev = isDevSession();
-  document.querySelectorAll(".devOnly").forEach(el=>el.classList.toggle("hide", !isDev));
-  document.querySelectorAll(".devOnlyScreen").forEach(el=>el.classList.toggle("hide", !isDev));
-
-  if(!isDev){
-    if(!document.getElementById("screen-cfg").classList.contains("hide") ||
-       !document.getElementById("screen-log").classList.contains("hide")){
-      setScreen("mov");
-    }
-  }
-}
-
-function applyEditLocks(){
-  const canEdit = canEditSession();
-  document.getElementById("btnSalvar").disabled = !canEdit;
-  document.getElementById("btnAddFunc").disabled = !canEdit;
-  document.getElementById("btnSalvarCatalogoSheets").disabled = !canEdit;
-  document.getElementById("btnAddCatItem").disabled = !canEdit;
-  document.getElementById("btnRestaurarCatalogo").disabled = !canEdit;
-  document.getElementById("btnEditarItensEstoque").disabled = !canEdit;
-}
-
-async function doLogin(){
-  const login = String(loginUser.value ?? "").trim().toLowerCase();
-  const pinString = String(loginPass.value ?? "").trim();
-
-  if(!login){
-    loginErr.textContent = "Informe o usuário.";
-    loginErr.style.display = "block";
-    return;
-  }
-  if(!/^\d{6}$/.test(pinString)){
-    loginErr.textContent = "Senha inválida (6 dígitos).";
-    loginErr.style.display = "block";
-    return;
-  }
-
-  try{
-    setSheetsStatus("warn","Sheets validando login...");
-    const j = await api({ action:"login", login, pin: pinString });
-
-    sessionStorage.setItem("actorPin", pinString);
-    ISDEMO = false;
-
-    saveSession({
-      login: j.login,
-      isDev: !!j.isDev,
-      canEdit: j.isDev ? true : !!j.canEdit,
-      at: new Date().toLocaleString("pt-BR")
-    });
-
-    hideLogin();
-    refreshUserChip();
-    applyDevVisibility();
-    applyEditLocks();
-    setSheetsStatus("ok","Sheets conectado");
-
-    await refreshCatalogPreferSheets();
-    fillCategorias();
-    fillTamanhos();
-
-    await autoSyncAfterLogin();
-  }catch(err){
-    setSheetsStatus("erro","Sheets erro");
-    loginErr.textContent = String(err?.message ? err.message : err);
-    loginErr.style.display = "block";
-  }
-}
-
-btnLogin.addEventListener("click", doLogin);
-loginPass.addEventListener("keydown",(e)=>{ if(e.key === "Enter") doLogin(); });
-loginUser.addEventListener("keydown",(e)=>{ if(e.key === "Enter") loginPass.focus(); });
-
-btnLogout.addEventListener("click", ()=>{
-  ISDEMO = false;
-  clearSession();
-  refreshUserChip();
-  applyDevVisibility();
-  applyEditLocks();
-  showLogin();
-});
-
-/* =========================
-   Nav
-========================= */
-const navBtns = [...document.querySelectorAll(".navBtn")];
-const screens = {
-  mov: document.getElementById("screen-mov"),
-  func: document.getElementById("screen-func"),
-  est: document.getElementById("screen-est"),
-  uni: document.getElementById("screen-uni"),
-  cfg: document.getElementById("screen-cfg"),
-  log: document.getElementById("screen-log"),
-  entrega: document.getElementById("screen-entrega"),
-};
-function setScreen(name){
-  Object.entries(screens).forEach(([k,el])=>el.classList.toggle("hide", k !== name));
-  navBtns.forEach(b=>b.classList.toggle("active", b.dataset.screen === name));
-
-  if(name === "mov") renderMov();
-  if(name === "func"){ renderFuncionariosSelect(); renderListaFuncionarios(); }
   
-  // Adicionado para carregar a tela de entrega
-  if(name === "entrega") initEntrega();
-
-  if(name === "est") {
-    renderEstoque();
-    atualizarTodosSelects();
-  }
-
-  if(name === "uni"){ renderCatalogUI(); clearCatForm(); }
-  if(name === "cfg") document.getElementById("cfgUrl").value = SHEETSURL;
-  if(name === "log") renderInativosDev();
+  const res = await api({
+    kind: kind,
+    payload: JSON.stringify(payload)
+  });
+  return res;
 }
 
-navBtns.forEach(b=>b.addEventListener("click", ()=>setScreen(b.dataset.screen)));
-
-/* =========================
-   Refs
-========================= */
-const elTipo = document.getElementById("tipoMov");
-const elData = document.getElementById("dataMov");
-const boxFunc = document.getElementById("boxFunc");
-const elFuncSel = document.getElementById("funcionarioSel");
-const boxEstado = document.getElementById("boxEstado");
-const elEstado = document.getElementById("estadoItem");
-const boxMotivo = document.getElementById("boxMotivo");
-const elMotivo = document.getElementById("motivoRuim");
-const elCat = document.getElementById("categoria");
-const elTam = document.getElementById("tamanho");
-const elQtd = document.getElementById("quantidade");
-const elSaldoAtual = document.getElementById('saldoAtual');
-// Entrada Estoque
-const elTipoEntrada = document.getElementById('tipoEntrada');
-const elDataEntrada = document.getElementById('dataEntrada');
-const elCatEntrada = document.getElementById('catEntrada');
-const elTamEntrada = document.getElementById('tamEntrada');
-const elQtdEntrada = document.getElementById('qtdEntrada');
-const btnEntradaSalvar = document.getElementById('btnEntradaSalvar');
-
-
-function formatDateBR(dateStr) {
-  if (!dateStr || dateStr.length !== 10) return dateStr;
-  const [day, month, year] = dateStr.split('/');
-  return `${year}-${month.padStart(2,'0')}-${day.padStart(2,'0')}`;
+// STATUS DO SHEETS
+function setSheetsStatus(type, text){
+  const el = document.getElementById("sheets-status");
+  el.className = "status-badge " + type;
+  el.querySelector("span").innerText = text;
 }
 
-function getSaldoAtual(cat, tam) {
-  const db = loadDB();
-  const itemId = ensureItemIdForName(cat);
-  const key = `${itemId}-${tam}`;
-  return Number(db.estoque[key] || 0);
-}
-
-const boxObs = document.getElementById("boxObs");
-const elObs = document.getElementById("obs");
-
-const btnSalvar = document.getElementById("btnSalvar");
-const btnLimpar = document.getElementById("btnLimpar");
-const tblHistBody = document.querySelector("#tblHistorico tbody");
-const tblEstoqueBody = document.querySelector("#tblEstoque tbody");
-const pillTotal = document.getElementById("pillTotal");
-const pillTotal2 = document.getElementById("pillTotal2");
-
-const relFuncSel = document.getElementById("relFuncSel");
-const btnGerarRel = document.getElementById("btnGerarRel");
-const btnLimparRel = document.getElementById("btnLimparRel");
-const btnImprimirRel = document.getElementById("btnImprimirRel");
-const btnImprimirTermo = document.getElementById("btnImprimirTermo");
-
-const printArea = document.getElementById("printArea");
-const printHeader = document.getElementById("printHeader");
-const printBody = document.getElementById("printBody");
-
-const elNovoNome = document.getElementById("novoNome");
-const btnAddFunc = document.getElementById("btnAddFunc");
-const btnListarFuncs = document.getElementById("btnListarFuncs");
-const tblFuncsBody = document.querySelector("#tblFuncs tbody");
-const funcMsg = document.getElementById("funcMsg");
-
-const btnCarregarCatalogoSheets = document.getElementById("btnCarregarCatalogoSheets");
-const btnSalvarCatalogoSheets = document.getElementById("btnSalvarCatalogoSheets");
-const btnRestaurarCatalogo = document.getElementById("btnRestaurarCatalogo");
-const catNome = document.getElementById("catNome");
-const catTamanhos = document.getElementById("catTamanhos");
-const btnAddCatItem = document.getElementById("btnAddCatItem");
-const btnLimparCatForm = document.getElementById("btnLimparCatForm");
-const tblCatalogoBody = document.querySelector("#tblCatalogo tbody");
-const catMsg = document.getElementById("catMsg");
-
-const btnEditarItensEstoque = document.getElementById("btnEditarItensEstoque");
-const msgEditarItens = document.getElementById("msgEditarItens");
-
-const devPin = document.getElementById("devPin");
-const btnLoadUsers = document.getElementById("btnLoadUsers");
-const newUserLogin = document.getElementById("newUserLogin");
-const newUserName = document.getElementById("newUserName");
-const newUserPin = document.getElementById("newUserPin");
-const newUserCanEdit = document.getElementById("newUserCanEdit");
-const btnCreateUser = document.getElementById("btnCreateUser");
-const tblUsersBody = document.querySelector("#tblUsers tbody");
-
-const searchInativo = document.getElementById("searchInativo");
-const tblFuncsInativos = document.getElementById("tblFuncsInativos");
-
-/* =========================
-   Guards
-========================= */
-function requireLogin(){
-  if(!getCurrentUser()){
-    showLogin();
-    return false;
-  }
-  return true;
-}
-function requireEdit(){
-  if(!requireLogin()) return false;
-  if(!canEditSession()){
-    alert("Seu usuário está em modo somente visualização.");
-    return false;
-  }
-  return true;
-}
-function requireDev(){
-  if(!requireLogin()) return false;
-  if(!isDevSession()){
-    alert("Somente DEV.");
-    return false;
-  }
-  if(!/^\d{6}$/.test(String(devPin.value ?? "").trim())){
-    alert("Informe o PIN do DEV (6 dígitos).");
-    return false;
-  }
-  return true;
-}
-
-/* =========================
-   DEV: Inativos
-========================= */
-function renderInativosDev(){
-  if(!isDevSession()) return;
-  if(!tblFuncsInativos || !searchInativo) return;
-
-  const db = loadDB();
-  const q = String(searchInativo.value ?? "").trim().toLowerCase();
-
-  const list = (db.funcionarios || [])
-    .filter(f => f && f.ativo === false)
-    .filter(f => !q || String(f.nome || "").toLowerCase().includes(q))
-    .slice()
-    .sort((a,b)=>String(a.nome).localeCompare(String(b.nome)));
-
-  tblFuncsInativos.innerHTML = list.length ? list.map(f => `
-    <tr>
-      <td>${escapeHtml(f.nome)}</td>
-      <td>Inativo</td>
-      <td class="right">
-        <button type="button" class="btn"
-          onclick="ativarFuncionarioDev('${String(f.id).replaceAll("'", "\\'")}')">
-          Ativar
-        </button>
-      </td>
-    </tr>
-  `).join("") : `<tr><td colspan="3" class="note">Nenhum inativo encontrado.</td></tr>`;
-}
-
-window.ativarFuncionarioDev = async function(funcId){
-  if(!requireDev()) return;
-
-  const db = loadDB();
-  const f = (db.funcionarios || []).find(x => x && x.id === funcId);
-  if(!f) return alert("Funcionário não encontrado.");
-
-  if(!confirm(`Ativar ${f.nome}?`)) return;
-
-  try{
-    setSheetsStatus("warn","Sheets ativando funcionário...");
-    await sendKind("funcionario", { id: f.id, nome: f.nome, ativo: true, evento: "TOGGLE" });
-    setSheetsStatus("ok","Sheets salvo");
-
-    await autoSyncAfterLogin();
-    renderFuncionariosSelect();
-    renderListaFuncionarios();
-    renderInativosDev();
-  } catch(err){
-    setSheetsStatus("erro","Sheets erro");
-    alert(String(err?.message ? err.message : err));
-  }
-};
-
-if (searchInativo) {
-  searchInativo.addEventListener("input", renderInativosDev);
-}
-
-/* =========================
-   Sync from Sheets
-========================= */
+// SINCRONIZAÇÃO
 async function autoSyncAfterLogin(){
   if(!requireLogin()) return;
+
   try{
     setSheetsStatus("warn","Sheets sincronizando...");
+
     const j = await api({ action: "getSnapshot" });
     const db = loadDB();
 
+    // Sincroniza as listas do Sheets com o banco local
     db.funcionarios = Array.isArray(j.funcionarios) ? j.funcionarios : db.funcionarios;
     db.movimentos   = Array.isArray(j.movimentos)   ? j.movimentos   : db.movimentos;
     db.entregas     = Array.isArray(j.entregas)     ? j.entregas     : (db.entregas || []);
 
     saveDB(db);
+
+    // Atualiza a interface
     if (typeof initEntrega === "function") initEntrega();
+    if (typeof renderStock === "function") renderStock();
+    renderDashboard();
+    populateSelects();
+
     setSheetsStatus("ok", "Sincronizado");
-  } catch(err) {
-    setSheetsStatus("err", "Erro ao sincronizar");
-    console.error(err);
-  }
-}
-    
-    // Parte do ItemMap (Catálogo)
+
+    // Processa o mapa de itens para o estoque
     const map = loadItemMap();
     let changed = false;
     (db.movimentos || []).forEach(m => {
-      if(m && m.categoria && (!map.items[m.categoria])) {
-         map.items[m.categoria] = { name: m.categoria };
-         changed = true;
+      if(m && m.categoria && !map.items[m.categoria]){
+        map.items[m.categoria] = { name: m.categoria };
+        changed = true;
       }
     });
     if(changed) saveItemMap(map);
@@ -1498,1173 +549,141 @@ async function autoSyncAfterLogin(){
     console.error("Erro no Sync:", err);
   }
 }
-    try{
-      const map = loadItemMap();
-      let changed = false;
 
-      for(const m of db.movimentos){
-        if(!m) continue;
-        const itemId2 = m.itemId ? String(m.itemId) : "";
-        const catName = String(m.categoria ?? "").trim();
-        if(!itemId2 || !catName) continue;
+// LOGIN / LOGOUT
+async function doLogin(){
+  const login = document.getElementById("login-user").value;
+  const pin = document.getElementById("login-pin").value;
+  const btn = document.getElementById("btn-do-login");
 
-        if(!map.items[itemId2] || !map.items[itemId2].name){
-          map.items[itemId2] = { name: catName };
-          changed = true;
-        }
-      }
-
-      if(changed) saveItemMap(map);
-      setSheetsStatus("ok", "Sincronizado"); // Define status como OK ao final
-    }catch(e){
-      // não trava sync se falhar ItemMap
-    }
-  } catch(err) {
-    setSheetsStatus("err", "Erro ao sincronizar");
-    console.error(err);
-  }
-}
-    // Recalcula estoque a partir dos movimentos
-    db.estoque = {};
-    for(const m of db.movimentos){
-      if(!m || m.hidden) continue;
-      const qtd = Number(m.quantidade || 0);
-      if(!qtd) continue;
-
-      const itemId2 = m.itemId ? String(m.itemId) : ensureItemIdForName(m.categoria);
-      const k = itemId2 + "-" + m.tamanho;
-
-      let delta = 0;
-      if(m.tipo === "ENTRADA") delta = qtd;
-      if(m.tipo === "SAIDA") delta = -qtd;
-      if(m.tipo === "DEVOLUCAO") delta = (m.estado === "EMCONDICOES" ? qtd : 0);
-
-      db.estoque[k] = Number(db.estoque[k] || 0) + delta;
-    }
-
-    saveDB(db);
-
-    renderMov();
-    renderEstoque();
-    fillRelFuncionariosSomenteQuemPegou();
-
-    setSheetsStatus("ok","Sheets sincronizado");
-  }catch(err){
-    setSheetsStatus("warn","Sheets offline");
-  }
-}
-
-document.getElementById("btnCarregarSheetsUrl").addEventListener("click", async ()=>{
-  if(!requireLogin()) return;
-  await autoSyncAfterLogin();
-});
-
-/* =========================
-   App logic
-========================= */
-function upsertEstoque(db, itemId, t, delta){
-  const k = itemId + "-" + t;
-  db.estoque[k] = Number(db.estoque[k] || 0) + delta;
-}
-
-function fillCategorias(){
-  const catalog = getCatalog();
-  catalog.forEach(c=>ensureItemIdForName(c.categoria));
-  elCat.innerHTML = catalog.map(c=>`<option value="${escapeHtml(c.categoria)}">${escapeHtml(c.categoria)}</option>`).join("");
-}
-function fillTamanhos(){
-  const catalog = getCatalog();
-  const found = catalog.find(x=>x.categoria === elCat.value);
-  const ts = found ? found.tamanhos : [];
-  elTam.innerHTML = ts.map(t=>`<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join("");
-}
-function fillCatEntrada() {
-  const catalog = getCatalog();
-  elCatEntrada.innerHTML = catalog.map(c => 
-    `<option value="${escapeHtml(c.categoria)}">${escapeHtml(c.categoria)}</option>`
-  ).join('');
-}
-
-function fillTamEntrada() {
-  const catalog = getCatalog();
-  const found = catalog.find(x => x.categoria === elCatEntrada.value);
-  const ts = found ? found.tamanhos : [];
-  elTamEntrada.innerHTML = ts.map(t => 
-    `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`
-  ).join('');
-}
-function atualizarTodosSelects() {
-  fillCategorias();     // aba Movimentar - categorias
-  fillTamanhos();       // aba Movimentar - tamanhos
-  fillCatEntrada();     // aba Estoque - categorias
-  fillTamEntrada();     // aba Estoque - tamanhos
-}
-
-function fillRelFuncionariosSomenteQuemPegou(){
-  const db = loadDB();
-  const pegouIds = new Set(
-    (db.movimentos || [])
-      .filter(m => m && !m.hidden && m.tipo === "SAIDA" && m.funcionarioId)
-      .map(m => m.funcionarioId)
-  );
-
-  const lista = (db.funcionarios || [])
-    .filter(f => f && pegouIds.has(f.id))
-    .slice()
-    .sort((a,b)=>String(a.nome).localeCompare(String(b.nome)));
-
-  relFuncSel.innerHTML = [
-    `<option value="">Selecione</option>`,
-    `<option value="${RELALL}">Todos</option>`,
-    ...lista.map(f=>`<option value="${escapeHtml(f.id)}">${escapeHtml(f.nome)}</option>`)
-  ].join("");
-}
-
-function getFuncById(db, id){
-  return (db.funcionarios || []).find(f=>f && f.id === id) || null;
-}
-
-function updateMovUI(){
-  const tipo = elTipo.value;
-  const precisaFunc = (tipo === "SAIDA" || tipo === "DEVOLUCAO");
-  const isDev = (tipo === "DEVOLUCAO");
-  const isSem = isDev && (elEstado.value === "SEMCONDICOES");
-
-  boxFunc.classList.toggle("hide", !precisaFunc);
-  boxEstado.classList.toggle("hide", !isDev);
-  boxMotivo.classList.toggle("hide", !isSem);
-  boxObs.classList.toggle("hide", !isDev);
-
-  if(!isDev) elObs.value = "";
-  if(!precisaFunc) elFuncSel.value = "";
-  if(!isSem) elMotivo.value = "";
-}
-
-function tipoLabel(t){
-  if(t === "SAIDA") return "SAÍDA";
-  if(t === "DEVOLUCAO") return "DEVOLUÇÃO";
-  return "ENTRADA";
-}
-function estadoLabel(e){
-  if(!e) return "";
-  if(e === "EMCONDICOES") return "Em condições";
-  if(e === "SEMCONDICOES") return "Sem condições";
-  return e;
-}
-
-function renderFuncionariosSelect(){
-  const db = loadDB();
-  const ativos = (db.funcionarios || [])
-    .filter(f=>f && f.ativo)
-    .slice()
-    .sort((a,b)=>String(a.nome).localeCompare(String(b.nome)));
-
-  elFuncSel.innerHTML = [
-    `<option value="">Selecione</option>`,
-    ...ativos.map(f=>`<option value="${escapeHtml(f.id)}">${escapeHtml(f.nome)}</option>`)
-  ].join("");
-
-  fillRelFuncionariosSomenteQuemPegou();
-}
-
-function renderListaFuncionarios(){
-  const db = loadDB();
-
-  const all = (db.funcionarios || [])
-    .filter(f => f && f.ativo)
-    .slice()
-    .sort((a,b)=>String(a.nome).localeCompare(String(b.nome)));
-
-  tblFuncsBody.innerHTML = all.length ? all.map(f => `
-    <tr>
-      <td>${escapeHtml(f.nome)}</td>
-      <td>Ativo</td>
-      <td class="right">
-        <button type="button" class="btn" ${canEditSession() ? "" : "disabled"}
-          onclick="toggleFuncionarioAtivo('${String(f.id).replaceAll("'", "\\'")}')">
-          Inativar
-        </button>
-      </td>
-    </tr>
-  `).join("") : `<tr><td colspan="3" class="note">Sem funcionários ativos.</td></tr>`;
-
-  funcMsg.textContent = canEditSession() ? "" : "Seu usuário está em modo somente visualização.";
-}
-
-window.toggleFuncionarioAtivo = async function(funcId){
-  if(!requireEdit()) return;
-
-  const db = loadDB();
-  const f = (db.funcionarios || []).find(x=>x && x.id === funcId);
-  if(!f) return alert("Funcionário não encontrado.");
-
-  const nextActive = !f.ativo;
-  if(!confirm((nextActive ? "Ativar" : "Inativar") + " " + f.nome + "?")) return;
-
-  try{
-    setSheetsStatus("warn","Sheets atualizando funcionário...");
-    await sendKind("funcionario", { id:f.id, nome:f.nome, ativo: nextActive, evento:"TOGGLE" });
-    setSheetsStatus("ok","Sheets salvo");
-
-    await autoSyncAfterLogin();
-    renderFuncionariosSelect();
-    renderListaFuncionarios();
-    renderMov();
-    renderEstoque();
-  }catch(err){
-    setSheetsStatus("erro","Sheets erro");
-    alert("Não foi possível salvar no Sheets: " + String(err?.message ? err.message : err));
-  }
-};
-
-function renderEstoque() {
-  const db = loadDB();
-  let total = 0;
-
-  const rows = Object.entries(db.estoque || {})
-    .map(([k, v]) => {
-      const ks = String(k);
-      const p = ks.lastIndexOf("-");
-      const itemId = p >= 0 ? ks.slice(0, p) : ks;
-      const t = p >= 0 ? ks.slice(p + 1) : "";
-      return { itemId, t, s: Number(v || 0) };
-    })
-    .sort((a, b) => {
-      const an = getBestItemName(db, a.itemId);
-      const bn = getBestItemName(db, b.itemId);
-      return an.localeCompare(bn) || a.t.localeCompare(b.t);
-    });
-
-  const html = rows.length
-    ? rows.map((it) => {
-        total += it.s;
-        return `
-          <tr>
-            <td>${escapeHtml(getBestItemName(db, it.itemId))}</td>
-            <td>${escapeHtml(it.t)}</td>
-            <td class="right">${Number(it.s)}</td>
-          </tr>
-        `;
-      }).join("")
-    : `<tr><td colspan="3" class="note">Sem itens.</td></tr>`;
-
-  tblEstoqueBody.innerHTML = html;
-  pillTotal.textContent = `Estoque total: ${total} peças`;
-  pillTotal2.textContent = `Total: ${total} peças`;
-}
-
-// Listeners Entrada Estoque
-elCatEntrada.addEventListener('change', fillTamEntrada);
-elTamEntrada.addEventListener('change', () => elQtdEntrada.value = 1);
-elDataEntrada.addEventListener('input', (e) => {
-  let val = e.target.value.replace(/\D/g, '').slice(0,8);
-  if (val.length >= 5) val = val.slice(0,2) + '/' + val.slice(2,4) + '/' + val.slice(4);
-  else if (val.length >= 3) val = val.slice(0,2) + '/' + val.slice(2);
-  e.target.value = val;
-});
-
-btnEntradaSalvar.addEventListener('click', async () => {
-  if (!requireEdit()) return;
-  const db = loadDB();
-  const data = formatDateBR(elDataEntrada.value);
-  if (!data) {
-    alert('Informe a data (DD/MM/AAAA)');
-    return;
-  }
-  if (!elCatEntrada.value || !elTamEntrada.value) {
-    alert('Selecione categoria e tamanho');
-    return;
-  }
-  const qtd = Number(elQtdEntrada.value);
-  if (qtd < 1) {
-    alert('Quantidade mínima 1');
-    return;
-  }
+  if(!login || !pin) return alert("Preencha login e PIN.");
   
-  try {
-    const itemId = ensureItemIdForName(elCatEntrada.value);
-    await sendKind('movimento', {
-      tipo: 'ENTRADA',
-      data: data,
-      categoria: elCatEntrada.value,
-      itemId: itemId,
-      tamanho: elTamEntrada.value,
-      quantidade: qtd
-    });
+  try{
+    btn.innerText = "Verificando...";
+    btn.disabled = true;
+
+    const res = await api({ action:"login", login, pin });
+    localStorage.setItem(USER_KEY, JSON.stringify(res));
     
-    // Atualiza local
-    db.movimentos.unshift({
-      id: makeId(),
-      tipo: 'ENTRADA',
-      data: data,
-      categoria: elCatEntrada.value,
-      itemId: itemId,
-      tamanho: elTamEntrada.value,
-      quantidade: qtd
-    });
-    saveDB(db);
-    
-    // Limpa form
-    elDataEntrada.value = '';
-    fillCatEntrada();
-    elQtdEntrada.value = 1;
-    
-    renderEstoque();
-    renderMov();
-    alert('Entrada adicionada!');
-  } catch (err) {
-    alert('Erro ao salvar: ' + (err.message || err));
-  }
-});
-
-
-function getBestItemName(db, itemId) {
-  const fromMap = getItemNameById(itemId, "");
-  if (fromMap && fromMap !== itemId) return String(fromMap);
-
-  const last = [...(db.movimentos || [])]
-    .reverse()
-    .find(m => m && !m.hidden && String(m.itemId || "") === String(itemId) && String(m.categoria || "").trim());
-
-  if (last) return String(last.categoria).trim();
-  return String(itemId || "");
-}
-
-function renderMov() {
-  renderFuncionariosSelect();
-  renderEstoque();
-  const db = loadDB();
-  const hist = db.movimentos
-    .filter(m => !m.hidden)
-    .slice()
-    .reverse()
-    .slice(0, 250);
-  
-  tblHistBody.innerHTML = hist.length ? hist.map(m => {
-    const f = m.funcionarioId ? getFuncById(db, m.funcionarioId) : null;
-    const itemName = m.itemId ? getItemNameById(m.itemId, m.categoria) : m.categoria;
-    return `
-      <tr>
-        <td>${escapeHtml(formatDateDisplay(m.data))}</td>
-        <td>${escapeHtml(tipoLabel(m.tipo))}</td>
-        <td>${escapeHtml(f ? f.nome : '')}</td>
-        <td>${escapeHtml(itemName)}</td>
-        <td>${escapeHtml(m.tamanho)}</td>
-        <td class="right">${Number(m.quantidade) || 0}</td>
-        <td>${escapeHtml(estadoLabel(m.estado))}</td>
-        <td>${escapeHtml(m.motivo)}</td>
-        <td>${escapeHtml(m.obs)}</td>
-        <td class="no-print">
-          <button type="button" class="btn danger" ${canEditSession() ? '' : 'disabled'} onclick="hideMovimento('${escapeHtml(m.id)}')">Excluir</button>
-        </td>
-      </tr>
-    `;
-  }).join('') : '<tr><td colspan="10" class="note">Sem movimentações.</td></tr>';
-}
-
-
-/* =========================
-   Impressão
-========================= */
-function setPrint(html) {
-  // garante estado limpo
-  printHeader.style.display = "none";
-  printBody.innerHTML = html;     // não usar +=
-  printArea.style.display = "block";
-}
-
-function clearPrint(){
-  printHeader.style.display = "flex";
-  printBody.innerHTML = `<div class="note"></div>`;
-  printArea.style.display = "none";
-}
-
-function getMovsDoFuncionario(db, funcId){
-  return (db.movimentos || [])
-    .filter(m => m && !m.hidden && m.funcionarioId === funcId && (m.tipo === "SAIDA" || m.tipo === "DEVOLUCAO"))
-    .slice()
-    .sort((a,b)=>String(a.data).localeCompare(String(b.data)));
-}
-
-function funcionarioBlock(nome, movs) {
-  const rows = movs.map(m => {
-    const itemName = m.itemId ? getItemNameById(m.itemId, m.categoria) : m.categoria;
-    return `
-      <tr>
-        <td>${escapeHtml(formatDateDisplay(m.data))}</td>
-        <td>${escapeHtml(tipoLabel(m.tipo))}</td>
-        <td>${escapeHtml(itemName)}</td>
-        <td>${escapeHtml(m.tamanho)}</td>
-        <td class="right">${Number(m.quantidade) || 0}</td>
-        <td>${escapeHtml(estadoLabel(m.estado))}</td>
-        <td>${escapeHtml(m.motivo)}</td>
-        <td>${escapeHtml(m.obs)}</td>
-      </tr>
-    `;
-  }).join('');
-  
-  return `
-    <div style="margin: 0 0 18px 0">
-      <p class="note" style="margin: 0 0 8px 0">
-        Funcionário <b>${escapeHtml(nome)}</b>
-      </p>
-      <div class="tableWrap" style="max-height: none">
-        <table style="width: 100%; border-collapse: collapse">
-          <thead>
-            <tr>
-              <th>Data</th><th>Tipo</th><th>Item</th><th>Tam.</th><th class="right">Qtd</th><th>Estado</th><th>Motivo</th><th>Obs.</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rows || '<tr><td colspan="8" class="note">Sem registros.</td></tr>'}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  `;
-}
-
-function gerarRelatorioFuncionarioOuTodos(){
-  const db = loadDB();
-  const id = relFuncSel.value;
-
-  if(!id){
-    clearPrint();
-    btnImprimirTermo.disabled = true;
-    return;
-  }
-
-  if(id === RELALL){
-    const pegouIds = new Set(
-      (db.movimentos || [])
-        .filter(m=>m && !m.hidden && m.tipo === "SAIDA" && m.funcionarioId)
-        .map(m=>m.funcionarioId)
-    );
-
-    const lista = (db.funcionarios || [])
-      .filter(f=>f && pegouIds.has(f.id))
-      .slice()
-      .sort((a,b)=>String(a.nome).localeCompare(String(b.nome)));
-
-    const blocks = lista.map(f=>funcionarioBlock(f.nome, getMovsDoFuncionario(db, f.id))).join("");
-    setPrint(`
-      <div style="max-width:980px; margin:0 auto; padding:0 6px">
-        <h2 style="margin:0 0 10px 0">Relatório por funcionário (Todos)</h2>
-        ${blocks || `<div class="note">Sem funcionários.</div>`}
-      </div>
-    `);
-    btnImprimirTermo.disabled = true;
-    return;
-  }
-
-  const f = getFuncById(db, id);
-  const nome = f ? f.nome : id;
-  const movs = getMovsDoFuncionario(db, id);
-
-  setPrint(`
-    <div style="max-width:980px; margin:0 auto; padding:0 6px">
-      <h2 style="margin:0 0 10px 0">Relatório por funcionário</h2>
-      ${funcionarioBlock(nome, movs)}
-    </div>
-  `);
-
-  btnImprimirTermo.disabled = false;
-}
-
-function calcSaldoPorFuncionario(db, funcId) {
-  const saldo = new Map();
-
-  const movs = (db.movimentos || []).filter((m) => m && !m.hidden && m.funcionarioId === funcId);
-
-  for (const m of movs) {
-    const qtd = Number(m.quantidade || 0);
-    if (!qtd) continue;
-
-    let delta = 0;
-    if (m.tipo === "SAIDA") delta = qtd;
-    if (m.tipo === "DEVOLUCAO" && m.estado === "EMCONDICOES") delta = -qtd;
-    if (!delta) continue;
-
-    const itemId = m.itemId ? String(m.itemId) : ensureItemIdForName(m.categoria);
-    const key = `${itemId}__${String(m.tamanho || "")}`; // separador seguro
-    saldo.set(key, (saldo.get(key) || 0) + delta);
-  }
-
-  const out = [];
-  for (const [key, q] of saldo.entries()) {
-    if (!q) continue;
-    const p = key.indexOf("__");
-    const itemId = p >= 0 ? key.slice(0, p) : key;
-    const tamanho = p >= 0 ? key.slice(p + 2) : "";
-    out.push({ itemId, tamanho, quantidade: q });
-  }
-
-  out.sort((a, b) => {
-    const an = getItemNameById(a.itemId, a.itemId) + a.tamanho;
-    const bn = getItemNameById(b.itemId, b.itemId) + b.tamanho;
-    return an.localeCompare(bn);
-  });
-
-  return out;
-}
-
-function imprimirTermoFuncionario(){
-  const db = loadDB();
-  const funcId = relFuncSel.value;
-  if(!funcId || funcId === RELALL) return alert("Selecione um funcionário (não 'Todos').");
-
-  const f = getFuncById(db, funcId);
-  const nome = f ? f.nome : funcId;
-
-  const itens = calcSaldoPorFuncionario(db, funcId);
-  if(itens.length === 0){
-    const ok = confirm("Este funcionário não tem saldo positivo pelo cálculo. Imprimir termo mesmo assim?");
-    if(!ok) return;
-  }
-
-  const hojeBR = formatBRDateFromISO(todayISO());
-  const rows = itens.map(it=>`
-    <tr>
-      <td>${escapeHtml(getItemNameById(it.itemId, it.itemId))}</td>
-      <td>${escapeHtml(it.tamanho)}</td>
-      <td class="right">${Number(it.quantidade)}</td>
-    </tr>
-  `).join("");
-
-  setPrint(`
-    <div style="max-width:780px; margin:0; padding:0; font-size:13px; line-height:1.25">
-      <h2 style="margin:0 0 8px 0; text-align:center; letter-spacing:.4px; font-size:15px">TERMO DE RECEBIMENTO UNIFORME</h2>
-      <p style="margin:0 0 8px 0; text-align:justify; line-height:1.35">
-        Eu, <b>${escapeHtml(nome)}</b>. Recebi da empresa INTERCOL SERVIÇOS DE INTERNET LTDA (CNPJ 03.879.067/0001-36),
-        os uniformes relacionados nesta ficha, declaro tê-los recebido gratuitamente e em perfeito estado de conservação.
-        Comprometo-me a utilizá-los diariamente durante toda a jornada de trabalho, responsabilizando-me pela guarda e conservação
-        dos mesmos. Autorizo desde já, o desconto de seus respectivos valores em folha de pagamento/rescisão, quando por extravio e/ou
-        danificação por uso inadequado, conforme previsto no artigo 462 §1º da CLT.
-      </p>
-
-      <div class="tableWrap" style="max-height:none">
-        <table style="width:100%; border-collapse:collapse; font-size:12.5px">
-          <thead><tr><th>Material entregue</th><th>Tam.</th><th class="right">Qtd</th></tr></thead>
-          <tbody>
-            ${rows || `<tr><td colspan="3" class="note"></td></tr>`}
-          </tbody>
-        </table>
-      </div>
-
-      <div style="margin-top:10px; text-align:right">${escapeHtml(TERMOLOCAL)}, ${escapeHtml(hojeBR)}</div>
-
-      <div style="margin-top:18px">
-        <div style="height:38px"></div>
-        <div style="border-top:1px solid #000; padding-top:6px; text-align:center">${escapeHtml(nome)}</div>
-      </div>
-    </div>
-  `);
-
-  window.print();
-}
-
-/* =========================
-   Salvar / Limpar
-========================= */
-btnSalvar.addEventListener("click", async ()=>{
-  if(!requireEdit()) return;
-
-  const db = loadDB();
-  const tipo = elTipo.value;
-
-  if(!elData.value) return alert("Informe a data.");
-  const qtd = Number(elQtd.value);
-  if(!Number.isFinite(qtd) || qtd <= 0) return alert("Quantidade inválida.");
-
-  if((tipo === "SAIDA" || tipo === "DEVOLUCAO") && !elFuncSel.value) return alert("Selecione o funcionário.");
-  if(tipo === "DEVOLUCAO" && elEstado.value === "SEMCONDICOES" && !String(elMotivo.value || "").trim()) return alert("Informe o motivo.");
-
-  const itemId = ensureItemIdForName(elCat.value);
-
-  const mov = {
-    id: makeId(),
-    tipo,
-    data: formatDateBR(elData.value),
-    funcionarioId: (tipo === "SAIDA" || tipo === "DEVOLUCAO") ? elFuncSel.value : "",
-    itemId,
-    categoria: elCat.value,
-    tamanho: elTam.value,
-    quantidade: qtd,
-    estado: (tipo === "DEVOLUCAO") ? elEstado.value : "",
-    motivo: (tipo === "DEVOLUCAO" && elEstado.value === "SEMCONDICOES") ? String(elMotivo.value).trim() : "",
-    obs: (tipo === "DEVOLUCAO") ? String(elObs.value).trim() : "",
-    hidden: false
-  };
-
-  let delta = 0;
-  if(tipo === "ENTRADA") delta = qtd;
-  if(tipo === "SAIDA") delta = -qtd;
-  if(tipo === "DEVOLUCAO") delta = (mov.estado === "EMCONDICOES" ? qtd : 0);
-
-  if(tipo === "SAIDA"){
-    const k = itemId + "-" + mov.tamanho;
-    const saldo = Number(db.estoque[k] || 0);
-    if(saldo + delta < 0) return alert("Saldo insuficiente.");
-  }
-
-  try{
-    setSheetsStatus("warn","Sheets salvando...");
-    const funcionarioNome = mov.funcionarioId ? (getFuncById(db, mov.funcionarioId)?.nome || "") : "";
-    await sendKind("movimento", { ...mov, funcionarioNome });
-    setSheetsStatus("ok","Sheets salvo");
-
-    await autoSyncAfterLogin(); // fonte da verdade
-  }catch(err){
-    setSheetsStatus("erro","Sheets erro");
-    alert("Não foi possível salvar no Sheets: " + String(err?.message ? err.message : err));
-    return;
-  }
-
-  // limpa form e re-render (sync já atualizou db local via saveDB lá)
-  elObs.value = "";
-  elQtd.value = 1;
-  elMotivo.value = "";
-  updateMovUI();
-  renderMov();
-});
-
-btnLimpar.addEventListener("click", ()=>{
-  elTipo.value = "ENTRADA";
-  elFuncSel.value = "";
-  elEstado.value = "EMCONDICOES";
-  elSaldoAtual.value = '';
-  elQtd.value = 1;
-  elMotivo.value = "";
-  elObs.value = "";
-  elData.value = todayISO();
-  fillTamanhos();
-  updateMovUI();
-});
-
-/* =========================
-   Funcionários
-========================= */
-btnAddFunc.addEventListener("click", async ()=>{
-  if(!requireEdit()) return;
-
-  const nome = String(elNovoNome.value || "").trim();
-  if(!nome) return alert("Informe o nome.");
-
-  const db = loadDB();
-  if((db.funcionarios || []).some(f => String(f.nome || "").toLowerCase() === nome.toLowerCase())){
-    return alert("Já existe.");
-  }
-
-  const func = { id: makeId(), nome, ativo: true, evento:"ADD" };
-
-  try{
-    setSheetsStatus("warn","Sheets salvando...");
-    await sendKind("funcionario", func);
-    setSheetsStatus("ok","Sheets salvo");
-    await autoSyncAfterLogin(); // fonte da verdade
-  }catch(err){
-    setSheetsStatus("erro","Sheets erro");
-    alert("Não foi possível salvar no Sheets: " + String(err?.message ? err.message : err));
-    return;
-  }
-
-  elNovoNome.value = "";
-  renderFuncionariosSelect();
-  renderListaFuncionarios();
-  alert("Funcionário cadastrado.");
-});
-
-btnListarFuncs.addEventListener("click", ()=>{
-  if(!requireLogin()) return;
-  renderListaFuncionarios();
-});
-
-/* =========================
-   Ocultar movimento (local)
-========================= */
-window.hideMovimento = function(id){
-  if(!requireEdit()) return;
-  if(!confirm("Ocultar este registro?")) return;
-
-  const db = loadDB();
-  const m = (db.movimentos || []).find(x=>x && x.id === id);
-  if(!m) return;
-
-  m.hidden = true;
-
-  db.estoque = {};
-  for(const x of db.movimentos){
-    if(!x || x.hidden) continue;
-    const qtd = Number(x.quantidade || 0);
-    if(!qtd) continue;
-
-    const itemId2 = x.itemId ? String(x.itemId) : ensureItemIdForName(x.categoria);
-    const k = itemId2 + "-" + x.tamanho;
-
-    let d = 0;
-    if(x.tipo === "ENTRADA") d = qtd;
-    if(x.tipo === "SAIDA") d = -qtd;
-    if(x.tipo === "DEVOLUCAO") d = (x.estado === "EMCONDICOES" ? qtd : 0);
-
-    db.estoque[k] = Number(db.estoque[k] || 0) + d;
-  }
-
-  saveDB(db);
-  renderMov();
-};
-
-/* =========================
-   Relatório / termo
-========================= */
-function waitNextFrame(){
-  return new Promise(r => requestAnimationFrame(() => r()));
-}
-
-let printingLock = false;
-
-btnGerarRel.addEventListener("click", async () => {
-  if (!requireLogin()) return;
-  clearPrint();
-  gerarRelatorioFuncionarioOuTodos();
-  await waitNextFrame();
-  await waitNextFrame();
-});
-
-btnLimparRel.addEventListener("click", () => {
-  relFuncSel.value = "";
-  clearPrint();
-  btnImprimirTermo.disabled = true;
-});
-
-relFuncSel.addEventListener("change", () => {
-  btnImprimirTermo.disabled = !relFuncSel.value || relFuncSel.value === RELALL;
-});
-
-btnImprimirRel.addEventListener("click", async () => {
-  if (!requireLogin()) return;
-  if (printingLock) return;
-
-  printingLock = true;
-
-  clearPrint();
-  gerarRelatorioFuncionarioOuTodos();
-
-  await waitNextFrame();
-  await waitNextFrame();
-
-  if (printArea.style.display === "none") {
-    printingLock = false;
-    return;
-  }
-
-  window.print();
-  setTimeout(() => (printingLock = false), 800);
-});
-
-btnImprimirTermo.addEventListener("click", async () => {
-  if (!requireLogin()) return;
-
-  clearPrint();
-  imprimirTermoFuncionario();
-
-  await waitNextFrame();
-  await waitNextFrame();
-
-  window.print();
-});
-
-/* =========================
-   Estoque: renomear itens
-========================= */
-btnEditarItensEstoque.addEventListener("click", ()=>{
-  if(!requireEdit()) return;
-
-  try{
-    const db = loadDB();
-    const ids = new Set();
-
-    Object.keys(db.estoque || {}).forEach(k=>{
-      const itemId = String(k).split("-")[0];
-      if(itemId) ids.add(itemId);
-    });
-    (db.movimentos || []).forEach(m=>{
-      if(!m) return;
-      if(m.itemId) ids.add(m.itemId);
-      else if(m.categoria) ids.add(ensureItemIdForName(m.categoria));
-    });
-
-    const list = [...ids].sort((a,b)=>{
-      return getItemNameById(a,a).localeCompare(getItemNameById(b,b));
-    });
-
-    if(list.length === 0) return alert("Nenhum item encontrado para editar.");
-
-    const choice = prompt(
-      "Digite o NÚMERO do item para renomear:\n\n" +
-      list.map((id,idx)=>`${idx+1}) ${getItemNameById(id,id)}`).join("\n")
-    );
-    if(choice === null) return;
-
-    const n = Number(choice);
-    if(!Number.isFinite(n) || n < 1 || n > list.length) return alert("Opção inválida.");
-
-    const itemId = list[n-1];
-    const current = getItemNameById(itemId, itemId);
-    const newName = prompt("Novo nome do item:", current);
-    if(newName === null) return;
-
-    renameItem(itemId, newName);
-
-    msgEditarItens.style.display = "block";
-    msgEditarItens.textContent = "Nome atualizado. Reflete automaticamente em estoque, histórico, relatórios e termo.";
-
-    const db2 = loadDB();
-    (db2.movimentos || []).forEach(m=>{
-      if(m && m.itemId === itemId) m.categoria = getItemNameById(itemId, m.categoria);
-    });
-    saveDB(db2);
-
-    renderMov();
-    renderEstoque();
-    fillCategorias();
-    fillTamanhos();
-    fillRelFuncionariosSomenteQuemPegou();
-  }catch(err){
-    alert(String(err?.message ? err.message : err));
-  }
-});
-
-/* =========================
-   Catálogo UI
-========================= */
-function parseSizes(text){
-  return [...new Set(String(text ?? "").split(",").map(s=>s.trim()).filter(Boolean))];
-}
-function renderCatalogUI(){
-  const cat = getCatalog().slice().sort((a,b)=>String(a.categoria).localeCompare(String(b.categoria)));
-  tblCatalogoBody.innerHTML = cat.length ? cat.map(it=>`
-    <tr>
-      <td>${escapeHtml(it.categoria)}</td>
-      <td>${escapeHtml(it.tamanhos.join(", "))}</td>
-      <td class="right">
-        <button type="button" class="btn" onclick="editCatItem('${escapeHtml(it.categoria)}')">Editar</button>
-        <button type="button" class="btn danger" ${canEditSession() ? "" : "disabled"}
-          onclick="removeCatItem('${escapeHtml(it.categoria)}')">Remover</button>
-      </td>
-    </tr>
-  `).join("") : `<tr><td colspan="3" class="note">Sem itens.</td></tr>`;
-  catMsg.textContent = "";
-}
-function clearCatForm(){
-  catNome.value = "";
-  catTamanhos.value = "";
-}
-window.editCatItem = function(categoria){
-  const cat = getCatalog();
-  const it = cat.find(x=>x.categoria === categoria);
-  if(!it) return;
-  catNome.value = it.categoria;
-  catTamanhos.value = it.tamanhos.join(", ");
-  catNome.focus();
-};
-window.removeCatItem = function(categoria){
-  if(!requireEdit()) return;
-  const cat = getCatalog();
-  const it = cat.find(x=>x.categoria === categoria);
-  if(!it) return;
-  if(!confirm("Remover " + it.categoria + "?")) return;
-
-  const next = cat.filter(x=>x.categoria !== categoria);
-  CATALOGCACHE = next;
-  saveCatalogLocal(next);
-  fillCategorias();
-  fillTamanhos();
-  renderCatalogUI();
-};
-
-btnAddCatItem.addEventListener("click", ()=>{
-  if(!requireEdit()) return;
-
-  const categoria = String(catNome.value || "").trim();
-  const tamanhos = parseSizes(catTamanhos.value);
-  if(!categoria) return alert("Informe a categoria.");
-  if(tamanhos.length === 0) return alert("Informe pelo menos 1 tamanho.");
-
-  ensureItemIdForName(categoria);
-
-  const cat = getCatalog();
-  const idx = cat.findIndex(x=>String(x.categoria).toLowerCase() === categoria.toLowerCase());
-  const next = cat.slice();
-  if(idx >= 0) next[idx] = { categoria, tamanhos };
-  else next.push({ categoria, tamanhos });
-
-  CATALOGCACHE = next;
-  saveCatalogLocal(next);
-  fillCategorias();
-  fillTamanhos();
-  renderCatalogUI();
-  clearCatForm();
-});
-
-btnLimparCatForm.addEventListener("click", ()=>{
-  clearCatForm();
-  catNome.focus();
-});
-
-btnCarregarCatalogoSheets.addEventListener("click", async ()=>{
-  if(!requireLogin()) return;
-  try{
-    const ok = await refreshCatalogPreferSheets();
-    if(ok){
-      fillCategorias();
-      fillTamanhos();
-      renderCatalogUI();
-      atualizarTodosSelects();
-      alert("Catálogo carregado do Sheets.");
-    }else{
-      alert("Não foi possível carregar do Sheets (ou está vazio).");
-    }
-  }catch(err){
-    alert(String(err?.message ? err.message : err));
-  }
-});
-
-btnSalvarCatalogoSheets.addEventListener("click", async ()=>{
-  if(!requireEdit()) return;
-  try{
-    const cat = getCatalog();
-    const norm = normalizeCatalog(cat);
-    if(!norm) return alert("Catálogo inválido/vazio.");
-
-    setSheetsStatus("warn","Sheets salvando catálogo...");
-    await publishCatalogToSheets(norm);
-
-    CATALOGCACHE = norm;
-    saveCatalogLocal(norm);
-    atualizarTodosSelects();
-    setSheetsStatus("ok","Sheets catálogo salvo");
-    alert("Catálogo salvo no Sheets.");
-  }catch(err){
-    setSheetsStatus("erro","Sheets erro");
-    alert(String(err?.message ? err.message : err));
-  }
-});
-
-btnRestaurarCatalogo.addEventListener("click", ()=>{
-  if(!requireEdit()) return;
-  if(!confirm("Restaurar catálogo padrão?")) return;
-
-  saveCatalogLocal(DEFAULTCATALOG);
-  CATALOGCACHE = DEFAULTCATALOG.slice();
-  fillCategorias();
-  fillTamanhos();
-  renderCatalogUI();
-  clearCatForm();
-  atualizarTodosSelects();
-  alert("Catálogo restaurado.");
-});
-
-/* =========================
-   DEV: usuários
-========================= */
-async function loadUsersFromSheet(){
-  if(!requireDev()) return;
-  const s = getCurrentUser();
-  try{
-    const j = await api({ action:"listUsers", devLogin: s.login, devPin: String(devPin.value).trim() });
-    renderUsersTable(j.users);
-  }catch(err){
-    alert(String(err?.message ? err.message : err));
-  }
-}
-function renderUsersTable(users){
-  const sorted = (users || []).slice().sort((a,b)=>String(a.login).localeCompare(String(b.login)));
-  tblUsersBody.innerHTML = sorted.length ? sorted.map(u=>`
-    <tr>
-      <td>${escapeHtml(u.login)}</td>
-      <td>${escapeHtml(u.name || "")}</td>
-      <td>${u.active ? "Ativo" : "Inativo"}</td>
-      <td>${u.canEdit ? "Edita" : "Somente ver"}</td>
-      <td class="right">
-        <button class="btn" type="button" onclick="toggleUserSheet('${escapeHtml(u.login)}')">
-          ${u.active ? "Desativar" : "Ativar"}
-        </button>
-        <button class="btn" type="button" onclick="togglePermUserSheet('${escapeHtml(u.login)}', ${u.canEdit ? "true" : "false"})">
-          ${u.canEdit ? "Bloquear edição" : "Liberar edição"}
-        </button>
-        <button class="btn" type="button" onclick="resetPinSheet('${escapeHtml(u.login)}')">Reset senha</button>
-        <button class="btn danger" type="button" onclick="removeUserSheet('${escapeHtml(u.login)}')">Remover</button>
-      </td>
-    </tr>
-  `).join("") : `<tr><td colspan="5" class="note">Sem usuários.</td></tr>`;
-}
-
-window.toggleUserSheet = async function(login){
-  if(!requireDev()) return;
-  const s = getCurrentUser();
-  await api({ action:"toggleUser", login, devLogin: s.login, devPin: String(devPin.value).trim() });
-  loadUsersFromSheet();
-};
-window.togglePermUserSheet = async function(login, currentCanEdit){
-  if(!requireDev()) return;
-  const s = getCurrentUser();
-  await api({ action:"setPerm", login, canEdit: (!currentCanEdit ? 1 : 0), devLogin: s.login, devPin: String(devPin.value).trim() });
-  loadUsersFromSheet();
-};
-window.resetPinSheet = async function(login){
-  if(!requireDev()) return;
-  const np = prompt("Nova senha (6 dígitos)");
-  if(np === null) return;
-  if(!/^\d{6}$/.test(np)) return alert("Precisa ser 6 dígitos.");
-  const s = getCurrentUser();
-  await api({ action:"resetPin", login, pin: np, devLogin: s.login, devPin: String(devPin.value).trim() });
-  loadUsersFromSheet();
-};
-window.removeUserSheet = async function(login){
-  if(!requireDev()) return;
-  if(!confirm("Remover usuário?")) return;
-  const s = getCurrentUser();
-  await api({ action:"removeUser", login, devLogin: s.login, devPin: String(devPin.value).trim() });
-  loadUsersFromSheet();
-};
-
-btnLoadUsers.addEventListener("click", loadUsersFromSheet);
-
-btnCreateUser.addEventListener("click", async ()=>{
-  if(!requireDev()) return;
-
-  const login = String(newUserLogin.value || "").trim().toLowerCase();
-  const name = String(newUserName.value || "").trim();
-  const pin = String(newUserPin.value || "").trim();
-  const canEdit = (String(newUserCanEdit.value) === "EDIT");
-
-  if(!login) return alert("Informe o login.");
-  if(login === "dev") return alert("Login reservado.");
-  if(!/^\d{6}$/.test(pin)) return alert("Senha deve ter 6 dígitos.");
-
-  const s = getCurrentUser();
-  await api({
-    action:"createUser",
-    login, name, pin,
-    canEdit: (canEdit ? 1 : 0),
-    devLogin: s.login,
-    devPin: String(devPin.value).trim()
-  });
-
-  newUserLogin.value = "";
-  newUserName.value = "";
-  newUserPin.value = "";
-  loadUsersFromSheet();
-});
-
-/* =========================
-   Boot
-========================= */
-function boot(){
-  migrateLocalData();
-  fillCategorias();
-  fillTamanhos();
-  elData.value = todayISO();
-  updateMovUI();
-  renderMov();
-  renderEstoque();
-  setScreen("mov");
-  atualizarTodosSelects();
-  document.getElementById("cfgUrl").value = SHEETSURL;
-  clearPrint();
-  btnImprimirTermo.disabled = true;
-  refreshUserChip();
-  applyDevVisibility();
-  applyEditLocks();
-
-  if(!getCurrentUser()){
-    showLogin();
-  } else {
+    requireLogin();
     autoSyncAfterLogin();
+  } catch(e){
+    alert("Erro no login: " + e);
+    btn.innerText = "Entrar no Sistema";
+    btn.disabled = false;
   }
-
-  setSheetsStatus("warn", "Sheets verificando...");
-  api({ action: "ping" })
-    .then(()=>setSheetsStatus("ok","Sheets conectado"))
-    .catch(()=>setSheetsStatus("warn","Sheets offline"));
-
-  elTipo.addEventListener("change", updateMovUI);
-  elEstado.addEventListener("change", updateMovUI);
-  elCat.addEventListener("change", fillTamanhos);
 }
 
-elCat.addEventListener('change', () => {
-  fillTamanhos();
-  elTam.value = '';
-  elSaldoAtual.value = '';
-  elQtd.value = 1;
-});
+function doLogout(){
+  localStorage.removeItem(USER_KEY);
+  location.reload();
+}
 
-elTam.addEventListener('change', () => {
-  if (elTipo.value !== 'SAIDA' || !elCat.value || !elTam.value) {
-    elSaldoAtual.value = '';
-    return;
-  }
-  const saldo = getSaldoAtual(elCat.value, elTam.value);
-  elSaldoAtual.value = saldo;
-  if (saldo === 0) {
-    elQtd.value = '';
-  } else {
-    elQtd.value = Math.min(Number(elQtd.value) || 1, saldo);
-  }
-});
-
-elData.addEventListener('input', (e) => {
-  let val = e.target.value.replace(/\D/g, '').slice(0,8);
-  if (val.length >= 5) val = val.slice(0,2) + '/' + val.slice(2,4) + '/' + val.slice(4);
-  else if (val.length >= 3) val = val.slice(0,2) + '/' + val.slice(2);
-  e.target.value = val;
-});
-
-function initEntrega() {
-  const agora = new Date();
-  document.getElementById("dataEntregaMat").value = agora.toISOString().split('T')[0];
+// NAVEGAÇÃO
+function showTab(tabId, btn){
+  document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
+  document.querySelectorAll(".nav-item").forEach(b => b.classList.remove("active"));
   
-  // Configuração dos botões
-  document.getElementById("btnSalvarEntrega").onclick = salvarEntregaMaterial;
-  document.getElementById("btnImprimirRelEntrega").onclick = imprimirRelatorioEntrega;
-  document.getElementById("btnLimparEntrega").onclick = () => {
-    document.getElementById("materialEntrega").value = "";
-    document.getElementById("qtdEntregaMat").value = 1;
-    document.getElementById("filtroNomeEntrega").value = "";
+  document.getElementById("tab-" + tabId).classList.add("active");
+  if(btn) btn.classList.add("active");
+
+  if(tabId === "inventory") renderStock();
+  if(tabId === "dashboard") renderDashboard();
+  if(tabId === "settings") adminLoadData();
+  if(tabId === "entregas") initEntrega();
+}
+
+// AUXILIARES
+function makeId(){ return Math.random().toString(36).substr(2, 9).toUpperCase(); }
+function formatDateDisplay(iso){
+  if(!iso) return "-";
+  const d = new Date(iso);
+  return d.toLocaleDateString('pt-BR');
+}
+
+// PREENCHER SELECTS
+function populateSelects(){
+  const db = loadDB();
+  const map = loadItemMap();
+
+  const selFunc = document.getElementById("mov-func");
+  const selCat = document.getElementById("mov-cat");
+  const selFuncEnt = document.getElementById("funcEntregaMat");
+
+  // Funcionarios
+  let hFunc = '<option value="">-- Selecione --</option>';
+  db.funcionarios.filter(f => f.ativo).sort((a,b)=>a.nome.localeCompare(b.nome)).forEach(f => {
+    hFunc += `<option value="${f.nome}">${f.nome} (${f.id})</option>`;
+  });
+  selFunc.innerHTML = hFunc;
+  selFuncEnt.innerHTML = hFunc;
+
+  // Categorias (do Catalogo)
+  const j = localStorage.getItem(CATALOG_KEY + "_raw");
+  const catalog = j ? JSON.parse(j) : [];
+  
+  let hCat = '<option value="">-- Selecione --</option>';
+  catalog.filter(c => c.ativo).forEach(c => {
+    hCat += `<option value="${c.categoria}">${c.categoria}</option>`;
+  });
+  selCat.innerHTML = hCat;
+  
+  // Tamanhos (Dinâmico conforme categoria)
+  selCat.onchange = () => {
+    const cat = selCat.value;
+    const item = catalog.find(i => i.categoria === cat);
+    const selTam = document.getElementById("mov-tam");
+    let hTam = "";
+    if(item && item.tamanhos){
+       item.tamanhos.forEach(t => hTam += `<option value="${t}">${t}</option>`);
+    }
+    selTam.innerHTML = hTam;
+  };
+}
+
+// SALVAR MOVIMENTO
+async function salvarMovimento(){
+  const user = getCurrentUser();
+  const btn = document.getElementById("btn-save-mov");
+
+  const dados = {
+    id: makeId(),
+    tipo: document.getElementById("mov-tipo").value,
+    data: document.getElementById("mov-data").value,
+    funcionarioNome: document.getElementById("mov-func").value,
+    categoria: document.getElementById("mov-cat").value,
+    tamanho: document.getElementById("mov-tam").value,
+    quantidade: parseInt(document.getElementById("mov-qtd").value),
+    estado: document.getElementById("mov-estado").value,
+    motivo: document.getElementById("mov-motivo").value,
+    obs: document.getElementById("mov-obs").value,
+    usuarioLogado: user.login
   };
 
-  const db = loadDB();
-  
-  // 1. PREENCHE O SELECT DE LANÇAMENTO (Todos os ativos)
-  const selCadastro = document.getElementById("funcEntregaMat");
-  if(selCadastro){
-    const ativos = (db.funcionarios || []).filter(f => f.ativo !== false);
-    if (ativos.length > 0) {
-      selCadastro.innerHTML = '<option value="">-- Selecione um Funcionário --</option>' + 
-                              ativos.map(f => `<option value="${f.nome}">${f.nome}</option>`).join("");
-    } else {
-      selCadastro.innerHTML = '<option value="">Nenhum funcionário ativo encontrado</option>';
-    }
+  if(!dados.data || !dados.categoria || !dados.quantidade){
+    return alert("Preencha os campos obrigatórios.");
   }
 
-  // 2. NOVA FUNÇÃO: FILTRO INTELIGENTE PARA O RELATÓRIO
-  // Isso garante que no campo de filtro só apareça quem tem histórico
-  const entregas = db.entregas || [];
-  const nomesComEntrega = [...new Set(entregas.map(e => e.funcionario))].sort();
-  
-  // Se o seu campo de filtro for um <select id="filtroNomeEntrega">, use o código abaixo:
-  const selFiltro = document.getElementById("filtroNomeEntrega");
-  if(selFiltro && selFiltro.tagName === "SELECT"){
-    if (nomesComEntrega.length > 0) {
-      selFiltro.innerHTML = '<option value="">-- Ver Todos com Histórico --</option>' + 
-                            nomesComEntrega.map(nome => `<option value="${nome}">${nome}</option>`).join("");
-    } else {
-      selFiltro.innerHTML = '<option value="">Nenhuma entrega registrada ainda</option>';
-    }
+  try{
+    btn.innerText = "Salvando...";
+    btn.disabled = true;
+
+    await sendKind("movimento", dados);
+
+    const db = loadDB();
+    db.movimentos.push(dados);
+    saveDB(db);
+
+    alert("Movimentação salva com sucesso!");
+    location.reload();
+  } catch(e){
+    alert("Erro: " + e);
+    btn.innerText = "Salvar Movimentação";
+    btn.disabled = false;
   }
 }
 
+// --- FUNÇÃO CORRIGIDA: SALVAR ENTREGA MATERIAL ---
 async function salvarEntregaMaterial() {
   const user = getCurrentUser(); 
   if (!user || !user.pin) {
@@ -2677,8 +696,7 @@ async function salvarEntregaMaterial() {
   const elQtd = document.getElementById("qtdEntregaMat");
   const elData = document.getElementById("dataEntregaMat");
 
-  // Criamos o objeto exatamente como o seu handleKindPayload_ do Sheets espera
-  const payloadEnvio = {
+  const dadosParaPlanilha = {
     entrega: {
       id: makeId(),
       data: elData.value,
@@ -2691,20 +709,20 @@ async function salvarEntregaMaterial() {
     actorPin: user.pin
   };
 
-  if(!payloadEnvio.entrega.material) return alert("Informe o material.");
-  if(!payloadEnvio.entrega.funcionario) return alert("Selecione um funcionário.");
+  if(!dadosParaPlanilha.entrega.material) return alert("Informe o material.");
+  if(!dadosParaPlanilha.entrega.funcionario) return alert("Selecione um funcionário.");
+  if(!dadosParaPlanilha.entrega.data) return alert("Selecione a data.");
 
   try { 
-    // Mostra um aviso de processando
     setSheetsStatus("warn", "Salvando...");
-
-    // Enviamos para o Google Sheets
-    await sendKind("entrega", payloadEnvio); 
+    
+    // Envia para o Google Sheets
+    await sendKind("entrega", dadosParaPlanilha); 
 
     // Se deu certo no Sheets, salvamos no banco de dados local para o relatório
     const db = loadDB();
     if(!db.entregas) db.entregas = [];
-    db.entregas.push(payloadEnvio.entrega);
+    db.entregas.push(dadosParaPlanilha.entrega);
     saveDB(db);
 
     alert("Salvo com sucesso no sistema e na planilha!");
@@ -2714,7 +732,7 @@ async function salvarEntregaMaterial() {
     elQtd.value = 1;
     setSheetsStatus("ok", "Sincronizado");
     
-    // Atualiza a lista de nomes do relatório
+    // Atualiza a lista do relatório se a função existir
     if(typeof initEntrega === "function") initEntrega(); 
 
   } catch(e) {
@@ -2723,26 +741,21 @@ async function salvarEntregaMaterial() {
     alert("Erro ao salvar na planilha: " + e.message);
   }
 }
-// O alert que estava aqui fora foi removido para não quebrar o código!
 
-  // --- LIMPEZA DOS CAMPOS ---
-  elFunc.value = "";       // Volta para o "Selecione"
-  elMat.value = "";        // Limpa o texto do material
-  elQtd.value = 1;         // Reseta quantidade para 1
-  const agora = new Date(); 
-  elData.value = agora.toISOString().split('T')[0]; // Reseta para data atual
+// RELATÓRIO DE ENTREGAS
+function initEntrega(){
+  const dataInput = document.getElementById("dataEntregaMat");
+  if(dataInput && !dataInput.value) dataInput.value = new Date().toISOString().substr(0,10);
 }
 
-function imprimirRelatorioEntrega() {
+function gerarRelatorioEntrega() {
   const db = loadDB();
   const entregas = db.entregas || [];
-  
-  // Pegamos o valor do campo de texto "filtroNomeEntrega"
-  const filtroNome = document.getElementById("filtroNomeEntrega").value.toLowerCase().trim();
-  const d1 = document.getElementById("filtroDataInicio").value;
-  const d2 = document.getElementById("filtroDataFim").value;
 
-  // Filtra as entregas
+  const filtroNome = document.getElementById("filterEntregaNome").value.toLowerCase();
+  const d1 = document.getElementById("filterEntregaD1").value;
+  const d2 = document.getElementById("filterEntregaD2").value;
+
   const filtrados = entregas.filter(e => {
     const nomeBate = e.funcionario.toLowerCase().includes(filtroNome);
     const dataBate = (!d1 || e.data >= d1) && (!d2 || e.data <= d2);
@@ -2750,11 +763,10 @@ function imprimirRelatorioEntrega() {
   });
 
   if (filtrados.length === 0) {
-    alert("Nenhum lançamento encontrado para: " + (filtroNome || "todos"));
+    alert("Nenhum lançamento encontrado.");
     return;
   }
 
-  // Gerar HTML da Tabela
   let h = `<div style="padding:20px; font-family:sans-serif;">
             <h2 style="text-align:center;">Relatório de Entrega de Materiais</h2>
             <table border="1" style="width:100%; border-collapse:collapse;">
@@ -2773,18 +785,211 @@ function imprimirRelatorioEntrega() {
             <td style="text-align:center; padding:5px;">${e.quantidade}</td>
           </tr>`;
   });
-  
+
   h += `</tbody></table></div>`;
 
-  document.getElementById("printBody").innerHTML = h;
-  const pa = document.getElementById("printArea");
-  pa.style.display = "block";
-  window.print();
-  pa.style.display = "none";
+  const win = window.open("", "_blank");
+  win.document.write(h);
+  win.document.close();
+  win.print();
 }
 
-boot();
-</script>
+// DASHBOARD RENDERING
+function renderDashboard(){
+  const db = loadDB();
+  const movs = db.movimentos || [];
+  
+  // Filtra mes atual
+  const now = new Date();
+  const mesAtual = now.getMonth();
+  const anoAtual = now.getFullYear();
 
+  let totalEstoque = 0;
+  let entradas = 0;
+  let saidas = 0;
+
+  movs.forEach(m => {
+    const d = new Date(m.data);
+    const isMes = d.getMonth() === mesAtual && d.getFullYear() === anoAtual;
+    
+    if(m.tipo === "ENTRADA"){
+      totalEstoque += m.quantidade;
+      if(isMes) entradas += m.quantidade;
+    } else {
+      totalEstoque -= m.quantidade;
+      if(isMes) saidas += m.quantidade;
+    }
+  });
+
+  document.getElementById("stat-total-items").innerText = totalEstoque;
+  document.getElementById("stat-entries").innerText = entradas;
+  document.getElementById("stat-exits").innerText = saidas;
+
+  // Tabela recente
+  const recents = [...movs].reverse().slice(0, 10);
+  let h = "";
+  recents.forEach(m => {
+    h += `<tr>
+      <td>${formatDateDisplay(m.data)}</td>
+      <td><span class="badge ${m.tipo === 'ENTRADA' ? 'badge-in':'badge-out'}">${m.tipo}</span></td>
+      <td>${m.categoria}</td>
+      <td>${m.tamanho}</td>
+      <td>${m.quantidade}</td>
+    </tr>`;
+  });
+  document.getElementById("table-recent").querySelector("tbody").innerHTML = h;
+}
+
+// STOCK RENDERING
+function renderStock(){
+  const db = loadDB();
+  const movs = db.movimentos || [];
+  const stock = {};
+
+  movs.forEach(m => {
+    const key = m.categoria + "|" + m.tamanho;
+    if(!stock[key]) stock[key] = { novo:0, usado:0 };
+    
+    const qtd = parseInt(m.quantidade);
+    if(m.tipo === "ENTRADA"){
+      if(m.estado === "NOVO") stock[key].novo += qtd;
+      else stock[key].usado += qtd;
+    } else {
+      if(m.estado === "NOVO") stock[key].novo -= qtd;
+      else stock[key].usado -= qtd;
+    }
+  });
+
+  let h = "";
+  Object.keys(stock).sort().forEach(key => {
+    const [cat, tam] = key.split("|");
+    const item = stock[key];
+    const total = item.novo + item.usado;
+    if(total === 0) return;
+
+    h += `<tr>
+      <td><strong>${cat}</strong></td>
+      <td>${tam}</td>
+      <td>${item.novo}</td>
+      <td>${item.usado}</td>
+      <td><strong style="color:${total < 5 ? 'var(--danger)':'inherit'}">${total}</strong></td>
+    </tr>`;
+  });
+  document.getElementById("table-stock").querySelector("tbody").innerHTML = h;
+}
+
+// ADMIN FUNCTIONS
+async function adminLoadData(){
+  const user = getCurrentUser();
+  if(!user.isDev) return;
+
+  try{
+    const res = await api({ action:"listUsers", devLogin:user.login, devPin:user.pin });
+    let h = "";
+    res.users.forEach(u => {
+      h += `<div style="display:flex; align-items:center; justify-content:space-between; padding:10px; border-bottom:1px solid var(--line2);">
+        <div>
+          <div style="font-weight:700;">${u.name}</div>
+          <div style="font-size:.75rem; color:var(--muted);">${u.login} | Permissão: ${u.canEdit ? 'Editor':'Visualizador'}</div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button onclick="adminToggleUser('${u.login}')" class="btn-secondary" style="height:32px; font-size:.7rem;">${u.active ? 'Bloquear':'Ativar'}</button>
+          <button onclick="adminResetPin('${u.login}')" class="btn-secondary" style="height:32px; font-size:.7rem;">Reset PIN</button>
+        </div>
+      </div>`;
+    });
+    document.getElementById("admin-user-list").innerHTML = h;
+
+    // Load Catalog
+    const cRes = await api({ action:"getCatalogo" });
+    localStorage.setItem(CATALOG_KEY + "_raw", JSON.stringify(cRes.catalog));
+    renderCatalogEditor(cRes.catalog);
+
+    // Load Funcs
+    const db = loadDB();
+    renderAdminFuncs(db.funcionarios);
+
+  } catch(e){ alert("Erro admin: " + e); }
+}
+
+function renderCatalogEditor(catalog){
+  let h = "";
+  catalog.forEach((c, idx) => {
+    h += `<div class="grid-3" style="margin-bottom:10px; background:var(--panel2); padding:10px; border-radius:8px;">
+      <input type="text" class="form-control cat-name" value="${c.categoria}" placeholder="Categoria">
+      <input type="text" class="form-control cat-tams" value="${c.tamanhos.join(',')}" placeholder="Tamanhos (P,M,G)">
+      <select class="form-control cat-ativo">
+        <option value="1" ${c.ativo ? 'selected':''}>Ativo</option>
+        <option value="0" ${!c.ativo ? 'selected':''}>Inativo</option>
+      </select>
+    </div>`;
+  });
+  document.getElementById("catalog-editor-list").innerHTML = h;
+}
+
+function addCatalogRow(){
+  const div = document.createElement("div");
+  div.className = "grid-3";
+  div.style.marginBottom = "10px";
+  div.style.background = "var(--panel2)";
+  div.style.padding = "10px";
+  div.style.borderRadius = "8px";
+  div.innerHTML = `
+    <input type="text" class="form-control cat-name" placeholder="Categoria">
+    <input type="text" class="form-control cat-tams" placeholder="Tamanhos (P,M,G)">
+    <select class="form-control cat-ativo"><option value="1">Ativo</option><option value="0">Inativo</option></select>
+  `;
+  document.getElementById("catalog-editor-list").appendChild(div);
+}
+
+async function saveCatalog(){
+  const rows = document.querySelectorAll("#catalog-editor-list .grid-3");
+  const catalog = [];
+  rows.forEach(r => {
+    const categoria = r.querySelector(".cat-name").value;
+    const tamanhos = r.querySelector(".cat-tams").value.split(",").map(s => s.trim());
+    const ativo = r.querySelector(".cat-ativo").value === "1";
+    if(categoria) catalog.push({ itemId: makeId(), categoria, tamanhos, ativo });
+  });
+
+  try{
+    await sendKind("catalogo", { catalog });
+    alert("Catálogo atualizado!");
+    location.reload();
+  } catch(e){ alert(e); }
+}
+
+function renderAdminFuncs(funcs){
+  let h = "";
+  funcs.sort((a,b)=>a.nome.localeCompare(b.nome)).forEach(f => {
+    h += `<tr>
+      <td>${f.id}</td>
+      <td>${f.nome}</td>
+      <td><span class="status-badge ${f.ativo ? 'ok':'err'}">${f.ativo ? 'Ativo':'Inativo'}</span></td>
+      <td><button onclick="adminToggleFunc('${f.id}')" style="color:var(--danger); font-size:.8rem;">Alternar</button></td>
+    </tr>`;
+  });
+  document.getElementById("table-admin-funcs").querySelector("tbody").innerHTML = h;
+}
+
+async function salvarFuncionario(){
+  const id = document.getElementById("new-func-id").value;
+  const nome = document.getElementById("new-func-nome").value;
+  if(!id || !nome) return;
+
+  try{
+    await sendKind("funcionario", { id, nome, ativo:true, evento:"CADASTRO_MANUAL" });
+    alert("Funcionário cadastrado!");
+    location.reload();
+  } catch(e){ alert(e); }
+}
+
+// INICIALIZAÇÃO
+window.onload = () => {
+  if(requireLogin()){
+    autoSyncAfterLogin();
+  }
+};
+</script>
 </body>
 </html>
