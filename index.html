@@ -1471,10 +1471,20 @@ async function autoSyncAfterLogin(){
     const j = await api({ action: "getSnapshot" });
     const db = loadDB();
 
+    // Sincroniza Funcionários e Movimentos (seu código atual)
     db.funcionarios = Array.isArray(j.funcionarios) ? j.funcionarios : db.funcionarios;
     db.movimentos   = Array.isArray(j.movimentos)   ? j.movimentos   : db.movimentos;
 
-    // FIX: popular ItemMap com nomes (categoria) vindos do Sheets
+    // === ADICIONE ESTA LINHA ABAIXO PARA AS ENTREGAS ===
+    db.entregas = Array.isArray(j.entregas) ? j.entregas : (db.entregas || []);
+    // ===================================================
+
+    saveDB(db); // Salva o banco atualizado com as entregas
+
+    // Chame a inicialização da entrega para atualizar os filtros do relatório na tela
+    if (typeof initEntrega === "function") initEntrega();
+
+    // FIX: popular ItemMap (seu código continua igual abaixo...)
     try{
       const map = loadItemMap();
       let changed = false;
@@ -1492,10 +1502,15 @@ async function autoSyncAfterLogin(){
       }
 
       if(changed) saveItemMap(map);
+      setSheetsStatus("ok", "Sincronizado"); // Define status como OK ao final
     }catch(e){
       // não trava sync se falhar ItemMap
     }
-
+  } catch(err) {
+    setSheetsStatus("err", "Erro ao sincronizar");
+    console.error(err);
+  }
+}
     // Recalcula estoque a partir dos movimentos
     db.estoque = {};
     for(const m of db.movimentos){
@@ -2698,60 +2713,50 @@ function imprimirRelatorioEntrega() {
   const db = loadDB();
   const entregas = db.entregas || [];
   
-  // Pegamos os valores dos filtros
+  // Pegamos o valor do campo de texto "filtroNomeEntrega"
   const filtroNome = document.getElementById("filtroNomeEntrega").value.toLowerCase().trim();
   const d1 = document.getElementById("filtroDataInicio").value;
   const d2 = document.getElementById("filtroDataFim").value;
 
-  // Filtragem inteligente
+  // Filtra as entregas
   const filtrados = entregas.filter(e => {
     const nomeBate = e.funcionario.toLowerCase().includes(filtroNome);
     const dataBate = (!d1 || e.data >= d1) && (!d2 || e.data <= d2);
     return nomeBate && dataBate;
   });
 
-  // Se não encontrar nada para aquele nome/data, avisa e para aqui
   if (filtrados.length === 0) {
-    alert("Nenhum lançamento de material encontrado para os filtros selecionados.");
+    alert("Nenhum lançamento encontrado para: " + (filtroNome || "todos"));
     return;
   }
 
-  // Se encontrou, gera a tabela para impressão
-  let h = `<div style="font-family: Arial, sans-serif; padding: 20px;">
-             <h2 style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px;">
-               Relatório de Entrega de Materiais
-             </h2>
-             <p><b>Filtro:</b> ${filtroNome || 'Todos'} | <b>Período:</b> ${formatDateDisplay(d1) || 'Início'} até ${formatDateDisplay(d2) || 'Fim'}</p>
-             <table border="1" style="width:100%; border-collapse:collapse; margin-top: 20px;">
-               <thead>
-                 <tr style="background: #f2f2f2;">
-                   <th style="padding: 8px;">Data</th>
-                   <th style="padding: 8px;">Funcionário</th>
-                   <th style="padding: 8px;">Material</th>
-                   <th style="padding: 8px;">Qtd</th>
-                 </tr>
-               </thead>
-               <tbody>`;
-
+  // Gerar HTML da Tabela
+  let h = `<div style="padding:20px; font-family:sans-serif;">
+            <h2 style="text-align:center;">Relatório de Entrega de Materiais</h2>
+            <table border="1" style="width:100%; border-collapse:collapse;">
+              <thead>
+                <tr style="background:#eee;">
+                  <th>Data</th><th>Funcionário</th><th>Material</th><th>Qtd</th>
+                </tr>
+              </thead>
+              <tbody>`;
+  
   filtrados.forEach(e => {
     h += `<tr>
-            <td style="padding: 8px; text-align: center;">${formatDateDisplay(e.data)}</td>
-            <td style="padding: 8px;">${e.funcionario}</td>
-            <td style="padding: 8px;">${e.material}</td>
-            <td style="padding: 8px; text-align: center;">${e.quantidade}</td>
+            <td style="text-align:center; padding:5px;">${formatDateDisplay(e.data)}</td>
+            <td style="padding:5px;">${e.funcionario}</td>
+            <td style="padding:5px;">${e.material}</td>
+            <td style="text-align:center; padding:5px;">${e.quantidade}</td>
           </tr>`;
   });
-
+  
   h += `</tbody></table></div>`;
 
-  const pb = document.getElementById("printBody");
-  pb.innerHTML = h;
-  
-  // Exibe a área de impressão, imprime e esconde
-  const printArea = document.getElementById("printArea");
-  printArea.style.display = "block";
+  document.getElementById("printBody").innerHTML = h;
+  const pa = document.getElementById("printArea");
+  pa.style.display = "block";
   window.print();
-  printArea.style.display = "none";
+  pa.style.display = "none";
 }
 
 boot();
