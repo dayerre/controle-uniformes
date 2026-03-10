@@ -2638,6 +2638,12 @@ function initEntrega() {
 }
 
 async function salvarEntregaMaterial() {
+  const user = getCurrentUser(); // Pega o usuário logado (login e pin)
+  if (!user || !user.pin) {
+    alert("Sessão inválida. Por favor, faça login novamente.");
+    return;
+  }
+
   const elFunc = document.getElementById("funcEntregaMat");
   const elMat = document.getElementById("materialEntrega");
   const elQtd = document.getElementById("qtdEntregaMat");
@@ -2649,7 +2655,10 @@ async function salvarEntregaMaterial() {
     funcionario: elFunc.value,
     material: elMat.value,
     quantidade: elQtd.value,
-    usuarioLogado: getCurrentUser()?.login
+    usuarioLogado: user.login,
+    // Adicionamos as credenciais para o Sheets aceitar
+    actorLogin: user.login,
+    actorPin: user.pin
   };
 
   if(!dados.material) return alert("Informe o material.");
@@ -2661,10 +2670,19 @@ async function salvarEntregaMaterial() {
   saveDB(db);
 
   try { 
-    await sendKind("entrega", { entrega: dados }); 
+    // Enviamos o objeto completo com actorLogin e actorPin
+    await sendKind("entrega", dados); 
+    alert("Salvo com sucesso no sistema e na planilha!");
+    
+    // Limpa os campos
+    elMat.value = "";
+    elQtd.value = 1;
+    initEntrega(); // Atualiza os filtros do relatório na hora
   } catch(e) {
     console.error("Erro ao enviar para o Sheets:", e);
+    alert("Salvo localmente, mas houve um erro com o Sheets: " + e.message);
   }
+}
 
   alert("Salvo com sucesso!");
 
