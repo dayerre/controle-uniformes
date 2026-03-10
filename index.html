@@ -351,7 +351,7 @@
   <div class="topbar">
     <div class="title">
       <h1>Controle de Uniformes</h1>
-      <small>Entrada • Saída • Devolução</small>
+      <small>Saída Devoluções</small>
     </div>
     <div style="display:flex; gap:10px; align-items:center">
       <div class="chip" id="chipUser" title="Usuário atual">
@@ -377,6 +377,7 @@
     <button type="button" class="navBtn" data-screen="uni">Uniformes <span class="tag">catálogo</span></button>
     <button type="button" class="navBtn devOnly hide" data-screen="cfg">Config <span class="tag">DEV</span></button>
     <button type="button" class="navBtn devOnly hide" data-screen="log">Acessos <span class="tag">DEV</span></button>
+    <button type="button" class="navBtn" data-screen="entrega">Entrega de Material <span class="tag">novo</span></button>
   </aside>
 
   <!-- Movimentar -->
@@ -395,18 +396,20 @@
       </div>
 
       <div class="grid3">
+  <div>
+    <label for="tipoMov">Tipo:</label>
+    <select id="tipoMov">
+      <option value="SAIDA">Saída</option>
+      <option value="DEVOLUCAO">Devolução</option>
+    </select>
+  </div>
+</div>
+
         <div>
-          <label for="tipoMov">Tipo</label>
-          <select id="tipoMov">
-            <option value="ENTRADA">Entrada</option>
-            <option value="SAIDA">Saída</option>
-            <option value="DEVOLUCAO">Devolução</option>
-          </select>
-        </div>
-        <div>
-          <label for="dataMov">Data</label>
-          <input id="dataMov" type="date" />
-        </div>
+          <label for="dataMov">Data:</label>
+         <input id="dataMov" type="text" placeholder="DD/MM/AAAA" maxlength="10" style="text-align: center;">
+       </div>
+
         <div id="boxFunc" class="hide">
           <label for="funcionarioSel">Funcionário</label>
           <select id="funcionarioSel"></select>
@@ -439,6 +442,10 @@
         <div>
           <label for="quantidade">Quantidade</label>
           <input id="quantidade" type="number" min="1" step="1" value="1" />
+        </div>
+          <div>
+          <label forsaldoAtualSaldo Atual:</label>
+          <input id="saldoAtual" type="number" readonly style="background: #f0f9ff; color: #0369a1; font-weight: 600;">
         </div>
       </div>
 
@@ -495,6 +502,51 @@
     </div>
   </section>
 
+<section id="screen-entrega" class="card hide">
+    <div class="hd">
+      <div>
+        <h2>Entrega de Material</h2>
+        <p>Registro de entrega de materiais aos funcionários.</p>
+      </div>
+    </div>
+    <div class="bd">
+      <div class="grid3">
+        <div>
+          <label for="dataEntregaMat">Data:</label>
+          <input id="dataEntregaMat" type="date">
+        </div>
+        <div>
+          <label for="funcEntregaMat">Funcionário:</label>
+          <select id="funcEntregaMat"></select>
+        </div>
+        <div>
+          <label for="materialEntrega">Material:</label>
+          <input id="materialEntrega" type="text" placeholder="Ex: Luvas, Capacete...">
+        </div>
+      </div>
+      <div class="grid3">
+        <div>
+          <label for="qtdEntregaMat">Quantidade:</label>
+          <input id="qtdEntregaMat" type="number" min="1" value="1">
+        </div>
+      </div>
+      <div class="btns">
+        <button type="button" class="btn primary" id="btnSalvarEntrega">Salvar Entrega</button>
+        <button type="button" class="btn" id="btnLimparEntrega">Limpar</button>
+      </div>
+      <div class="sep"></div>
+      <h3>Filtrar Relatório</h3>
+      <div class="grid3">
+        <div><label>Nome:</label><input id="filtroNomeEntrega" type="text" placeholder="Funcionário"></div>
+        <div><label>Início:</label><input id="filtroDataInicio" type="date"></div>
+        <div><label>Fim:</label><input id="filtroDataFim" type="date"></div>
+      </div>
+      <div class="btns">
+        <button type="button" class="btn primary" id="btnImprimirRelEntrega">Imprimir Relatório Filtrado</button>
+      </div>
+    </div>
+  </section>
+
   <!-- Funcionários -->
   <section id="screen-func" class="card hide">
     <div class="hd">
@@ -544,6 +596,35 @@
       <div class="btns no-print" style="margin-top:0">
         <button type="button" class="btn" id="btnEditarItensEstoque">Editar nomes dos itens</button>
       </div>
+<div class="grid3" style="margin-bottom: 14px;">
+  <div>
+    <label for="tipoEntrada">Tipo:</label>
+    <select id="tipoEntrada">
+      <option value="ENTRADA">Entrada</option>
+    </select>
+  </div>
+  <div>
+    <label for="dataEntrada">Data:</label>
+    <input id="dataEntrada" type="text" placeholder="DD/MM/AAAA" maxlength="10" style="text-align: center;">
+  </div>
+  <div style="align-self: end;">
+    <button type="button" class="btn primary" id="btnEntradaSalvar">Adicionar Entrada</button>
+  </div>
+</div>
+<div class="grid3">
+  <div>
+    <label for="catEntrada">Categoria:</label>
+    <select id="catEntrada"></select>
+  </div>
+  <div>
+    <label for="tamEntrada">Tamanho:</label>
+    <select id="tamEntrada"></select>
+  </div>
+  <div>
+    <label for="qtdEntrada">Quantidade:</label>
+    <input id="qtdEntrada" type="number" min="1" step="1" value="1">
+  </div>
+</div>
       <div class="note no-print" id="msgEditarItens" style="display:none"></div>
 
       <div class="tableWrap" style="max-height:520px; margin-top:10px">
@@ -742,6 +823,17 @@ function formatBRDateFromISO(iso){
   const [y,m,d] = iso.slice(0,10).split("-");
   return `${d}/${m}/${y}`;
 }
+function formatDateDisplay(dateStr) {
+  if (!dateStr) return '';
+  if (typeof dateStr === 'string' && dateStr.length === 10 && dateStr.includes('-')) {
+    return formatBRDateFromISO(dateStr);
+  }
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  const pad = n => String(n).padStart(2, '0');
+  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+}
+
 function escapeHtml(s){
   return String(s ?? "")
     .replaceAll("&","&amp;")
@@ -1166,15 +1258,23 @@ const screens = {
   uni: document.getElementById("screen-uni"),
   cfg: document.getElementById("screen-cfg"),
   log: document.getElementById("screen-log"),
+  entrega: document.getElementById("screen-entrega"),
 };
-
 function setScreen(name){
   Object.entries(screens).forEach(([k,el])=>el.classList.toggle("hide", k !== name));
   navBtns.forEach(b=>b.classList.toggle("active", b.dataset.screen === name));
 
   if(name === "mov") renderMov();
   if(name === "func"){ renderFuncionariosSelect(); renderListaFuncionarios(); }
-  if(name === "est") renderEstoque();
+  
+  // Adicionado para carregar a tela de entrega
+  if(name === "entrega") initEntrega();
+
+  if(name === "est") {
+    renderEstoque();
+    atualizarTodosSelects();
+  }
+
   if(name === "uni"){ renderCatalogUI(); clearCatForm(); }
   if(name === "cfg") document.getElementById("cfgUrl").value = SHEETSURL;
   if(name === "log") renderInativosDev();
@@ -1196,6 +1296,29 @@ const elMotivo = document.getElementById("motivoRuim");
 const elCat = document.getElementById("categoria");
 const elTam = document.getElementById("tamanho");
 const elQtd = document.getElementById("quantidade");
+const elSaldoAtual = document.getElementById('saldoAtual');
+// Entrada Estoque
+const elTipoEntrada = document.getElementById('tipoEntrada');
+const elDataEntrada = document.getElementById('dataEntrada');
+const elCatEntrada = document.getElementById('catEntrada');
+const elTamEntrada = document.getElementById('tamEntrada');
+const elQtdEntrada = document.getElementById('qtdEntrada');
+const btnEntradaSalvar = document.getElementById('btnEntradaSalvar');
+
+
+function formatDateBR(dateStr) {
+  if (!dateStr || dateStr.length !== 10) return dateStr;
+  const [day, month, year] = dateStr.split('/');
+  return `${year}-${month.padStart(2,'0')}-${day.padStart(2,'0')}`;
+}
+
+function getSaldoAtual(cat, tam) {
+  const db = loadDB();
+  const itemId = ensureItemIdForName(cat);
+  const key = `${itemId}-${tam}`;
+  return Number(db.estoque[key] || 0);
+}
+
 const boxObs = document.getElementById("boxObs");
 const elObs = document.getElementById("obs");
 
@@ -1427,6 +1550,27 @@ function fillTamanhos(){
   const ts = found ? found.tamanhos : [];
   elTam.innerHTML = ts.map(t=>`<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join("");
 }
+function fillCatEntrada() {
+  const catalog = getCatalog();
+  elCatEntrada.innerHTML = catalog.map(c => 
+    `<option value="${escapeHtml(c.categoria)}">${escapeHtml(c.categoria)}</option>`
+  ).join('');
+}
+
+function fillTamEntrada() {
+  const catalog = getCatalog();
+  const found = catalog.find(x => x.categoria === elCatEntrada.value);
+  const ts = found ? found.tamanhos : [];
+  elTamEntrada.innerHTML = ts.map(t => 
+    `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`
+  ).join('');
+}
+function atualizarTodosSelects() {
+  fillCategorias();     // aba Movimentar - categorias
+  fillTamanhos();       // aba Movimentar - tamanhos
+  fillCatEntrada();     // aba Estoque - categorias
+  fillTamEntrada();     // aba Estoque - tamanhos
+}
 
 function fillRelFuncionariosSomenteQuemPegou(){
   const db = loadDB();
@@ -1581,6 +1725,71 @@ function renderEstoque() {
   pillTotal2.textContent = `Total: ${total} peças`;
 }
 
+// Listeners Entrada Estoque
+elCatEntrada.addEventListener('change', fillTamEntrada);
+elTamEntrada.addEventListener('change', () => elQtdEntrada.value = 1);
+elDataEntrada.addEventListener('input', (e) => {
+  let val = e.target.value.replace(/\D/g, '').slice(0,8);
+  if (val.length >= 5) val = val.slice(0,2) + '/' + val.slice(2,4) + '/' + val.slice(4);
+  else if (val.length >= 3) val = val.slice(0,2) + '/' + val.slice(2);
+  e.target.value = val;
+});
+
+btnEntradaSalvar.addEventListener('click', async () => {
+  if (!requireEdit()) return;
+  const db = loadDB();
+  const data = formatDateBR(elDataEntrada.value);
+  if (!data) {
+    alert('Informe a data (DD/MM/AAAA)');
+    return;
+  }
+  if (!elCatEntrada.value || !elTamEntrada.value) {
+    alert('Selecione categoria e tamanho');
+    return;
+  }
+  const qtd = Number(elQtdEntrada.value);
+  if (qtd < 1) {
+    alert('Quantidade mínima 1');
+    return;
+  }
+  
+  try {
+    const itemId = ensureItemIdForName(elCatEntrada.value);
+    await sendKind('movimento', {
+      tipo: 'ENTRADA',
+      data: data,
+      categoria: elCatEntrada.value,
+      itemId: itemId,
+      tamanho: elTamEntrada.value,
+      quantidade: qtd
+    });
+    
+    // Atualiza local
+    db.movimentos.unshift({
+      id: makeId(),
+      tipo: 'ENTRADA',
+      data: data,
+      categoria: elCatEntrada.value,
+      itemId: itemId,
+      tamanho: elTamEntrada.value,
+      quantidade: qtd
+    });
+    saveDB(db);
+    
+    // Limpa form
+    elDataEntrada.value = '';
+    fillCatEntrada();
+    elQtdEntrada.value = 1;
+    
+    renderEstoque();
+    renderMov();
+    alert('Entrada adicionada!');
+  } catch (err) {
+    alert('Erro ao salvar: ' + (err.message || err));
+  }
+});
+
+
 function getBestItemName(db, itemId) {
   const fromMap = getItemNameById(itemId, "");
   if (fromMap && fromMap !== itemId) return String(fromMap);
@@ -1593,37 +1802,36 @@ function getBestItemName(db, itemId) {
   return String(itemId || "");
 }
 
-function renderMov(){
+function renderMov() {
   renderFuncionariosSelect();
   renderEstoque();
-
   const db = loadDB();
-  const hist = (db.movimentos || [])
-    .filter(m=>m && !m.hidden)
+  const hist = db.movimentos
+    .filter(m => !m.hidden)
     .slice()
     .reverse()
-    .slice(0,250);
-
-  tblHistBody.innerHTML = hist.length ? hist.map(m=>{
+    .slice(0, 250);
+  
+  tblHistBody.innerHTML = hist.length ? hist.map(m => {
     const f = m.funcionarioId ? getFuncById(db, m.funcionarioId) : null;
     const itemName = m.itemId ? getItemNameById(m.itemId, m.categoria) : m.categoria;
-
-    return `<tr>
-      <td>${escapeHtml(m.data)}</td>
-      <td>${escapeHtml(tipoLabel(m.tipo))}</td>
-      <td>${escapeHtml(f ? f.nome : "")}</td>
-      <td>${escapeHtml(itemName)}</td>
-      <td>${escapeHtml(m.tamanho)}</td>
-      <td class="right">${Number(m.quantidade || 0)}</td>
-      <td>${escapeHtml(estadoLabel(m.estado))}</td>
-      <td>${escapeHtml(m.motivo || "")}</td>
-      <td>${escapeHtml(m.obs || "")}</td>
-      <td class="no-print">
-        <button type="button" class="btn danger" ${canEditSession() ? "" : "disabled"}
-          onclick="hideMovimento('${escapeHtml(m.id)}')">Excluir</button>
-      </td>
-    </tr>`;
-  }).join("") : `<tr><td colspan="10" class="note">Sem movimentações.</td></tr>`;
+    return `
+      <tr>
+        <td>${escapeHtml(formatDateDisplay(m.data))}</td>
+        <td>${escapeHtml(tipoLabel(m.tipo))}</td>
+        <td>${escapeHtml(f ? f.nome : '')}</td>
+        <td>${escapeHtml(itemName)}</td>
+        <td>${escapeHtml(m.tamanho)}</td>
+        <td class="right">${Number(m.quantidade) || 0}</td>
+        <td>${escapeHtml(estadoLabel(m.estado))}</td>
+        <td>${escapeHtml(m.motivo)}</td>
+        <td>${escapeHtml(m.obs)}</td>
+        <td class="no-print">
+          <button type="button" class="btn danger" ${canEditSession() ? '' : 'disabled'} onclick="hideMovimento('${escapeHtml(m.id)}')">Excluir</button>
+        </td>
+      </tr>
+    `;
+  }).join('') : '<tr><td colspan="10" class="note">Sem movimentações.</td></tr>';
 }
 
 
@@ -1650,33 +1858,37 @@ function getMovsDoFuncionario(db, funcId){
     .sort((a,b)=>String(a.data).localeCompare(String(b.data)));
 }
 
-function funcionarioBlock(nome, movs){
-  const rows = (movs || []).map(m=>{
+function funcionarioBlock(nome, movs) {
+  const rows = movs.map(m => {
     const itemName = m.itemId ? getItemNameById(m.itemId, m.categoria) : m.categoria;
-    return `<tr>
-      <td>${escapeHtml(m.data)}</td>
-      <td>${escapeHtml(tipoLabel(m.tipo))}</td>
-      <td>${escapeHtml(itemName)}</td>
-      <td>${escapeHtml(m.tamanho)}</td>
-      <td class="right">${Number(m.quantidade || 0)}</td>
-      <td>${escapeHtml(estadoLabel(m.estado))}</td>
-      <td>${escapeHtml(m.motivo || "")}</td>
-      <td>${escapeHtml(m.obs || "")}</td>
-    </tr>`;
-  }).join("");
-
+    return `
+      <tr>
+        <td>${escapeHtml(formatDateDisplay(m.data))}</td>
+        <td>${escapeHtml(tipoLabel(m.tipo))}</td>
+        <td>${escapeHtml(itemName)}</td>
+        <td>${escapeHtml(m.tamanho)}</td>
+        <td class="right">${Number(m.quantidade) || 0}</td>
+        <td>${escapeHtml(estadoLabel(m.estado))}</td>
+        <td>${escapeHtml(m.motivo)}</td>
+        <td>${escapeHtml(m.obs)}</td>
+      </tr>
+    `;
+  }).join('');
+  
   return `
-    <div style="margin:0 0 18px 0">
-      <p class="note" style="margin:0 0 8px 0">Funcionário: <b>${escapeHtml(nome)}</b></p>
-      <div class="tableWrap" style="max-height:none">
-        <table style="width:100%; border-collapse:collapse">
+    <div style="margin: 0 0 18px 0">
+      <p class="note" style="margin: 0 0 8px 0">
+        Funcionário <b>${escapeHtml(nome)}</b>
+      </p>
+      <div class="tableWrap" style="max-height: none">
+        <table style="width: 100%; border-collapse: collapse">
           <thead>
             <tr>
               <th>Data</th><th>Tipo</th><th>Item</th><th>Tam.</th><th class="right">Qtd</th><th>Estado</th><th>Motivo</th><th>Obs.</th>
             </tr>
           </thead>
           <tbody>
-            ${rows || `<tr><td colspan="8" class="note">Sem registros.</td></tr>`}
+            ${rows || '<tr><td colspan="8" class="note">Sem registros.</td></tr>'}
           </tbody>
         </table>
       </div>
@@ -1844,7 +2056,7 @@ btnSalvar.addEventListener("click", async ()=>{
   const mov = {
     id: makeId(),
     tipo,
-    data: elData.value,
+    data: formatDateBR(elData.value),
     funcionarioId: (tipo === "SAIDA" || tipo === "DEVOLUCAO") ? elFuncSel.value : "",
     itemId,
     categoria: elCat.value,
@@ -1892,6 +2104,7 @@ btnLimpar.addEventListener("click", ()=>{
   elTipo.value = "ENTRADA";
   elFuncSel.value = "";
   elEstado.value = "EMCONDICOES";
+  elSaldoAtual.value = '';
   elQtd.value = 1;
   elMotivo.value = "";
   elObs.value = "";
@@ -2178,6 +2391,7 @@ btnCarregarCatalogoSheets.addEventListener("click", async ()=>{
       fillCategorias();
       fillTamanhos();
       renderCatalogUI();
+      atualizarTodosSelects();
       alert("Catálogo carregado do Sheets.");
     }else{
       alert("Não foi possível carregar do Sheets (ou está vazio).");
@@ -2199,6 +2413,7 @@ btnSalvarCatalogoSheets.addEventListener("click", async ()=>{
 
     CATALOGCACHE = norm;
     saveCatalogLocal(norm);
+    atualizarTodosSelects();
     setSheetsStatus("ok","Sheets catálogo salvo");
     alert("Catálogo salvo no Sheets.");
   }catch(err){
@@ -2217,6 +2432,7 @@ btnRestaurarCatalogo.addEventListener("click", ()=>{
   fillTamanhos();
   renderCatalogUI();
   clearCatForm();
+  atualizarTodosSelects();
   alert("Catálogo restaurado.");
 });
 
@@ -2325,6 +2541,7 @@ function boot(){
   renderMov();
   renderEstoque();
   setScreen("mov");
+  atualizarTodosSelects();
   document.getElementById("cfgUrl").value = SHEETSURL;
   clearPrint();
   btnImprimirTermo.disabled = true;
@@ -2346,6 +2563,96 @@ function boot(){
   elTipo.addEventListener("change", updateMovUI);
   elEstado.addEventListener("change", updateMovUI);
   elCat.addEventListener("change", fillTamanhos);
+}
+
+elCat.addEventListener('change', () => {
+  fillTamanhos();
+  elTam.value = '';
+  elSaldoAtual.value = '';
+  elQtd.value = 1;
+});
+
+elTam.addEventListener('change', () => {
+  if (elTipo.value !== 'SAIDA' || !elCat.value || !elTam.value) {
+    elSaldoAtual.value = '';
+    return;
+  }
+  const saldo = getSaldoAtual(elCat.value, elTam.value);
+  elSaldoAtual.value = saldo;
+  if (saldo === 0) {
+    elQtd.value = '';
+  } else {
+    elQtd.value = Math.min(Number(elQtd.value) || 1, saldo);
+  }
+});
+
+elData.addEventListener('input', (e) => {
+  let val = e.target.value.replace(/\D/g, '').slice(0,8);
+  if (val.length >= 5) val = val.slice(0,2) + '/' + val.slice(2,4) + '/' + val.slice(4);
+  else if (val.length >= 3) val = val.slice(0,2) + '/' + val.slice(2);
+  e.target.value = val;
+});
+
+function initEntrega() {
+  const agora = new Date();
+  document.getElementById("dataEntregaMat").value = agora.toISOString().split('T')[0];
+  document.getElementById("btnSalvarEntrega").onclick = salvarEntregaMaterial;
+  document.getElementById("btnImprimirRelEntrega").onclick = imprimirRelatorioEntrega;
+  document.getElementById("btnLimparEntrega").onclick = () => {
+    document.getElementById("materialEntrega").value = "";
+  };
+  const db = loadDB();
+  const sel = document.getElementById("funcEntregaMat");
+  if(sel){
+    const ativos = (db.funcionarios || []).filter(f => f.ativo !== false);
+    sel.innerHTML = ativos.map(f => `<option value="${f.nome}">${f.nome}</option>`).join("");
+    if (ativos.length > 0) {
+      // Cria as opções e adiciona uma instrução no topo
+      sel.innerHTML = '<option value="">-- Selecione um Funcionário --</option>' + 
+                      ativos.map(f => `<option value="${f.nome}">${f.nome}</option>`).join("");
+    } else {
+      sel.innerHTML = '<option value="">Nenhum funcionário ativo encontrado</option>';
+    }
+  }
+}
+
+async function salvarEntregaMaterial() {
+  const dados = {
+    id: makeId(),
+    data: document.getElementById("dataEntregaMat").value,
+    funcionario: document.getElementById("funcEntregaMat").value,
+    material: document.getElementById("materialEntrega").value,
+    quantidade: document.getElementById("qtdEntregaMat").value,
+    usuarioLogado: getCurrentUser()?.login
+  };
+  if(!dados.material) return alert("Informe o material.");
+  const db = loadDB();
+  if(!db.entregas) db.entregas = [];
+  db.entregas.push(dados);
+  saveDB(db);
+  try { await sendKind("entrega", { entrega: dados }); } catch(e) {}
+  alert("Salvo com sucesso!");
+}
+
+function imprimirRelatorioEntrega() {
+  const db = loadDB();
+  const entregas = db.entregas || [];
+  const nome = document.getElementById("filtroNomeEntrega").value.toLowerCase();
+  const d1 = document.getElementById("filtroDataInicio").value;
+  const d2 = document.getElementById("filtroDataFim").value;
+  const filtrados = entregas.filter(e => {
+    const batNome = e.funcionario.toLowerCase().includes(nome);
+    const batData = (!d1 || e.data >= d1) && (!d2 || e.data <= d2);
+    return batNome && batData;
+  });
+  let h = `<h3>Relatório de Entrega</h3><table border="1" style="width:100%; border-collapse:collapse"><tr><th>Data</th><th>Func.</th><th>Mat.</th><th>Qtd</th></tr>`;
+  filtrados.forEach(e => { h += `<tr><td>${formatDateDisplay(e.data)}</td><td>${e.funcionario}</td><td>${e.material}</td><td>${e.quantidade}</td></tr>`; });
+  h += `</table>`;
+  const pb = document.getElementById("printBody");
+  pb.innerHTML = h;
+  document.getElementById("printArea").style.display = "block";
+  window.print();
+  document.getElementById("printArea").style.display = "none";
 }
 
 boot();
