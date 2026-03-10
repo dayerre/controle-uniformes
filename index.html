@@ -2617,21 +2617,42 @@ function initEntrega() {
 }
 
 async function salvarEntregaMaterial() {
+  const elFunc = document.getElementById("funcEntregaMat");
+  const elMat = document.getElementById("materialEntrega");
+  const elQtd = document.getElementById("qtdEntregaMat");
+  const elData = document.getElementById("dataEntregaMat");
+
   const dados = {
     id: makeId(),
-    data: document.getElementById("dataEntregaMat").value,
-    funcionario: document.getElementById("funcEntregaMat").value,
-    material: document.getElementById("materialEntrega").value,
-    quantidade: document.getElementById("qtdEntregaMat").value,
+    data: elData.value,
+    funcionario: elFunc.value,
+    material: elMat.value,
+    quantidade: elQtd.value,
     usuarioLogado: getCurrentUser()?.login
   };
+
   if(!dados.material) return alert("Informe o material.");
+  if(!dados.funcionario) return alert("Selecione um funcionário.");
+
   const db = loadDB();
   if(!db.entregas) db.entregas = [];
   db.entregas.push(dados);
   saveDB(db);
-  try { await sendKind("entrega", { entrega: dados }); } catch(e) {}
+
+  try { 
+    await sendKind("entrega", { entrega: dados }); 
+  } catch(e) {
+    console.error("Erro ao enviar para o Sheets:", e);
+  }
+
   alert("Salvo com sucesso!");
+
+  // --- LIMPEZA DOS CAMPOS ---
+  elFunc.value = "";       // Volta para o "Selecione"
+  elMat.value = "";        // Limpa o texto do material
+  elQtd.value = 1;         // Reseta quantidade para 1
+  const agora = new Date(); 
+  elData.value = agora.toISOString().split('T')[0]; // Reseta para data atual
 }
 
 function imprimirRelatorioEntrega() {
