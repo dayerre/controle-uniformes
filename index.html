@@ -5,7 +5,6 @@
   <link rel="icon" href="data:,">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Controle de Uniformes</title>
-
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
@@ -27,7 +26,7 @@
       --info:#1d4ed8;
     }
 
-    * { box-sizing:border-box; }
+    *{ box-sizing:border-box; }
 
     body{
       margin:0;
@@ -100,25 +99,10 @@
       line-height:1;
     }
 
-    .status-badge.ok{
-      color:var(--ok);
-      background:rgba(5,150,105,.1);
-    }
-
-    .status-badge.err{
-      color:var(--danger);
-      background:rgba(185,28,28,.1);
-    }
-
-    .status-badge.warn{
-      color:var(--warn);
-      background:rgba(180,83,9,.1);
-    }
-
-    .status-badge.info{
-      color:var(--info);
-      background:rgba(29,78,216,.10);
-    }
+    .status-badge.ok{ color:var(--ok); background:rgba(5,150,105,.1); }
+    .status-badge.err{ color:var(--danger); background:rgba(185,28,28,.1); }
+    .status-badge.warn{ color:var(--warn); background:rgba(180,83,9,.1); }
+    .status-badge.info{ color:var(--info); background:rgba(29,78,216,.10); }
 
     .main-layout{
       display:flex;
@@ -199,12 +183,6 @@
     .grid-3{
       display:grid;
       grid-template-columns:repeat(3,1fr);
-      gap:20px;
-    }
-
-    .grid-4{
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
       gap:20px;
     }
 
@@ -363,10 +341,7 @@
       text-align:center;
     }
 
-    .tab-content{
-      display:none;
-    }
-
+    .tab-content{ display:none; }
     .tab-content.active{
       display:block;
       animation:fadeIn .3s;
@@ -400,18 +375,10 @@
       to{ opacity:1; transform:translateY(0); }
     }
 
-    @media (max-width: 980px){
-      .grid-2,.grid-3,.grid-4{
-        grid-template-columns:1fr;
-      }
-
-      .sidebar{
-        display:none;
-      }
-
-      .content{
-        padding:16px;
-      }
+    @media (max-width:980px){
+      .grid-2,.grid-3{ grid-template-columns:1fr; }
+      .sidebar{ display:none; }
+      .content{ padding:16px; }
     }
   </style>
 </head>
@@ -488,7 +455,6 @@
     </aside>
 
     <main class="content">
-
       <div id="tab-movements" class="tab-content active">
         <div class="card">
           <div class="card-title"><i class="fas fa-plus-circle"></i> Novo Lançamento</div>
@@ -790,6 +756,7 @@
             <button class="btn-primary" onclick="saveCatalog()" style="max-width:320px;">Salvar Alterações do Catálogo</button>
           </div>
         </div>
+
         <div class="card">
           <div class="card-title"><i class="fas fa-user-plus"></i> Cadastro de Funcionários</div>
           <p class="section-text">Cadastre, visualize e exclua funcionários diretamente por nome.</p>
@@ -812,15 +779,13 @@
             </table>
           </div>
         </div>
-
       </div>
 
     </main>
   </div>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbxhsG733sWgDZFK-APpc2QW3JtLKSpnZEaeeT7OW6Nlm1lm9KDGuVpQh7pKiVTAxBNj4w/exec";
-
+    const API_URL = "https://script.google.com/macros/s/AKfycbzef2t-ivoNG_Hu5ACUby0VStJ4ald49HU6W-2sL2ixDKfJZpEz3cfvw5PKAKeLP-lkzQ/exec";
     const DB_KEY = "almox_db_v2";
     const USER_KEY = "almox_session_v2";
     const CATALOG_KEY = "almox_catalog_v2";
@@ -870,10 +835,7 @@
 
       document.getElementById("view-login").style.display = "none";
       document.getElementById("user-name").innerText = u.name || u.login || "Usuário";
-
-      const navAdmin = document.getElementById("nav-admin");
-      navAdmin.style.display = u.isDev ? "flex" : "none";
-
+      document.getElementById("nav-admin").style.display = u.isDev ? "flex" : "none";
       return true;
     }
 
@@ -894,13 +856,8 @@
 
     function parseDateSafe(value) {
       if (!value) return null;
-
       const s = String(value).trim();
-
-      if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
-        return new Date(s + "T00:00:00");
-      }
-
+      if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return new Date(s + "T00:00:00");
       const dt = new Date(s);
       return isNaN(dt.getTime()) ? null : dt;
     }
@@ -908,11 +865,10 @@
     function formatDateDisplay(value) {
       const d = parseDateSafe(value);
       if (!d) return "-";
-
       const dd = String(d.getDate()).padStart(2, "0");
       const mm = String(d.getMonth() + 1).padStart(2, "0");
       const yy = d.getFullYear();
-      return `${dd}/${mm}/${yy}`;
+      return dd + "/" + mm + "/" + yy;
     }
 
     function dateToISO(value) {
@@ -921,7 +877,7 @@
       const dd = String(d.getDate()).padStart(2, "0");
       const mm = String(d.getMonth() + 1).padStart(2, "0");
       const yy = d.getFullYear();
-      return `${yy}-${mm}-${dd}`;
+      return yy + "-" + mm + "-" + dd;
     }
 
     function todayISO() {
@@ -933,18 +889,10 @@
     function makeId() {
       return "ID" + Math.random().toString(36).slice(2, 10).toUpperCase();
     }
-
     function onlyActiveFuncionarios() {
       const db = loadDB();
       return (db.funcionarios || [])
         .filter(f => f && f.nome && f.ativo)
-        .sort((a, b) => String(a.nome).localeCompare(String(b.nome)));
-    }
-
-    function allFuncionarios() {
-      const db = loadDB();
-      return (db.funcionarios || [])
-        .filter(f => f && f.nome)
         .sort((a, b) => String(a.nome).localeCompare(String(b.nome)));
     }
 
@@ -962,26 +910,17 @@
         window[callbackName] = function(data) {
           try { delete window[callbackName]; } catch (e) {}
 
-          if (script.parentNode) {
-            script.parentNode.removeChild(script);
-          }
+          if (script.parentNode) script.parentNode.removeChild(script);
 
-          if (data && data.ok) {
-            resolve(data);
-          } else {
-            reject(new Error(data && data.error ? data.error : "Erro desconhecido"));
-          }
+          if (data && data.ok) resolve(data);
+          else reject(new Error(data && data.error ? data.error : "Erro desconhecido"));
         };
 
         script.src = url.toString() + (url.toString().includes("?") ? "&" : "?") + "callback=" + callbackName;
 
         script.onerror = function() {
           try { delete window[callbackName]; } catch (e) {}
-
-          if (script.parentNode) {
-            script.parentNode.removeChild(script);
-          }
-
+          if (script.parentNode) script.parentNode.removeChild(script);
           reject(new Error("Falha de comunicação com a API."));
         };
 
@@ -992,7 +931,6 @@
     async function sendKind(kind, payload) {
       const user = getCurrentUser();
       if (!user) throw new Error("Sessão inválida.");
-
       payload.actorLogin = user.login;
       payload.actorPin = user.pin;
 
@@ -1091,11 +1029,11 @@
       const catalog = loadCatalog();
 
       const optionsFunc = ['<option value="">-- Selecione --</option>']
-        .concat(ativos.map(f => `<option value="${escapeHtml(f.nome)}">${escapeHtml(f.nome)}</option>`))
+        .concat(ativos.map(f => '<option value="' + escapeHtml(f.nome) + '">' + escapeHtml(f.nome) + '</option>'))
         .join("");
 
       const optionsFuncAll = ['<option value="__TODOS__">Todos os funcionários</option>']
-        .concat(ativos.map(f => `<option value="${escapeHtml(f.nome)}">${escapeHtml(f.nome)}</option>`))
+        .concat(ativos.map(f => '<option value="' + escapeHtml(f.nome) + '">' + escapeHtml(f.nome) + '</option>'))
         .join("");
 
       document.getElementById("mov-func").innerHTML = optionsFunc;
@@ -1106,7 +1044,7 @@
 
       const catsAtivas = (catalog || []).filter(c => c.ativo && c.categoria);
       const htmlCats = ['<option value="">-- Selecione --</option>']
-        .concat(catsAtivas.map(c => `<option value="${escapeHtml(c.categoria)}">${escapeHtml(c.categoria)}</option>`))
+        .concat(catsAtivas.map(c => '<option value="' + escapeHtml(c.categoria) + '">' + escapeHtml(c.categoria) + '</option>'))
         .join("");
 
       const selCat = document.getElementById("mov-cat");
@@ -1121,12 +1059,13 @@
         const tamanhos = item && Array.isArray(item.tamanhos) ? item.tamanhos : [];
 
         const htmlTams = ['<option value="">-- Selecione --</option>']
-          .concat(tamanhos.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`))
+          .concat(tamanhos.map(t => '<option value="' + escapeHtml(t) + '">' + escapeHtml(t) + '</option>'))
           .join("");
 
         selTam.innerHTML = htmlTams;
       };
     }
+
     function resetMovimentoForm() {
       document.getElementById("mov-tipo").value = "ENTRADA";
       document.getElementById("mov-data").value = todayISO();
@@ -1237,7 +1176,6 @@
       const input = document.getElementById("dataEntregaMat");
       if (input && !input.value) input.value = todayISO();
     }
-
     function initRelatorios() {
       const termoData = document.getElementById("termo-data");
       if (termoData && !termoData.value) termoData.value = todayISO();
@@ -1247,11 +1185,7 @@
 
       const tbody = document.querySelector("#table-report-preview tbody");
       if (tbody && !tbody.dataset.ready) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="5" class="muted">Selecione um relatório para visualizar os dados.</td>
-          </tr>
-        `;
+        tbody.innerHTML = '<tr><td colspan="5" class="muted">Selecione um relatório para visualizar os dados.</td></tr>';
         tbody.dataset.ready = "1";
       }
 
@@ -1291,23 +1225,19 @@
       const tbody = document.querySelector("#table-report-preview tbody");
 
       if (!dados.length) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="5" class="muted">Nenhuma movimentação encontrada para os filtros informados.</td>
-          </tr>
-        `;
+        tbody.innerHTML = '<tr><td colspan="5" class="muted">Nenhuma movimentação encontrada para os filtros informados.</td></tr>';
         return;
       }
 
-      tbody.innerHTML = dados.map(m => `
-        <tr>
-          <td>${escapeHtml(formatDateDisplay(m.data))}</td>
-          <td>${escapeHtml(m.tipo || "")}</td>
-          <td>${escapeHtml(m.funcionarioNome || "")}</td>
-          <td>${escapeHtml((m.categoria || "") + " / " + (m.tamanho || "") + " / " + (m.estado || ""))}</td>
-          <td>${escapeHtml(m.quantidade || 0)}</td>
-        </tr>
-      `).join("");
+      tbody.innerHTML = dados.map(m =>
+        '<tr>' +
+          '<td>' + escapeHtml(formatDateDisplay(m.data)) + '</td>' +
+          '<td>' + escapeHtml(m.tipo || "") + '</td>' +
+          '<td>' + escapeHtml(m.funcionarioNome || "") + '</td>' +
+          '<td>' + escapeHtml((m.categoria || "") + " / " + (m.tamanho || "") + " / " + (m.estado || "")) + '</td>' +
+          '<td>' + escapeHtml(m.quantidade || 0) + '</td>' +
+        '</tr>'
+      ).join("");
     }
 
     function imprimirRelatorioMovimentacoes() {
@@ -1323,53 +1253,34 @@
         ? "Relatório de Movimentações - " + funcionario
         : "Relatório de Movimentações - Todos os funcionários";
 
-      const html = `
-        <html>
-          <head>
-            <title>${escapeHtml(titulo)}</title>
-            <style>
-              body{font-family:Arial,sans-serif;padding:24px;color:#111;}
-              h2{text-align:center;margin-bottom:8px;}
-              p{text-align:center;color:#555;margin-top:0;margin-bottom:20px;}
-              table{width:100%;border-collapse:collapse;}
-              th,td{border:1px solid #ccc;padding:8px;font-size:12px;text-align:left;}
-              th{background:#f1f1f1;}
-            </style>
-          </head>
-          <body>
-            <h2>${escapeHtml(titulo)}</h2>
-            <p>Emitido em ${escapeHtml(formatDateDisplay(todayISO()))}</p>
-            <table>
-              <thead>
-                <tr>
-                  <th>Data</th>
-                  <th>Tipo</th>
-                  <th>Funcionário</th>
-                  <th>Categoria</th>
-                  <th>Tamanho</th>
-                  <th>Estado</th>
-                  <th>Qtd</th>
-                  <th>Motivo</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${dados.map(m => `
-                  <tr>
-                    <td>${escapeHtml(formatDateDisplay(m.data))}</td>
-                    <td>${escapeHtml(m.tipo || "")}</td>
-                    <td>${escapeHtml(m.funcionarioNome || "")}</td>
-                    <td>${escapeHtml(m.categoria || "")}</td>
-                    <td>${escapeHtml(m.tamanho || "")}</td>
-                    <td>${escapeHtml(m.estado || "")}</td>
-                    <td>${escapeHtml(m.quantidade || 0)}</td>
-                    <td>${escapeHtml(m.motivo || "")}</td>
-                  </tr>
-                `).join("")}
-              </tbody>
-            </table>
-          </body>
-        </html>
-      `;
+      const html =
+        '<html><head><title>' + escapeHtml(titulo) + '</title>' +
+        '<style>' +
+        'body{font-family:Arial,sans-serif;padding:24px;color:#111;}' +
+        'h2{text-align:center;margin-bottom:8px;}' +
+        'p{text-align:center;color:#555;margin-top:0;margin-bottom:20px;}' +
+        'table{width:100%;border-collapse:collapse;}' +
+        'th,td{border:1px solid #ccc;padding:8px;font-size:12px;text-align:left;}' +
+        'th{background:#f1f1f1;}' +
+        '</style></head><body>' +
+        '<h2>' + escapeHtml(titulo) + '</h2>' +
+        '<p>Emitido em ' + escapeHtml(formatDateDisplay(todayISO())) + '</p>' +
+        '<table><thead><tr>' +
+        '<th>Data</th><th>Tipo</th><th>Funcionário</th><th>Categoria</th><th>Tamanho</th><th>Estado</th><th>Qtd</th><th>Motivo</th>' +
+        '</tr></thead><tbody>' +
+        dados.map(m =>
+          '<tr>' +
+            '<td>' + escapeHtml(formatDateDisplay(m.data)) + '</td>' +
+            '<td>' + escapeHtml(m.tipo || "") + '</td>' +
+            '<td>' + escapeHtml(m.funcionarioNome || "") + '</td>' +
+            '<td>' + escapeHtml(m.categoria || "") + '</td>' +
+            '<td>' + escapeHtml(m.tamanho || "") + '</td>' +
+            '<td>' + escapeHtml(m.estado || "") + '</td>' +
+            '<td>' + escapeHtml(m.quantidade || 0) + '</td>' +
+            '<td>' + escapeHtml(m.motivo || "") + '</td>' +
+          '</tr>'
+        ).join("") +
+        '</tbody></table></body></html>';
 
       const win = window.open("", "_blank");
       win.document.write(html);
@@ -1382,23 +1293,19 @@
       const tbody = document.querySelector("#table-report-preview tbody");
 
       if (!dados.length) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="5" class="muted">Nenhuma entrega encontrada para os filtros informados.</td>
-          </tr>
-        `;
+        tbody.innerHTML = '<tr><td colspan="5" class="muted">Nenhuma entrega encontrada para os filtros informados.</td></tr>';
         return;
       }
 
-      tbody.innerHTML = dados.map(e => `
-        <tr>
-          <td>${escapeHtml(formatDateDisplay(e.data))}</td>
-          <td>ENTREGA</td>
-          <td>${escapeHtml(e.funcionario || "")}</td>
-          <td>${escapeHtml(e.material || "")}</td>
-          <td>${escapeHtml(e.quantidade || 0)}</td>
-        </tr>
-      `).join("");
+      tbody.innerHTML = dados.map(e =>
+        '<tr>' +
+          '<td>' + escapeHtml(formatDateDisplay(e.data)) + '</td>' +
+          '<td>ENTREGA</td>' +
+          '<td>' + escapeHtml(e.funcionario || "") + '</td>' +
+          '<td>' + escapeHtml(e.material || "") + '</td>' +
+          '<td>' + escapeHtml(e.quantidade || 0) + '</td>' +
+        '</tr>'
+      ).join("");
     }
 
     function imprimirRelatorioEntrega() {
@@ -1414,45 +1321,30 @@
         ? "Relatório de Entregas - " + funcionario
         : "Relatório de Entregas - Todos os funcionários";
 
-      const html = `
-        <html>
-          <head>
-            <title>${escapeHtml(titulo)}</title>
-            <style>
-              body{font-family:Arial,sans-serif;padding:24px;color:#111;}
-              h2{text-align:center;margin-bottom:8px;}
-              p{text-align:center;color:#555;margin-top:0;margin-bottom:20px;}
-              table{width:100%;border-collapse:collapse;}
-              th,td{border:1px solid #ccc;padding:8px;font-size:12px;text-align:left;}
-              th{background:#f1f1f1;}
-            </style>
-          </head>
-          <body>
-            <h2>${escapeHtml(titulo)}</h2>
-            <p>Emitido em ${escapeHtml(formatDateDisplay(todayISO()))}</p>
-            <table>
-              <thead>
-                <tr>
-                  <th>Data</th>
-                  <th>Funcionário</th>
-                  <th>Material</th>
-                  <th>Quantidade</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${dados.map(e => `
-                  <tr>
-                    <td>${escapeHtml(formatDateDisplay(e.data))}</td>
-                    <td>${escapeHtml(e.funcionario || "")}</td>
-                    <td>${escapeHtml(e.material || "")}</td>
-                    <td>${escapeHtml(e.quantidade || 0)}</td>
-                  </tr>
-                `).join("")}
-              </tbody>
-            </table>
-          </body>
-        </html>
-      `;
+      const html =
+        '<html><head><title>' + escapeHtml(titulo) + '</title>' +
+        '<style>' +
+        'body{font-family:Arial,sans-serif;padding:24px;color:#111;}' +
+        'h2{text-align:center;margin-bottom:8px;}' +
+        'p{text-align:center;color:#555;margin-top:0;margin-bottom:20px;}' +
+        'table{width:100%;border-collapse:collapse;}' +
+        'th,td{border:1px solid #ccc;padding:8px;font-size:12px;text-align:left;}' +
+        'th{background:#f1f1f1;}' +
+        '</style></head><body>' +
+        '<h2>' + escapeHtml(titulo) + '</h2>' +
+        '<p>Emitido em ' + escapeHtml(formatDateDisplay(todayISO())) + '</p>' +
+        '<table><thead><tr>' +
+        '<th>Data</th><th>Funcionário</th><th>Material</th><th>Quantidade</th>' +
+        '</tr></thead><tbody>' +
+        dados.map(e =>
+          '<tr>' +
+            '<td>' + escapeHtml(formatDateDisplay(e.data)) + '</td>' +
+            '<td>' + escapeHtml(e.funcionario || "") + '</td>' +
+            '<td>' + escapeHtml(e.material || "") + '</td>' +
+            '<td>' + escapeHtml(e.quantidade || 0) + '</td>' +
+          '</tr>'
+        ).join("") +
+        '</tbody></table></body></html>';
 
       const win = window.open("", "_blank");
       win.document.write(html);
@@ -1465,15 +1357,17 @@
       const movs = (db.movimentos || [])
         .filter(m => String(m.funcionarioNome || "") === String(nome || ""))
         .sort((a, b) => {
-          const ka = `${a.data || ""}|${a.id || ""}`;
-          const kb = `${b.data || ""}|${b.id || ""}`;
+          const ka = String(a.data || "") + "|" + String(a.id || "");
+          const kb = String(b.data || "") + "|" + String(b.id || "");
           return kb.localeCompare(ka);
         });
 
       return movs.length ? movs[0] : null;
     }
 
-    function prepararTermoRecebimento(showAlert = true) {
+    function prepararTermoRecebimento(showAlert) {
+      if (showAlert === undefined) showAlert = true;
+
       const funcionario = document.getElementById("termo-funcionario").value;
       const campo = document.getElementById("termo-ultimo-item");
 
@@ -1490,7 +1384,7 @@
         return null;
       }
 
-      campo.value = `${ult.categoria || ""} - Tam. ${ult.tamanho || ""} - Qtd ${ult.quantidade || 0} - ${ult.estado || ""}`;
+      campo.value = (ult.categoria || "") + " - Tam. " + (ult.tamanho || "") + " - Qtd " + (ult.quantidade || 0) + " - " + (ult.estado || "");
       return ult;
     }
 
@@ -1501,51 +1395,32 @@
 
       if (!funcionario || !ult) return;
 
-      const descricao = `${ult.categoria || ""} / Tamanho ${ult.tamanho || ""} / Quantidade ${ult.quantidade || 0} / Estado ${ult.estado || ""}`;
+      const descricao = (ult.categoria || "") + " / Tamanho " + (ult.tamanho || "") + " / Quantidade " + (ult.quantidade || 0) + " / Estado " + (ult.estado || "");
 
-      const html = `
-        <html>
-          <head>
-            <title>Termo de Recebimento de Uniforme</title>
-            <style>
-              body{font-family:Arial,sans-serif;padding:34px;color:#111;line-height:1.6;}
-              h2{text-align:center;margin-bottom:24px;}
-              .texto{font-size:14px;text-align:justify;}
-              .bloco{margin-top:20px;}
-              .assinatura{margin-top:70px;display:flex;justify-content:space-between;gap:40px;}
-              .linha{border-top:1px solid #000;padding-top:8px;width:45%;text-align:center;font-size:13px;}
-              .caixa{margin-top:18px;padding:12px;border:1px solid #ccc;background:#fafafa;}
-            </style>
-          </head>
-          <body>
-            <h2>TERMO DE RECEBIMENTO DE UNIFORME</h2>
-
-            <div class="texto">
-              <p>
-                Eu, <strong>${escapeHtml(funcionario)}</strong>, recebi da empresa:
-                <strong>INTERCOL SERVIÇOS DE INTERNET LTDA</strong>,
-                CNPJ: <strong>03.879.067/0001-36</strong>, os uniformes relacionados nesta ficha,
-                declaro tê-los recebidos gratuitamente e em perfeito estado de conservação.
-                Comprometo-me a utilizá-los diariamente durante toda a jornada de trabalho,
-                responsabilizando-me pela guarda e conservação dos mesmos.
-                Autorizo desde já o desconto de seus respectivos valores em folha de pagamento/rescisão,
-                quando por extravio e/ou danificação por uso inadequado, conforme previsto no artigo 462 §1º da CLT.
-              </p>
-            </div>
-
-            <div class="caixa">
-              <strong>Data do termo:</strong> ${escapeHtml(formatDateDisplay(dataTermo))}<br>
-              <strong>Descrição do último lançamento:</strong> ${escapeHtml(descricao)}<br>
-              <strong>Motivo:</strong> ${escapeHtml(ult.motivo || "-")}
-            </div>
-
-            <div class="assinatura">
-              <div class="linha">Assinatura do funcionário</div>
-              <div class="linha">Responsável pela entrega</div>
-            </div>
-          </body>
-        </html>
-      `;
+      const html =
+        '<html><head><title>Termo de Recebimento de Uniforme</title>' +
+        '<style>' +
+        'body{font-family:Arial,sans-serif;padding:34px;color:#111;line-height:1.6;}' +
+        'h2{text-align:center;margin-bottom:24px;}' +
+        '.texto{font-size:14px;text-align:justify;}' +
+        '.assinatura{margin-top:70px;display:flex;justify-content:space-between;gap:40px;}' +
+        '.linha{border-top:1px solid #000;padding-top:8px;width:45%;text-align:center;font-size:13px;}' +
+        '.caixa{margin-top:18px;padding:12px;border:1px solid #ccc;background:#fafafa;}' +
+        '</style></head><body>' +
+        '<h2>TERMO DE RECEBIMENTO DE UNIFORME</h2>' +
+        '<div class="texto">' +
+        '<p>Eu, <strong>' + escapeHtml(funcionario) + '</strong>, recebi da empresa: <strong>INTERCOL SERVIÇOS DE INTERNET LTDA</strong>, CNPJ: <strong>03.879.067/0001-36</strong>, os uniformes relacionados nesta ficha, declaro tê-los recebidos gratuitamente e em perfeito estado de conservação. Comprometo-me a utilizá-los diariamente durante toda a jornada de trabalho, responsabilizando-me pela guarda e conservação dos mesmos. Autorizo desde já o desconto de seus respectivos valores em folha de pagamento/rescisão, quando por extravio e/ou danificação por uso inadequado, conforme previsto no artigo 462 §1º da CLT.</p>' +
+        '</div>' +
+        '<div class="caixa">' +
+        '<strong>Data do termo:</strong> ' + escapeHtml(formatDateDisplay(dataTermo)) + '<br>' +
+        '<strong>Descrição do último lançamento:</strong> ' + escapeHtml(descricao) + '<br>' +
+        '<strong>Motivo:</strong> ' + escapeHtml(ult.motivo || "-") +
+        '</div>' +
+        '<div class="assinatura">' +
+        '<div class="linha">Assinatura do funcionário</div>' +
+        '<div class="linha">Responsável pela entrega</div>' +
+        '</div>' +
+        '</body></html>';
 
       const win = window.open("", "_blank");
       win.document.write(html);
@@ -1582,10 +1457,10 @@
       document.getElementById("stat-entries").innerText = entradas;
       document.getElementById("stat-exits").innerText = saidas;
 
-      const recents = [...movs]
+      const recents = [].concat(movs)
         .sort((a, b) => {
-          const ka = `${a.data || ""}|${a.id || ""}`;
-          const kb = `${b.data || ""}|${b.id || ""}`;
+          const ka = String(a.data || "") + "|" + String(a.id || "");
+          const kb = String(b.data || "") + "|" + String(b.id || "");
           return kb.localeCompare(ka);
         })
         .slice(0, 10);
@@ -1593,20 +1468,20 @@
       const tbody = document.querySelector("#table-recent tbody");
 
       if (!recents.length) {
-        tbody.innerHTML = `<tr><td colspan="6" class="muted">Sem movimentações recentes.</td></tr>`;
+        tbody.innerHTML = '<tr><td colspan="6" class="muted">Sem movimentações recentes.</td></tr>';
         return;
       }
 
-      tbody.innerHTML = recents.map(m => `
-        <tr>
-          <td>${escapeHtml(formatDateDisplay(m.data))}</td>
-          <td><span class="badge ${m.tipo === "ENTRADA" ? "badge-in" : "badge-out"}">${escapeHtml(m.tipo)}</span></td>
-          <td>${escapeHtml(m.funcionarioNome || "")}</td>
-          <td>${escapeHtml(m.categoria || "")}</td>
-          <td>${escapeHtml(m.tamanho || "")}</td>
-          <td>${escapeHtml(m.quantidade || 0)}</td>
-        </tr>
-      `).join("");
+      tbody.innerHTML = recents.map(m =>
+        '<tr>' +
+          '<td>' + escapeHtml(formatDateDisplay(m.data)) + '</td>' +
+          '<td><span class="badge ' + (m.tipo === "ENTRADA" ? "badge-in" : "badge-out") + '">' + escapeHtml(m.tipo) + '</span></td>' +
+          '<td>' + escapeHtml(m.funcionarioNome || "") + '</td>' +
+          '<td>' + escapeHtml(m.categoria || "") + '</td>' +
+          '<td>' + escapeHtml(m.tamanho || "") + '</td>' +
+          '<td>' + escapeHtml(m.quantidade || 0) + '</td>' +
+        '</tr>'
+      ).join("");
     }
 
     function renderStock() {
@@ -1615,10 +1490,8 @@
       const stock = {};
 
       movs.forEach(m => {
-        const key = `${m.categoria || ""}||${m.tamanho || ""}`;
-        if (!stock[key]) {
-          stock[key] = { categoria: m.categoria || "", tamanho: m.tamanho || "", novo: 0, usado: 0 };
-        }
+        const key = String(m.categoria || "") + "||" + String(m.tamanho || "");
+        if (!stock[key]) stock[key] = { categoria: m.categoria || "", tamanho: m.tamanho || "", novo: 0, usado: 0 };
 
         const qtd = Number(m.quantidade || 0);
 
@@ -1631,34 +1504,33 @@
         }
       });
 
-      const rows = Object.values(stock)
-        .map(item => ({
-          ...item,
-          total: Number(item.novo || 0) + Number(item.usado || 0)
-        }))
-        .filter(item => item.total !== 0)
+      const rows = Object.keys(stock).map(k => {
+        const item = stock[k];
+        item.total = Number(item.novo || 0) + Number(item.usado || 0);
+        return item;
+      }).filter(item => item.total !== 0)
         .sort((a, b) => {
-          const ca = `${a.categoria}|${a.tamanho}`;
-          const cb = `${b.categoria}|${b.tamanho}`;
+          const ca = String(a.categoria || "") + "|" + String(a.tamanho || "");
+          const cb = String(b.categoria || "") + "|" + String(b.tamanho || "");
           return ca.localeCompare(cb);
         });
 
       const tbody = document.querySelector("#table-stock tbody");
 
       if (!rows.length) {
-        tbody.innerHTML = `<tr><td colspan="5" class="muted">Sem itens em estoque.</td></tr>`;
+        tbody.innerHTML = '<tr><td colspan="5" class="muted">Sem itens em estoque.</td></tr>';
         return;
       }
 
-      tbody.innerHTML = rows.map(item => `
-        <tr>
-          <td><strong>${escapeHtml(item.categoria)}</strong></td>
-          <td>${escapeHtml(item.tamanho)}</td>
-          <td>${escapeHtml(item.novo)}</td>
-          <td>${escapeHtml(item.usado)}</td>
-          <td><strong style="color:${item.total < 5 ? 'var(--danger)' : 'inherit'};">${escapeHtml(item.total)}</strong></td>
-        </tr>
-      `).join("");
+      tbody.innerHTML = rows.map(item =>
+        '<tr>' +
+          '<td><strong>' + escapeHtml(item.categoria) + '</strong></td>' +
+          '<td>' + escapeHtml(item.tamanho) + '</td>' +
+          '<td>' + escapeHtml(item.novo) + '</td>' +
+          '<td>' + escapeHtml(item.usado) + '</td>' +
+          '<td><strong style="color:' + (item.total < 5 ? 'var(--danger)' : 'inherit') + ';">' + escapeHtml(item.total) + '</strong></td>' +
+        '</tr>'
+      ).join("");
     }
 
     function exportStock() {
@@ -1671,10 +1543,9 @@
         return;
       }
 
-      const csv = [
-        ["Categoria", "Tamanho", "Novo", "Usado", "Total"],
-        ...rows
-      ].map(r => r.join(";")).join("\n");
+      const csv = [["Categoria", "Tamanho", "Novo", "Usado", "Total"]].concat(rows)
+        .map(r => r.join(";"))
+        .join("\n");
 
       const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
       const a = document.createElement("a");
@@ -1712,151 +1583,148 @@
       const host = document.getElementById("admin-user-list");
 
       if (!users.length) {
-        host.innerHTML = `<p class="muted">Nenhum usuário cadastrado.</p>`;
+        host.innerHTML = '<p class="muted">Nenhum usuário cadastrado.</p>';
         return;
       }
 
-      host.innerHTML = users.map(u => `
-        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 0; border-bottom:1px solid var(--line2); flex-wrap:wrap;">
-          <div>
-            <div style="font-weight:700;">${escapeHtml(u.name || "")}</div>
-            <div style="font-size:.8rem; color:var(--muted);">${escapeHtml(u.login || "")}</div>
-            <div style="font-size:.75rem; color:var(--muted); margin-top:4px;">
-              ${u.canEdit ? "Editor" : "Visualizador"} · ${u.active ? "Ativo" : "Bloqueado"}
-            </div>
-          </div>
-
-          <div class="inline-actions">
-            <button class="btn-secondary" onclick="adminToggleUser('${escapeHtml(u.login)}')">${u.active ? "Bloquear" : "Ativar"}</button>
-            <button class="btn-secondary" onclick="adminResetPinPrompt('${escapeHtml(u.login)}')">Reset PIN</button>
-            <button class="btn-danger" onclick="adminRemoveUser('${escapeHtml(u.login)}')">Excluir</button>
-          </div>
-        </div>
-      `).join("");
+      host.innerHTML = users.map(u =>
+        '<div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 0; border-bottom:1px solid var(--line2); flex-wrap:wrap;">' +
+          '<div>' +
+            '<div style="font-weight:700;">' + escapeHtml(u.name || "") + '</div>' +
+            '<div style="font-size:.8rem; color:var(--muted);">' + escapeHtml(u.login || "") + '</div>' +
+            '<div style="font-size:.75rem; color:var(--muted); margin-top:4px;">' + (u.canEdit ? "Editor" : "Visualizador") + ' · ' + (u.active ? "Ativo" : "Bloqueado") + '</div>' +
+          '</div>' +
+          '<div class="inline-actions">' +
+            '<button class="btn-secondary" onclick="adminToggleUser(\'' + escapeJs(u.login || "") + '\')">' + (u.active ? "Bloquear" : "Ativar") + '</button>' +
+            '<button class="btn-secondary" onclick="adminResetPinPrompt(\'' + escapeJs(u.login || "") + '\')">Reset PIN</button>' +
+            '<button class="btn-danger" onclick="adminRemoveUser(\'' + escapeJs(u.login || "") + '\')">Excluir</button>' +
+          '</div>' +
+        '</div>'
+      ).join("");
     }
 
-<script>
-async function adminCreateUser() {
-  const user = getCurrentUser();
-  const name = document.getElementById("new-user-name").value.trim();
-  const login = document.getElementById("new-user-login").value.trim();
-  const pin = document.getElementById("new-user-pin").value.trim();
+    function escapeJs(text) {
+      return String(text || "").replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+    }
 
-  if (!user || !user.isDev) {
-    alert("Apenas administrador pode cadastrar usuários.");
-    return;
-  }
+    async function adminCreateUser() {
+      const user = getCurrentUser();
+      const name = document.getElementById("new-user-name").value.trim();
+      const login = document.getElementById("new-user-login").value.trim();
+      const pin = document.getElementById("new-user-pin").value.trim();
 
-  if (!name || !login || !pin) {
-    alert("Preencha nome, login e PIN.");
-    return;
-  }
+      if (!user || !user.isDev) {
+        alert("Apenas administrador pode cadastrar usuários.");
+        return;
+      }
 
-  if (!/^\d{6}$/.test(pin)) {
-    alert("O PIN deve ter 6 dígitos.");
-    return;
-  }
+      if (!name || !login || !pin) {
+        alert("Preencha nome, login e PIN.");
+        return;
+      }
 
-  try {
-    await api({
-      action: "createUser",
-      name: name,
-      login: login,
-      pin: pin,
-      devLogin: user.login,
-      devPin: user.pin
-    });
+      if (!/^\d{6}$/.test(pin)) {
+        alert("O PIN deve ter 6 dígitos.");
+        return;
+      }
 
-    alert("Usuário cadastrado com sucesso.");
-    document.getElementById("new-user-name").value = "";
-    document.getElementById("new-user-login").value = "";
-    document.getElementById("new-user-pin").value = "";
-    await adminLoadData();
-  } catch (e) {
-    alert("Erro ao criar usuário: " + e.message);
-  }
-}
+      try {
+        await api({
+          action: "createUser",
+          name: name,
+          login: login,
+          pin: pin,
+          devLogin: user.login,
+          devPin: user.pin
+        });
 
-async function adminToggleUser(login) {
-  const user = getCurrentUser();
+        alert("Usuário cadastrado com sucesso.");
+        document.getElementById("new-user-name").value = "";
+        document.getElementById("new-user-login").value = "";
+        document.getElementById("new-user-pin").value = "";
+        await adminLoadData();
+      } catch (e) {
+        alert("Erro ao criar usuário: " + e.message);
+      }
+    }
 
-  if (!user || !user.isDev) {
-    alert("Apenas administrador pode alterar usuários.");
-    return;
-  }
+    async function adminToggleUser(login) {
+      const user = getCurrentUser();
 
-  try {
-    await api({
-      action: "toggleUser",
-      login: login,
-      devLogin: user.login,
-      devPin: user.pin
-    });
+      if (!user || !user.isDev) {
+        alert("Apenas administrador pode alterar usuários.");
+        return;
+      }
 
-    await adminLoadData();
-  } catch (e) {
-    alert("Erro ao alterar usuário: " + e.message);
-  }
-}
+      try {
+        await api({
+          action: "toggleUser",
+          login: login,
+          devLogin: user.login,
+          devPin: user.pin
+        });
 
-async function adminResetPinPrompt(login) {
-  const user = getCurrentUser();
+        await adminLoadData();
+      } catch (e) {
+        alert("Erro ao alterar usuário: " + e.message);
+      }
+    }
 
-  if (!user || !user.isDev) {
-    alert("Apenas administrador pode redefinir PIN.");
-    return;
-  }
+    async function adminResetPinPrompt(login) {
+      const user = getCurrentUser();
 
-  const novoPin = prompt("Informe o novo PIN de 6 dígitos para " + login + ":");
-  if (!novoPin) return;
+      if (!user || !user.isDev) {
+        alert("Apenas administrador pode redefinir PIN.");
+        return;
+      }
 
-  if (!/^\d{6}$/.test(String(novoPin).trim())) {
-    alert("PIN inválido.");
-    return;
-  }
+      const novoPin = prompt("Informe o novo PIN de 6 dígitos para " + login + ":");
+      if (!novoPin) return;
 
-  try {
-    await api({
-      action: "resetPin",
-      login: login,
-      pin: String(novoPin).trim(),
-      devLogin: user.login,
-      devPin: user.pin
-    });
+      if (!/^\d{6}$/.test(String(novoPin).trim())) {
+        alert("PIN inválido.");
+        return;
+      }
 
-    alert("PIN redefinido com sucesso.");
-  } catch (e) {
-    alert("Erro ao redefinir PIN: " + e.message);
-  }
-}
+      try {
+        await api({
+          action: "resetPin",
+          login: login,
+          pin: String(novoPin).trim(),
+          devLogin: user.login,
+          devPin: user.pin
+        });
 
-async function adminRemoveUser(login) {
-  const user = getCurrentUser();
+        alert("PIN redefinido com sucesso.");
+      } catch (e) {
+        alert("Erro ao redefinir PIN: " + e.message);
+      }
+    }
 
-  if (!user || !user.isDev) {
-    alert("Apenas administrador pode excluir usuários.");
-    return;
-  }
+    async function adminRemoveUser(login) {
+      const user = getCurrentUser();
 
-  if (!confirm("Deseja realmente excluir este usuário?\n\n" + login)) return;
+      if (!user || !user.isDev) {
+        alert("Apenas administrador pode excluir usuários.");
+        return;
+      }
 
-  try {
-    await api({
-      action: "removeUser",
-      login: login,
-      devLogin: user.login,
-      devPin: user.pin
-    });
+      if (!confirm("Deseja realmente excluir este usuário?\n\n" + login)) return;
 
-    alert("Usuário excluído com sucesso.");
-    await adminLoadData();
-  } catch (e) {
-    alert("Erro ao excluir usuário: " + e.message);
-  }
-}
-</script>
+      try {
+        await api({
+          action: "removeUser",
+          login: login,
+          devLogin: user.login,
+          devPin: user.pin
+        });
 
-
+        alert("Usuário excluído com sucesso.");
+        await adminLoadData();
+      } catch (e) {
+        alert("Erro ao excluir usuário: " + e.message);
+      }
+    }
     function renderCatalogEditor(catalog) {
       const host = document.getElementById("catalog-editor-list");
 
@@ -1865,16 +1733,16 @@ async function adminRemoveUser(login) {
         return;
       }
 
-      host.innerHTML = catalog.map((c, idx) => `
-        <div class="grid-3" data-cat-row="${idx}" style="margin-bottom:10px; background:var(--panel2); padding:10px; border-radius:8px;">
-          <input type="text" class="form-control cat-name" value="${escapeHtml(c.categoria || "")}" placeholder="Categoria">
-          <input type="text" class="form-control cat-tams" value="${escapeHtml((c.tamanhos || []).join(","))}" placeholder="Tamanhos P,M,G">
-          <select class="form-control cat-ativo">
-            <option value="1" ${c.ativo ? "selected" : ""}>Ativo</option>
-            <option value="0" ${!c.ativo ? "selected" : ""}>Inativo</option>
-          </select>
-        </div>
-      `).join("");
+      host.innerHTML = catalog.map((c, idx) =>
+        '<div class="grid-3" data-cat-row="' + idx + '" style="margin-bottom:10px; background:var(--panel2); padding:10px; border-radius:8px;">' +
+          '<input type="text" class="form-control cat-name" value="' + escapeHtml(c.categoria || "") + '" placeholder="Categoria">' +
+          '<input type="text" class="form-control cat-tams" value="' + escapeHtml((c.tamanhos || []).join(",")) + '" placeholder="Tamanhos P,M,G">' +
+          '<select class="form-control cat-ativo">' +
+            '<option value="1"' + (c.ativo ? ' selected' : '') + '>Ativo</option>' +
+            '<option value="0"' + (!c.ativo ? ' selected' : '') + '>Inativo</option>' +
+          '</select>' +
+        '</div>'
+      ).join("");
     }
 
     function addCatalogRow() {
@@ -1885,14 +1753,14 @@ async function adminRemoveUser(login) {
       div.style.background = "var(--panel2)";
       div.style.padding = "10px";
       div.style.borderRadius = "8px";
-      div.innerHTML = `
-        <input type="text" class="form-control cat-name" placeholder="Categoria">
-        <input type="text" class="form-control cat-tams" placeholder="Tamanhos P,M,G">
-        <select class="form-control cat-ativo">
-          <option value="1">Ativo</option>
-          <option value="0">Inativo</option>
-        </select>
-      `;
+      div.innerHTML =
+        '<input type="text" class="form-control cat-name" placeholder="Categoria">' +
+        '<input type="text" class="form-control cat-tams" placeholder="Tamanhos P,M,G">' +
+        '<select class="form-control cat-ativo">' +
+          '<option value="1">Ativo</option>' +
+          '<option value="0">Inativo</option>' +
+        '</select>';
+
       host.appendChild(div);
     }
 
@@ -1902,24 +1770,21 @@ async function adminRemoveUser(login) {
 
       rows.forEach(r => {
         const categoria = r.querySelector(".cat-name").value.trim();
-        const tamanhos = r.querySelector(".cat-tams").value
-          .split(",")
-          .map(s => s.trim())
-          .filter(Boolean);
+        const tamanhos = r.querySelector(".cat-tams").value.split(",").map(s => s.trim()).filter(Boolean);
         const ativo = r.querySelector(".cat-ativo").value === "1";
 
         if (categoria) {
           catalog.push({
             itemId: makeId(),
-            categoria,
-            tamanhos,
-            ativo
+            categoria: categoria,
+            tamanhos: tamanhos,
+            ativo: ativo
           });
         }
       });
 
       try {
-        await sendKind("catalogo", { catalog });
+        await sendKind("catalogo", { catalog: catalog });
         saveCatalogLocal(catalog);
         populateSelects();
         alert("Catálogo atualizado com sucesso.");
@@ -1933,26 +1798,20 @@ async function adminRemoveUser(login) {
       const rows = (funcs || []).slice().sort((a, b) => String(a.nome).localeCompare(String(b.nome)));
 
       if (!rows.length) {
-        tbody.innerHTML = `<tr><td colspan="3" class="muted">Nenhum funcionário cadastrado.</td></tr>`;
+        tbody.innerHTML = '<tr><td colspan="3" class="muted">Nenhum funcionário cadastrado.</td></tr>';
         return;
       }
 
-      tbody.innerHTML = rows.map(f => `
-        <tr>
-          <td>${escapeHtml(f.nome || "")}</td>
-          <td>
-            <span class="status-badge ${f.ativo ? "ok" : "err"}">
-              ${f.ativo ? "Ativo" : "Inativo"}
-            </span>
-          </td>
-          <td>
-            <div class="inline-actions">
-              <button class="btn-secondary" onclick="adminToggleFunc('${escapeHtml(f.id || "")}')">Alternar</button>
-              <button class="btn-danger" onclick="adminRemoveFunc('${escapeHtml(f.id || "")}','${escapeHtml(f.nome || "")}')">Excluir</button>
-            </div>
-          </td>
-        </tr>
-      `).join("");
+      tbody.innerHTML = rows.map(f =>
+        '<tr>' +
+          '<td>' + escapeHtml(f.nome || "") + '</td>' +
+          '<td><span class="status-badge ' + (f.ativo ? "ok" : "err") + '">' + (f.ativo ? "Ativo" : "Inativo") + '</span></td>' +
+          '<td><div class="inline-actions">' +
+            '<button class="btn-secondary" onclick="adminToggleFunc(\'' + escapeJs(f.id || "") + '\')">Alternar</button>' +
+            '<button class="btn-danger" onclick="adminRemoveFunc(\'' + escapeJs(f.id || "") + '\', \'' + escapeJs(f.nome || "") + '\')">Excluir</button>' +
+          '</div></td>' +
+        '</tr>'
+      ).join("");
     }
 
     async function salvarFuncionario() {
@@ -1963,18 +1822,20 @@ async function adminRemoveUser(login) {
         return;
       }
 
+      const novoId = makeId();
+
       try {
         await sendKind("funcionario", {
-          id: makeId(),
-          nome,
+          id: novoId,
+          nome: nome,
           ativo: true,
           evento: "CADASTRO_MANUAL"
         });
 
         const db = loadDB();
         db.funcionarios.push({
-          id: makeId(),
-          nome,
+          id: novoId,
+          nome: nome,
           ativo: true
         });
         saveDB(db);
@@ -1987,6 +1848,7 @@ async function adminRemoveUser(login) {
         alert("Erro ao cadastrar funcionário: " + e.message);
       }
     }
+
     async function adminToggleFunc(id) {
       const db = loadDB();
       const idx = (db.funcionarios || []).findIndex(f => String(f.id || "") === String(id || ""));
