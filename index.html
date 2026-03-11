@@ -11,7 +11,7 @@
   <style>
     :root{
       --bg:#f3f4f6;
-      --panel:#fff;
+      --panel:#ffffff;
       --panel2:#f9fafb;
       --text:#111827;
       --muted:#6b7280;
@@ -24,9 +24,10 @@
       --ok:#059669;
       --warn:#b45309;
       --focus:rgba(17,24,39,.18);
+      --info:#1d4ed8;
     }
 
-    * { box-sizing: border-box; }
+    * { box-sizing:border-box; }
 
     body{
       margin:0;
@@ -96,11 +97,28 @@
       align-items:center;
       gap:6px;
       background:var(--bg);
+      line-height:1;
     }
 
-    .status-badge.ok{ color:var(--ok); background:rgba(5,150,105,.1); }
-    .status-badge.err{ color:var(--danger); background:rgba(185,28,28,.1); }
-    .status-badge.warn{ color:var(--warn); background:rgba(180,83,9,.1); }
+    .status-badge.ok{
+      color:var(--ok);
+      background:rgba(5,150,105,.1);
+    }
+
+    .status-badge.err{
+      color:var(--danger);
+      background:rgba(185,28,28,.1);
+    }
+
+    .status-badge.warn{
+      color:var(--warn);
+      background:rgba(180,83,9,.1);
+    }
+
+    .status-badge.info{
+      color:var(--info);
+      background:rgba(29,78,216,.10);
+    }
 
     .main-layout{
       display:flex;
@@ -119,19 +137,21 @@
 
     .nav-item{
       width:100%;
-      height:44px;
-      padding:0 12px;
+      min-height:44px;
+      padding:10px 12px;
       border-radius:10px;
       justify-content:flex-start;
       gap:12px;
       color:var(--muted);
-      font-weight:500;
+      font-weight:600;
+      text-align:left;
     }
 
     .nav-item i{
-      font-size:1.2rem;
+      font-size:1.1rem;
       width:24px;
       text-align:center;
+      flex:0 0 24px;
     }
 
     .nav-item:hover{
@@ -147,7 +167,7 @@
     .content{
       flex:1;
       padding:32px;
-      max-width:1200px;
+      max-width:1280px;
       margin:0 auto;
       width:100%;
     }
@@ -162,7 +182,7 @@
     }
 
     .card-title{
-      font-size:1.1rem;
+      font-size:1.08rem;
       font-weight:700;
       margin-bottom:20px;
       display:flex;
@@ -179,6 +199,12 @@
     .grid-3{
       display:grid;
       grid-template-columns:repeat(3,1fr);
+      gap:20px;
+    }
+
+    .grid-4{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
       gap:20px;
     }
 
@@ -220,7 +246,7 @@
     }
 
     .btn-primary:hover{
-      opacity:.9;
+      opacity:.92;
       transform:translateY(-1px);
     }
 
@@ -231,6 +257,31 @@
       padding:10px 20px;
       border-radius:10px;
       border:1px solid var(--line);
+      min-height:42px;
+    }
+
+    .btn-danger{
+      background:var(--danger);
+      color:#fff;
+      font-weight:600;
+      padding:10px 16px;
+      border-radius:10px;
+      min-height:42px;
+    }
+
+    .btn-info{
+      background:var(--info);
+      color:#fff;
+      font-weight:600;
+      padding:10px 16px;
+      border-radius:10px;
+      min-height:42px;
+    }
+
+    .inline-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
     }
 
     table{
@@ -245,12 +296,14 @@
       text-transform:uppercase;
       color:var(--muted);
       border-bottom:1px solid var(--line);
+      letter-spacing:.03em;
     }
 
     td{
       padding:12px;
       border-bottom:1px solid var(--line2);
-      font-size:.9rem;
+      font-size:.92rem;
+      vertical-align:middle;
     }
 
     tr:last-child td{
@@ -263,6 +316,9 @@
       font-size:.7rem;
       font-weight:700;
       text-transform:uppercase;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
     }
 
     .badge-in{
@@ -275,6 +331,17 @@
       color:var(--danger);
     }
 
+    .muted{
+      color:var(--muted);
+    }
+
+    .section-text{
+      color:var(--muted);
+      font-size:.9rem;
+      margin-top:-8px;
+      margin-bottom:18px;
+    }
+
     #view-login{
       position:fixed;
       inset:0;
@@ -283,6 +350,7 @@
       display:flex;
       align-items:center;
       justify-content:center;
+      padding:20px;
     }
 
     .login-box{
@@ -295,10 +363,36 @@
       text-align:center;
     }
 
-    .tab-content{ display:none; }
+    .tab-content{
+      display:none;
+    }
+
     .tab-content.active{
       display:block;
       animation:fadeIn .3s;
+    }
+
+    .report-actions{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+
+    .report-box{
+      background:var(--panel2);
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:16px;
+    }
+
+    .mini-title{
+      font-size:.82rem;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      color:var(--muted);
+      font-weight:700;
+      margin-bottom:10px;
     }
 
     @keyframes fadeIn{
@@ -306,10 +400,18 @@
       to{ opacity:1; transform:translateY(0); }
     }
 
-    @media (max-width:768px){
-      .grid-2,.grid-3{ grid-template-columns:1fr; }
-      .sidebar{ display:none; }
-      .content{ padding:16px; }
+    @media (max-width: 980px){
+      .grid-2,.grid-3,.grid-4{
+        grid-template-columns:1fr;
+      }
+
+      .sidebar{
+        display:none;
+      }
+
+      .content{
+        padding:16px;
+      }
     }
   </style>
 </head>
@@ -358,20 +460,24 @@
 
   <div class="main-layout">
     <aside class="sidebar">
-      <button class="nav-item active" onclick="showTab('dashboard', this)">
-        <i class="fas fa-chart-pie"></i> Painel Geral
-      </button>
-
-      <button class="nav-item" onclick="showTab('inventory', this)">
-        <i class="fas fa-boxes-stacked"></i> Estoque Atual
-      </button>
-
-      <button class="nav-item" onclick="showTab('movements', this)">
+      <button class="nav-item active" onclick="showTab('movements', this)">
         <i class="fas fa-exchange-alt"></i> Movimentações
       </button>
 
       <button class="nav-item" onclick="showTab('entregas', this)">
-        <i class="fas fa-hand-holding"></i> Entrega Material
+        <i class="fas fa-hand-holding"></i> Entrega de Materiais
+      </button>
+
+      <button class="nav-item" onclick="showTab('reports', this)">
+        <i class="fas fa-file-lines"></i> Relatórios
+      </button>
+
+      <button class="nav-item" onclick="showTab('inventory', this)">
+        <i class="fas fa-boxes-stacked"></i> Estoque Geral
+      </button>
+
+      <button class="nav-item" onclick="showTab('dashboard', this)">
+        <i class="fas fa-chart-pie"></i> Painel Geral
       </button>
 
       <div style="margin-top:auto; padding-top:20px; border-top:1px solid var(--line);">
@@ -383,69 +489,10 @@
 
     <main class="content">
 
-      <div id="tab-dashboard" class="tab-content active">
-        <div class="grid-3" id="stats-summary">
-          <div class="card">
-            <div style="color:var(--muted); font-size:.8rem; font-weight:600; margin-bottom:8px;">TOTAL EM ESTOQUE</div>
-            <div id="stat-total-items" style="font-size:2rem; font-weight:800;">0</div>
-          </div>
-
-          <div class="card">
-            <div style="color:var(--muted); font-size:.8rem; font-weight:600; margin-bottom:8px;">ENTRADAS (MÊS)</div>
-            <div id="stat-entries" style="font-size:2rem; font-weight:800; color:var(--ok);">0</div>
-          </div>
-
-          <div class="card">
-            <div style="color:var(--muted); font-size:.8rem; font-weight:600; margin-bottom:8px;">SAÍDAS (MÊS)</div>
-            <div id="stat-exits" style="font-size:2rem; font-weight:800; color:var(--danger);">0</div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title"><i class="fas fa-history"></i> Atividade Recente</div>
-          <table id="table-recent">
-            <thead>
-              <tr>
-                <th>Data</th>
-                <th>Tipo</th>
-                <th>Funcionário</th>
-                <th>Categoria</th>
-                <th>Tamanho</th>
-                <th>Qtd</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div id="tab-inventory" class="tab-content">
-        <div class="card">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <div class="card-title" style="margin:0;">
-              <i class="fas fa-boxes-stacked"></i> Estoque Disponível
-            </div>
-            <button class="btn-secondary" onclick="exportStock()">Exportar Excel</button>
-          </div>
-
-          <table id="table-stock">
-            <thead>
-              <tr>
-                <th>Categoria</th>
-                <th>Tamanho</th>
-                <th>Novo</th>
-                <th>Usado</th>
-                <th>Total</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div id="tab-movements" class="tab-content">
+      <div id="tab-movements" class="tab-content active">
         <div class="card">
           <div class="card-title"><i class="fas fa-plus-circle"></i> Novo Lançamento</div>
+          <div class="section-text">Registre entradas e saídas. Após salvar, o formulário será limpo automaticamente.</div>
 
           <div class="grid-3">
             <div class="form-group">
@@ -516,6 +563,7 @@
       <div id="tab-entregas" class="tab-content">
         <div class="card">
           <div class="card-title"><i class="fas fa-hand-holding"></i> Registrar Entrega de Materiais</div>
+          <div class="section-text">Selecione o funcionário e registre a entrega para manter o histórico atualizado.</div>
 
           <div class="grid-2">
             <div class="form-group">
@@ -543,28 +591,174 @@
 
           <button class="btn-primary" onclick="salvarEntregaMaterial()">Confirmar Registro de Entrega</button>
         </div>
+      </div>
+      <div id="tab-reports" class="tab-content">
+        <div class="card">
+          <div class="card-title"><i class="fas fa-file-lines"></i> Central de Relatórios</div>
+          <div class="section-text">Todos os relatórios ficam centralizados aqui, com filtros por funcionário e impressão pronta.</div>
+
+          <div class="grid-2">
+            <div class="report-box">
+              <div class="mini-title">Relatório de Movimentações</div>
+
+              <div class="form-group">
+                <label>Funcionário</label>
+                <select id="report-mov-func" class="form-control"></select>
+              </div>
+
+              <div class="grid-2">
+                <div class="form-group">
+                  <label>Data inicial</label>
+                  <input type="date" id="report-mov-d1" class="form-control">
+                </div>
+
+                <div class="form-group">
+                  <label>Data final</label>
+                  <input type="date" id="report-mov-d2" class="form-control">
+                </div>
+              </div>
+
+              <div class="report-actions">
+                <button class="btn-secondary" onclick="visualizarRelatorioMovimentacoes()">Visualizar relatório</button>
+                <button class="btn-info" onclick="imprimirRelatorioMovimentacoes()">Imprimir relatório</button>
+              </div>
+            </div>
+
+            <div class="report-box">
+              <div class="mini-title">Relatório de Entregas</div>
+
+              <div class="form-group">
+                <label>Funcionário</label>
+                <select id="report-ent-func" class="form-control"></select>
+              </div>
+
+              <div class="grid-2">
+                <div class="form-group">
+                  <label>Data inicial</label>
+                  <input type="date" id="report-ent-d1" class="form-control">
+                </div>
+
+                <div class="form-group">
+                  <label>Data final</label>
+                  <input type="date" id="report-ent-d2" class="form-control">
+                </div>
+              </div>
+
+              <div class="report-actions">
+                <button class="btn-secondary" onclick="visualizarRelatorioEntrega()">Visualizar relatório</button>
+                <button class="btn-info" onclick="imprimirRelatorioEntrega()">Imprimir relatório</button>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div class="card">
-          <div class="card-title"><i class="fas fa-file-alt"></i> Relatório de Entregas Realizadas</div>
+          <div class="card-title"><i class="fas fa-file-signature"></i> Termo de Recebimento de Uniforme</div>
+          <div class="section-text">Selecione o funcionário. O termo será preenchido com o último lançamento vinculado a ele.</div>
 
-          <div class="grid-3" style="margin-bottom:20px; align-items:end;">
+          <div class="grid-3">
             <div class="form-group">
-              <label>Filtrar por Nome</label>
-              <input type="text" id="filterEntregaNome" class="form-control" placeholder="Digite o nome...">
+              <label>Funcionário</label>
+              <select id="termo-funcionario" class="form-control"></select>
             </div>
 
             <div class="form-group">
-              <label>Início</label>
-              <input type="date" id="filterEntregaD1" class="form-control">
+              <label>Data do termo</label>
+              <input type="date" id="termo-data" class="form-control">
             </div>
 
             <div class="form-group">
-              <label>Fim</label>
-              <input type="date" id="filterEntregaD2" class="form-control">
+              <label>Último item identificado</label>
+              <input type="text" id="termo-ultimo-item" class="form-control" readonly>
             </div>
           </div>
 
-          <button class="btn-secondary" style="width:100%;" onclick="gerarRelatorioEntrega()">Visualizar e Imprimir Relatório</button>
+          <div class="report-actions">
+            <button class="btn-secondary" onclick="prepararTermoRecebimento()">Atualizar descrição</button>
+            <button class="btn-info" onclick="imprimirTermoRecebimento()">Gerar termo para impressão</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><i class="fas fa-table-list"></i> Pré-visualização do Relatório</div>
+          <div class="section-text">A tabela abaixo muda conforme o relatório selecionado.</div>
+
+          <div style="overflow:auto;">
+            <table id="table-report-preview">
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Tipo</th>
+                  <th>Funcionário</th>
+                  <th>Descrição</th>
+                  <th>Qtd</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-inventory" class="tab-content">
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:20px; flex-wrap:wrap;">
+            <div class="card-title" style="margin:0;">
+              <i class="fas fa-boxes-stacked"></i> Estoque Geral
+            </div>
+
+            <button class="btn-secondary" onclick="exportStock()">Exportar Excel</button>
+          </div>
+
+          <table id="table-stock">
+            <thead>
+              <tr>
+                <th>Categoria</th>
+                <th>Tamanho</th>
+                <th>Novo</th>
+                <th>Usado</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="tab-dashboard" class="tab-content">
+        <div class="grid-3" id="stats-summary">
+          <div class="card">
+            <div style="color:var(--muted); font-size:.8rem; font-weight:600; margin-bottom:8px;">TOTAL EM ESTOQUE</div>
+            <div id="stat-total-items" style="font-size:2rem; font-weight:800;">0</div>
+          </div>
+
+          <div class="card">
+            <div style="color:var(--muted); font-size:.8rem; font-weight:600; margin-bottom:8px;">ENTRADAS (MÊS)</div>
+            <div id="stat-entries" style="font-size:2rem; font-weight:800; color:var(--ok);">0</div>
+          </div>
+
+          <div class="card">
+            <div style="color:var(--muted); font-size:.8rem; font-weight:600; margin-bottom:8px;">SAÍDAS (MÊS)</div>
+            <div id="stat-exits" style="font-size:2rem; font-weight:800; color:var(--danger);">0</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><i class="fas fa-history"></i> Atividade Recente</div>
+
+          <table id="table-recent">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Tipo</th>
+                <th>Funcionário</th>
+                <th>Categoria</th>
+                <th>Tamanho</th>
+                <th>Qtd</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
         </div>
       </div>
 
@@ -572,10 +766,11 @@
         <div class="card">
           <div class="card-title"><i class="fas fa-users-cog"></i> Gestão de Usuários</div>
           <p style="color:var(--muted); font-size:.85rem; margin-bottom:20px;">Apenas administradores podem gerenciar acessos.</p>
+
           <div id="admin-user-list"></div>
 
           <div style="margin-top:24px; padding-top:24px; border-top:1px solid var(--line);">
-            <div class="card-title" style="font-size:.9rem;">Cadastrar Novo Usuário</div>
+            <div class="card-title" style="font-size:.95rem;">Cadastrar Novo Usuário</div>
 
             <div class="grid-3">
               <input type="text" id="new-user-name" class="form-control" placeholder="Nome Completo">
@@ -590,12 +785,14 @@
         <div class="card">
           <div class="card-title"><i class="fas fa-tags"></i> Gerenciar Catálogo (Categorias e Tamanhos)</div>
           <div id="catalog-editor-list"></div>
-          <button class="btn-secondary" style="margin-top:12px;" onclick="addCatalogRow()">+ Nova Categoria</button>
-          <button class="btn-primary" style="margin-top:20px;" onclick="saveCatalog()">Salvar Alterações do Catálogo</button>
+          <div class="inline-actions" style="margin-top:12px;">
+            <button class="btn-secondary" onclick="addCatalogRow()">+ Nova Categoria</button>
+            <button class="btn-primary" onclick="saveCatalog()" style="max-width:320px;">Salvar Alterações do Catálogo</button>
+          </div>
         </div>
-
         <div class="card">
           <div class="card-title"><i class="fas fa-user-plus"></i> Cadastro de Funcionários</div>
+          <p class="section-text">Cadastre, visualize e exclua funcionários diretamente por nome.</p>
 
           <div class="grid-2">
             <input type="text" id="new-func-nome" class="form-control" placeholder="Nome Completo">
@@ -608,12 +805,14 @@
                 <tr>
                   <th>Nome</th>
                   <th>Status</th>
+                  <th>Ações</th>
                 </tr>
               </thead>
               <tbody></tbody>
             </table>
           </div>
         </div>
+
       </div>
 
     </main>
@@ -622,9 +821,9 @@
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbxhsG733sWgDZFK-APpc2QW3JtLKSpnZEaeeT7OW6Nlm1lm9KDGuVpQh7pKiVTAxBNj4w/exec";
 
-    const DB_KEY = "almox_db_v1";
-    const USER_KEY = "almox_session_v1";
-    const CATALOG_KEY = "almox_catalog_v1";
+    const DB_KEY = "almox_db_v2";
+    const USER_KEY = "almox_session_v2";
+    const CATALOG_KEY = "almox_catalog_v2";
 
     function loadDB() {
       try {
@@ -693,13 +892,36 @@
       el.querySelector("span").innerText = text;
     }
 
-    function formatDateDisplay(iso) {
-      if (!iso) return "-";
+    function parseDateSafe(value) {
+      if (!value) return null;
 
-      const s = String(iso).slice(0, 10);
-      const [y, m, d] = s.split("-");
-      if (y && m && d) return `${d}/${m}/${y}`;
-      return String(iso);
+      const s = String(value).trim();
+
+      if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+        return new Date(s + "T00:00:00");
+      }
+
+      const dt = new Date(s);
+      return isNaN(dt.getTime()) ? null : dt;
+    }
+
+    function formatDateDisplay(value) {
+      const d = parseDateSafe(value);
+      if (!d) return "-";
+
+      const dd = String(d.getDate()).padStart(2, "0");
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const yy = d.getFullYear();
+      return `${dd}/${mm}/${yy}`;
+    }
+
+    function dateToISO(value) {
+      const d = parseDateSafe(value);
+      if (!d) return "";
+      const dd = String(d.getDate()).padStart(2, "0");
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const yy = d.getFullYear();
+      return `${yy}-${mm}-${dd}`;
     }
 
     function todayISO() {
@@ -712,18 +934,37 @@
       return "ID" + Math.random().toString(36).slice(2, 10).toUpperCase();
     }
 
+    function onlyActiveFuncionarios() {
+      const db = loadDB();
+      return (db.funcionarios || [])
+        .filter(f => f && f.nome && f.ativo)
+        .sort((a, b) => String(a.nome).localeCompare(String(b.nome)));
+    }
+
+    function allFuncionarios() {
+      const db = loadDB();
+      return (db.funcionarios || [])
+        .filter(f => f && f.nome)
+        .sort((a, b) => String(a.nome).localeCompare(String(b.nome)));
+    }
+
     async function api(params = {}) {
       const url = new URL(API_URL);
+
       Object.keys(params).forEach(key => {
         url.searchParams.append(key, params[key]);
       });
 
       return new Promise((resolve, reject) => {
         const callbackName = "cb_" + Math.round(Math.random() * 1000000);
+        const script = document.createElement("script");
 
         window[callbackName] = function(data) {
           try { delete window[callbackName]; } catch (e) {}
-          if (script.parentNode) script.parentNode.removeChild(script);
+
+          if (script.parentNode) {
+            script.parentNode.removeChild(script);
+          }
 
           if (data && data.ok) {
             resolve(data);
@@ -732,11 +973,15 @@
           }
         };
 
-        const script = document.createElement("script");
         script.src = url.toString() + (url.toString().includes("?") ? "&" : "?") + "callback=" + callbackName;
+
         script.onerror = function() {
           try { delete window[callbackName]; } catch (e) {}
-          if (script.parentNode) script.parentNode.removeChild(script);
+
+          if (script.parentNode) {
+            script.parentNode.removeChild(script);
+          }
+
           reject(new Error("Falha de comunicação com a API."));
         };
 
@@ -777,8 +1022,9 @@
         populateSelects();
         renderDashboard();
         renderStock();
-        renderAdminFuncs(db.funcionarios);
+        renderAdminFuncs(db.funcionarios || []);
         initEntrega();
+        initRelatorios();
 
         setSheetsStatus("ok", "Sincronizado");
       } catch (err) {
@@ -837,24 +1083,26 @@
       if (tabId === "dashboard") renderDashboard();
       if (tabId === "settings") adminLoadData();
       if (tabId === "entregas") initEntrega();
+      if (tabId === "reports") initRelatorios();
     }
 
     function populateSelects() {
-      const db = loadDB();
+      const ativos = onlyActiveFuncionarios();
       const catalog = loadCatalog();
 
-      const ativos = (db.funcionarios || [])
-        .filter(f => f.ativo && f.nome)
-        .sort((a, b) => a.nome.localeCompare(b.nome));
-
-      const htmlFuncs = ['<option value="">-- Selecione --</option>']
+      const optionsFunc = ['<option value="">-- Selecione --</option>']
         .concat(ativos.map(f => `<option value="${escapeHtml(f.nome)}">${escapeHtml(f.nome)}</option>`))
         .join("");
 
-      const selFunc = document.getElementById("mov-func");
-      const selFuncEnt = document.getElementById("funcEntregaMat");
-      selFunc.innerHTML = htmlFuncs;
-      selFuncEnt.innerHTML = htmlFuncs;
+      const optionsFuncAll = ['<option value="__TODOS__">Todos os funcionários</option>']
+        .concat(ativos.map(f => `<option value="${escapeHtml(f.nome)}">${escapeHtml(f.nome)}</option>`))
+        .join("");
+
+      document.getElementById("mov-func").innerHTML = optionsFunc;
+      document.getElementById("funcEntregaMat").innerHTML = optionsFunc;
+      document.getElementById("report-mov-func").innerHTML = optionsFuncAll;
+      document.getElementById("report-ent-func").innerHTML = optionsFuncAll;
+      document.getElementById("termo-funcionario").innerHTML = optionsFunc;
 
       const catsAtivas = (catalog || []).filter(c => c.ativo && c.categoria);
       const htmlCats = ['<option value="">-- Selecione --</option>']
@@ -863,6 +1111,7 @@
 
       const selCat = document.getElementById("mov-cat");
       const selTam = document.getElementById("mov-tam");
+
       selCat.innerHTML = htmlCats;
       selTam.innerHTML = '<option value="">-- Selecione --</option>';
 
@@ -878,15 +1127,21 @@
         selTam.innerHTML = htmlTams;
       };
     }
+    function resetMovimentoForm() {
+      document.getElementById("mov-tipo").value = "ENTRADA";
+      document.getElementById("mov-data").value = todayISO();
+      document.getElementById("mov-func").value = "";
+      document.getElementById("mov-cat").value = "";
+      document.getElementById("mov-tam").innerHTML = '<option value="">-- Selecione --</option>';
+      document.getElementById("mov-qtd").value = "1";
+      document.getElementById("mov-estado").value = "NOVO";
+      document.getElementById("mov-motivo").value = "REPOSICAO";
+      document.getElementById("mov-obs").value = "";
+    }
 
     async function salvarMovimento() {
       const user = getCurrentUser();
       const btn = document.getElementById("btn-save-mov");
-
-      if (!user) {
-        alert("Sessão inválida.");
-        return;
-      }
 
       const dados = {
         id: makeId(),
@@ -895,14 +1150,14 @@
         funcionarioNome: document.getElementById("mov-func").value,
         categoria: document.getElementById("mov-cat").value,
         tamanho: document.getElementById("mov-tam").value,
-        quantidade: parseInt(document.getElementById("mov-qtd").value, 10) || 0,
+        quantidade: parseInt(document.getElementById("mov-qtd").value || "0", 10),
         estado: document.getElementById("mov-estado").value,
         motivo: document.getElementById("mov-motivo").value,
-        obs: document.getElementById("mov-obs").value,
-        usuarioLogado: user.login
+        obs: document.getElementById("mov-obs").value.trim(),
+        usuarioLogado: user ? user.login : ""
       };
 
-      if (!dados.data || !dados.funcionarioNome || !dados.categoria || !dados.tamanho || dados.quantidade <= 0) {
+      if (!dados.data || !dados.funcionarioNome || !dados.categoria || !dados.tamanho || !dados.quantidade) {
         alert("Preencha os campos obrigatórios.");
         return;
       }
@@ -917,16 +1172,24 @@
         db.movimentos.push(dados);
         saveDB(db);
 
+        alert("Movimentação salva com sucesso.");
+        resetMovimentoForm();
         renderDashboard();
         renderStock();
-
-        alert("Movimentação salva com sucesso.");
+        initRelatorios();
       } catch (e) {
         alert("Erro ao salvar movimentação: " + e.message);
       } finally {
         btn.innerText = "Salvar Movimentação";
         btn.disabled = false;
       }
+    }
+
+    function resetEntregaForm() {
+      document.getElementById("funcEntregaMat").value = "";
+      document.getElementById("materialEntrega").value = "";
+      document.getElementById("qtdEntregaMat").value = "1";
+      document.getElementById("dataEntregaMat").value = todayISO();
     }
 
     async function salvarEntregaMaterial() {
@@ -936,128 +1199,359 @@
         return;
       }
 
-      const elFunc = document.getElementById("funcEntregaMat");
-      const elMat = document.getElementById("materialEntrega");
-      const elQtd = document.getElementById("qtdEntregaMat");
-      const elData = document.getElementById("dataEntregaMat");
-
-      const dadosParaPlanilha = {
-        entrega: {
-          id: makeId(),
-          data: elData.value,
-          funcionario: elFunc.value,
-          material: elMat.value.trim(),
-          quantidade: parseInt(elQtd.value, 10) || 0,
-          usuarioLogado: user.login
-        }
+      const entrega = {
+        id: makeId(),
+        data: document.getElementById("dataEntregaMat").value,
+        funcionario: document.getElementById("funcEntregaMat").value,
+        material: document.getElementById("materialEntrega").value.trim(),
+        quantidade: parseInt(document.getElementById("qtdEntregaMat").value || "0", 10),
+        usuarioLogado: user.login
       };
 
-      if (!dadosParaPlanilha.entrega.material) {
-        alert("Informe o material.");
-        return;
-      }
-
-      if (!dadosParaPlanilha.entrega.funcionario) {
-        alert("Selecione um funcionário.");
-        return;
-      }
-
-      if (!dadosParaPlanilha.entrega.data) {
-        alert("Selecione a data.");
-        return;
-      }
-
-      if (dadosParaPlanilha.entrega.quantidade <= 0) {
-        alert("Quantidade inválida.");
+      if (!entrega.funcionario || !entrega.material || !entrega.data || !entrega.quantidade) {
+        alert("Preencha os campos obrigatórios da entrega.");
         return;
       }
 
       try {
         setSheetsStatus("warn", "Salvando...");
-        await sendKind("entrega", dadosParaPlanilha);
+
+        await sendKind("entrega", { entrega });
 
         const db = loadDB();
-        db.entregas.push(dadosParaPlanilha.entrega);
+        db.entregas.push(entrega);
         saveDB(db);
 
-        elMat.value = "";
-        elQtd.value = 1;
-
+        alert("Entrega salva com sucesso.");
+        resetEntregaForm();
+        initRelatorios();
         setSheetsStatus("ok", "Sincronizado");
-        alert("Salvo com sucesso no sistema e na planilha.");
       } catch (e) {
-        console.error("Erro ao enviar para o Sheets:", e);
+        console.error("Erro ao enviar entrega:", e);
         setSheetsStatus("err", "Erro ao salvar");
         alert("Erro ao salvar na planilha: " + e.message);
       }
     }
 
     function initEntrega() {
-      const dataInput = document.getElementById("dataEntregaMat");
-      if (dataInput && !dataInput.value) {
-        dataInput.value = todayISO();
-      }
+      const input = document.getElementById("dataEntregaMat");
+      if (input && !input.value) input.value = todayISO();
     }
 
-    function gerarRelatorioEntrega() {
+    function initRelatorios() {
+      const termoData = document.getElementById("termo-data");
+      if (termoData && !termoData.value) termoData.value = todayISO();
+
+      const movData = document.getElementById("mov-data");
+      if (movData && !movData.value) movData.value = todayISO();
+
+      const tbody = document.querySelector("#table-report-preview tbody");
+      if (tbody && !tbody.dataset.ready) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="muted">Selecione um relatório para visualizar os dados.</td>
+          </tr>
+        `;
+        tbody.dataset.ready = "1";
+      }
+
+      prepararTermoRecebimento(false);
+    }
+
+    function getMovimentosFiltrados() {
       const db = loadDB();
-      const entregas = db.entregas || [];
+      const funcionario = document.getElementById("report-mov-func").value;
+      const d1 = document.getElementById("report-mov-d1").value;
+      const d2 = document.getElementById("report-mov-d2").value;
 
-      const filtroNome = document.getElementById("filterEntregaNome").value.toLowerCase().trim();
-      const d1 = document.getElementById("filterEntregaD1").value;
-      const d2 = document.getElementById("filterEntregaD2").value;
+      return (db.movimentos || []).filter(m => {
+        const okFunc = funcionario === "__TODOS__" || !funcionario ? true : String(m.funcionarioNome || "") === funcionario;
+        const okD1 = !d1 || String(m.data || "") >= d1;
+        const okD2 = !d2 || String(m.data || "") <= d2;
+        return okFunc && okD1 && okD2;
+      }).sort((a, b) => String(b.data || "").localeCompare(String(a.data || "")));
+    }
 
-      const filtrados = entregas.filter(e => {
-        const nome = String(e.funcionario || "").toLowerCase();
-        const data = String(e.data || "");
-        const nomeBate = !filtroNome || nome.includes(filtroNome);
-        const dataBate = (!d1 || data >= d1) && (!d2 || data <= d2);
-        return nomeBate && dataBate;
-      });
+    function getEntregasFiltradas() {
+      const db = loadDB();
+      const funcionario = document.getElementById("report-ent-func").value;
+      const d1 = document.getElementById("report-ent-d1").value;
+      const d2 = document.getElementById("report-ent-d2").value;
 
-      if (!filtrados.length) {
-        alert("Nenhum lançamento encontrado.");
+      return (db.entregas || []).filter(e => {
+        const okFunc = funcionario === "__TODOS__" || !funcionario ? true : String(e.funcionario || "") === funcionario;
+        const okD1 = !d1 || String(dateToISO(e.data) || "") >= d1;
+        const okD2 = !d2 || String(dateToISO(e.data) || "") <= d2;
+        return okFunc && okD1 && okD2;
+      }).sort((a, b) => String(dateToISO(b.data) || "").localeCompare(String(dateToISO(a.data) || "")));
+    }
+
+    function visualizarRelatorioMovimentacoes() {
+      const dados = getMovimentosFiltrados();
+      const tbody = document.querySelector("#table-report-preview tbody");
+
+      if (!dados.length) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="muted">Nenhuma movimentação encontrada para os filtros informados.</td>
+          </tr>
+        `;
         return;
       }
 
-      let h = `
-        <div style="padding:20px;font-family:sans-serif">
-          <h2 style="text-align:center;">Relatório de Entrega de Materiais</h2>
-          <table border="1" style="width:100%;border-collapse:collapse;">
-            <thead>
-              <tr style="background:#eee;">
-                <th>Data</th>
-                <th>Funcionário</th>
-                <th>Material</th>
-                <th>Qtd</th>
-              </tr>
-            </thead>
-            <tbody>
-      `;
+      tbody.innerHTML = dados.map(m => `
+        <tr>
+          <td>${escapeHtml(formatDateDisplay(m.data))}</td>
+          <td>${escapeHtml(m.tipo || "")}</td>
+          <td>${escapeHtml(m.funcionarioNome || "")}</td>
+          <td>${escapeHtml((m.categoria || "") + " / " + (m.tamanho || "") + " / " + (m.estado || ""))}</td>
+          <td>${escapeHtml(m.quantidade || 0)}</td>
+        </tr>
+      `).join("");
+    }
 
-      filtrados.forEach(e => {
-        h += `
-          <tr>
-            <td style="text-align:center;padding:5px;">${escapeHtml(formatDateDisplay(e.data))}</td>
-            <td style="padding:5px;">${escapeHtml(e.funcionario)}</td>
-            <td style="padding:5px;">${escapeHtml(e.material)}</td>
-            <td style="text-align:center;padding:5px;">${escapeHtml(e.quantidade)}</td>
-          </tr>
-        `;
-      });
+    function imprimirRelatorioMovimentacoes() {
+      const dados = getMovimentosFiltrados();
 
-      h += `
-            </tbody>
-          </table>
-        </div>
+      if (!dados.length) {
+        alert("Nenhuma movimentação encontrada.");
+        return;
+      }
+
+      const funcionario = document.getElementById("report-mov-func").value;
+      const titulo = funcionario && funcionario !== "__TODOS__"
+        ? "Relatório de Movimentações - " + funcionario
+        : "Relatório de Movimentações - Todos os funcionários";
+
+      const html = `
+        <html>
+          <head>
+            <title>${escapeHtml(titulo)}</title>
+            <style>
+              body{font-family:Arial,sans-serif;padding:24px;color:#111;}
+              h2{text-align:center;margin-bottom:8px;}
+              p{text-align:center;color:#555;margin-top:0;margin-bottom:20px;}
+              table{width:100%;border-collapse:collapse;}
+              th,td{border:1px solid #ccc;padding:8px;font-size:12px;text-align:left;}
+              th{background:#f1f1f1;}
+            </style>
+          </head>
+          <body>
+            <h2>${escapeHtml(titulo)}</h2>
+            <p>Emitido em ${escapeHtml(formatDateDisplay(todayISO()))}</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Tipo</th>
+                  <th>Funcionário</th>
+                  <th>Categoria</th>
+                  <th>Tamanho</th>
+                  <th>Estado</th>
+                  <th>Qtd</th>
+                  <th>Motivo</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${dados.map(m => `
+                  <tr>
+                    <td>${escapeHtml(formatDateDisplay(m.data))}</td>
+                    <td>${escapeHtml(m.tipo || "")}</td>
+                    <td>${escapeHtml(m.funcionarioNome || "")}</td>
+                    <td>${escapeHtml(m.categoria || "")}</td>
+                    <td>${escapeHtml(m.tamanho || "")}</td>
+                    <td>${escapeHtml(m.estado || "")}</td>
+                    <td>${escapeHtml(m.quantidade || 0)}</td>
+                    <td>${escapeHtml(m.motivo || "")}</td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          </body>
+        </html>
       `;
 
       const win = window.open("", "_blank");
-      win.document.write(h);
+      win.document.write(html);
       win.document.close();
       win.print();
     }
 
+    function visualizarRelatorioEntrega() {
+      const dados = getEntregasFiltradas();
+      const tbody = document.querySelector("#table-report-preview tbody");
+
+      if (!dados.length) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="muted">Nenhuma entrega encontrada para os filtros informados.</td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = dados.map(e => `
+        <tr>
+          <td>${escapeHtml(formatDateDisplay(e.data))}</td>
+          <td>ENTREGA</td>
+          <td>${escapeHtml(e.funcionario || "")}</td>
+          <td>${escapeHtml(e.material || "")}</td>
+          <td>${escapeHtml(e.quantidade || 0)}</td>
+        </tr>
+      `).join("");
+    }
+
+    function imprimirRelatorioEntrega() {
+      const dados = getEntregasFiltradas();
+
+      if (!dados.length) {
+        alert("Nenhuma entrega encontrada.");
+        return;
+      }
+
+      const funcionario = document.getElementById("report-ent-func").value;
+      const titulo = funcionario && funcionario !== "__TODOS__"
+        ? "Relatório de Entregas - " + funcionario
+        : "Relatório de Entregas - Todos os funcionários";
+
+      const html = `
+        <html>
+          <head>
+            <title>${escapeHtml(titulo)}</title>
+            <style>
+              body{font-family:Arial,sans-serif;padding:24px;color:#111;}
+              h2{text-align:center;margin-bottom:8px;}
+              p{text-align:center;color:#555;margin-top:0;margin-bottom:20px;}
+              table{width:100%;border-collapse:collapse;}
+              th,td{border:1px solid #ccc;padding:8px;font-size:12px;text-align:left;}
+              th{background:#f1f1f1;}
+            </style>
+          </head>
+          <body>
+            <h2>${escapeHtml(titulo)}</h2>
+            <p>Emitido em ${escapeHtml(formatDateDisplay(todayISO()))}</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Funcionário</th>
+                  <th>Material</th>
+                  <th>Quantidade</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${dados.map(e => `
+                  <tr>
+                    <td>${escapeHtml(formatDateDisplay(e.data))}</td>
+                    <td>${escapeHtml(e.funcionario || "")}</td>
+                    <td>${escapeHtml(e.material || "")}</td>
+                    <td>${escapeHtml(e.quantidade || 0)}</td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          </body>
+        </html>
+      `;
+
+      const win = window.open("", "_blank");
+      win.document.write(html);
+      win.document.close();
+      win.print();
+    }
+
+    function getUltimoLancamentoFuncionario(nome) {
+      const db = loadDB();
+      const movs = (db.movimentos || [])
+        .filter(m => String(m.funcionarioNome || "") === String(nome || ""))
+        .sort((a, b) => {
+          const ka = `${a.data || ""}|${a.id || ""}`;
+          const kb = `${b.data || ""}|${b.id || ""}`;
+          return kb.localeCompare(ka);
+        });
+
+      return movs.length ? movs[0] : null;
+    }
+
+    function prepararTermoRecebimento(showAlert = true) {
+      const funcionario = document.getElementById("termo-funcionario").value;
+      const campo = document.getElementById("termo-ultimo-item");
+
+      if (!funcionario) {
+        campo.value = "";
+        if (showAlert) alert("Selecione um funcionário.");
+        return null;
+      }
+
+      const ult = getUltimoLancamentoFuncionario(funcionario);
+      if (!ult) {
+        campo.value = "";
+        if (showAlert) alert("Nenhum lançamento encontrado para este funcionário.");
+        return null;
+      }
+
+      campo.value = `${ult.categoria || ""} - Tam. ${ult.tamanho || ""} - Qtd ${ult.quantidade || 0} - ${ult.estado || ""}`;
+      return ult;
+    }
+
+    function imprimirTermoRecebimento() {
+      const funcionario = document.getElementById("termo-funcionario").value;
+      const dataTermo = document.getElementById("termo-data").value || todayISO();
+      const ult = prepararTermoRecebimento(true);
+
+      if (!funcionario || !ult) return;
+
+      const descricao = `${ult.categoria || ""} / Tamanho ${ult.tamanho || ""} / Quantidade ${ult.quantidade || 0} / Estado ${ult.estado || ""}`;
+
+      const html = `
+        <html>
+          <head>
+            <title>Termo de Recebimento de Uniforme</title>
+            <style>
+              body{font-family:Arial,sans-serif;padding:34px;color:#111;line-height:1.6;}
+              h2{text-align:center;margin-bottom:24px;}
+              .texto{font-size:14px;text-align:justify;}
+              .bloco{margin-top:20px;}
+              .assinatura{margin-top:70px;display:flex;justify-content:space-between;gap:40px;}
+              .linha{border-top:1px solid #000;padding-top:8px;width:45%;text-align:center;font-size:13px;}
+              .caixa{margin-top:18px;padding:12px;border:1px solid #ccc;background:#fafafa;}
+            </style>
+          </head>
+          <body>
+            <h2>TERMO DE RECEBIMENTO DE UNIFORME</h2>
+
+            <div class="texto">
+              <p>
+                Eu, <strong>${escapeHtml(funcionario)}</strong>, recebi da empresa:
+                <strong>INTERCOL SERVIÇOS DE INTERNET LTDA</strong>,
+                CNPJ: <strong>03.879.067/0001-36</strong>, os uniformes relacionados nesta ficha,
+                declaro tê-los recebidos gratuitamente e em perfeito estado de conservação.
+                Comprometo-me a utilizá-los diariamente durante toda a jornada de trabalho,
+                responsabilizando-me pela guarda e conservação dos mesmos.
+                Autorizo desde já o desconto de seus respectivos valores em folha de pagamento/rescisão,
+                quando por extravio e/ou danificação por uso inadequado, conforme previsto no artigo 462 §1º da CLT.
+              </p>
+            </div>
+
+            <div class="caixa">
+              <strong>Data do termo:</strong> ${escapeHtml(formatDateDisplay(dataTermo))}<br>
+              <strong>Descrição do último lançamento:</strong> ${escapeHtml(descricao)}<br>
+              <strong>Motivo:</strong> ${escapeHtml(ult.motivo || "-")}
+            </div>
+
+            <div class="assinatura">
+              <div class="linha">Assinatura do funcionário</div>
+              <div class="linha">Responsável pela entrega</div>
+            </div>
+          </body>
+        </html>
+      `;
+
+      const win = window.open("", "_blank");
+      win.document.write(html);
+      win.document.close();
+      win.print();
+    }
     function renderDashboard() {
       const db = loadDB();
       const movs = db.movimentos || [];
@@ -1072,15 +1566,15 @@
 
       movs.forEach(m => {
         const qtd = Number(m.quantidade || 0);
-        const d = new Date(m.data + "T00:00:00");
-        const isMes = d.getMonth() === mesAtual && d.getFullYear() === anoAtual;
+        const d = parseDateSafe(m.data);
+        const isMesAtual = d && d.getMonth() === mesAtual && d.getFullYear() === anoAtual;
 
         if (m.tipo === "ENTRADA") {
           totalEstoque += qtd;
-          if (isMes) entradas += qtd;
+          if (isMesAtual) entradas += qtd;
         } else {
           totalEstoque -= qtd;
-          if (isMes) saidas += qtd;
+          if (isMesAtual) saidas += qtd;
         }
       });
 
@@ -1088,23 +1582,31 @@
       document.getElementById("stat-entries").innerText = entradas;
       document.getElementById("stat-exits").innerText = saidas;
 
-      const recents = [...movs].reverse().slice(0, 10);
-      let h = "";
+      const recents = [...movs]
+        .sort((a, b) => {
+          const ka = `${a.data || ""}|${a.id || ""}`;
+          const kb = `${b.data || ""}|${b.id || ""}`;
+          return kb.localeCompare(ka);
+        })
+        .slice(0, 10);
 
-      recents.forEach(m => {
-        h += `
-          <tr>
-            <td>${escapeHtml(formatDateDisplay(m.data))}</td>
-            <td><span class="badge ${m.tipo === "ENTRADA" ? "badge-in" : "badge-out"}">${escapeHtml(m.tipo)}</span></td>
-            <td>${escapeHtml(m.funcionarioNome || "")}</td>
-            <td>${escapeHtml(m.categoria)}</td>
-            <td>${escapeHtml(m.tamanho)}</td>
-            <td>${escapeHtml(m.quantidade)}</td>
-          </tr>
-        `;
-      });
+      const tbody = document.querySelector("#table-recent tbody");
 
-      document.querySelector("#table-recent tbody").innerHTML = h;
+      if (!recents.length) {
+        tbody.innerHTML = `<tr><td colspan="6" class="muted">Sem movimentações recentes.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = recents.map(m => `
+        <tr>
+          <td>${escapeHtml(formatDateDisplay(m.data))}</td>
+          <td><span class="badge ${m.tipo === "ENTRADA" ? "badge-in" : "badge-out"}">${escapeHtml(m.tipo)}</span></td>
+          <td>${escapeHtml(m.funcionarioNome || "")}</td>
+          <td>${escapeHtml(m.categoria || "")}</td>
+          <td>${escapeHtml(m.tamanho || "")}</td>
+          <td>${escapeHtml(m.quantidade || 0)}</td>
+        </tr>
+      `).join("");
     }
 
     function renderStock() {
@@ -1113,39 +1615,73 @@
       const stock = {};
 
       movs.forEach(m => {
-        const key = `${m.categoria}|||${m.tamanho}`;
-        if (!stock[key]) stock[key] = { novo: 0, usado: 0 };
+        const key = `${m.categoria || ""}||${m.tamanho || ""}`;
+        if (!stock[key]) {
+          stock[key] = { categoria: m.categoria || "", tamanho: m.tamanho || "", novo: 0, usado: 0 };
+        }
 
-        const qtd = parseInt(m.quantidade, 10) || 0;
-        const estado = m.estado === "USADO" ? "usado" : "novo";
+        const qtd = Number(m.quantidade || 0);
 
         if (m.tipo === "ENTRADA") {
-          stock[key][estado] += qtd;
+          if (m.estado === "USADO") stock[key].usado += qtd;
+          else stock[key].novo += qtd;
         } else {
-          stock[key][estado] -= qtd;
+          if (m.estado === "USADO") stock[key].usado -= qtd;
+          else stock[key].novo -= qtd;
         }
       });
 
-      let h = "";
-      Object.keys(stock).sort().forEach(key => {
-        const [cat, tam] = key.split("|||");
-        const item = stock[key];
-        const total = item.novo + item.usado;
+      const rows = Object.values(stock)
+        .map(item => ({
+          ...item,
+          total: Number(item.novo || 0) + Number(item.usado || 0)
+        }))
+        .filter(item => item.total !== 0)
+        .sort((a, b) => {
+          const ca = `${a.categoria}|${a.tamanho}`;
+          const cb = `${b.categoria}|${b.tamanho}`;
+          return ca.localeCompare(cb);
+        });
 
-        if (total === 0) return;
+      const tbody = document.querySelector("#table-stock tbody");
 
-        h += `
-          <tr>
-            <td><strong>${escapeHtml(cat)}</strong></td>
-            <td>${escapeHtml(tam)}</td>
-            <td>${item.novo}</td>
-            <td>${item.usado}</td>
-            <td><strong style="color:${total < 5 ? "#b91c1c" : "inherit"};">${total}</strong></td>
-          </tr>
-        `;
-      });
+      if (!rows.length) {
+        tbody.innerHTML = `<tr><td colspan="5" class="muted">Sem itens em estoque.</td></tr>`;
+        return;
+      }
 
-      document.querySelector("#table-stock tbody").innerHTML = h;
+      tbody.innerHTML = rows.map(item => `
+        <tr>
+          <td><strong>${escapeHtml(item.categoria)}</strong></td>
+          <td>${escapeHtml(item.tamanho)}</td>
+          <td>${escapeHtml(item.novo)}</td>
+          <td>${escapeHtml(item.usado)}</td>
+          <td><strong style="color:${item.total < 5 ? 'var(--danger)' : 'inherit'};">${escapeHtml(item.total)}</strong></td>
+        </tr>
+      `).join("");
+    }
+
+    function exportStock() {
+      const rows = Array.from(document.querySelectorAll("#table-stock tbody tr")).map(tr =>
+        Array.from(tr.querySelectorAll("td")).map(td => td.innerText.trim())
+      );
+
+      if (!rows.length) {
+        alert("Sem dados de estoque para exportar.");
+        return;
+      }
+
+      const csv = [
+        ["Categoria", "Tamanho", "Novo", "Usado", "Total"],
+        ...rows
+      ].map(r => r.join(";")).join("\n");
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "estoque_geral.csv";
+      a.click();
+      URL.revokeObjectURL(a.href);
     }
 
     async function adminLoadData() {
@@ -1159,189 +1695,264 @@
           devPin: user.pin
         });
 
-        let h = "";
-        res.users.forEach(u => {
-          h += `
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px;border-bottom:1px solid var(--line2);gap:12px;flex-wrap:wrap;">
-              <div>
-                <div style="font-weight:700;">${escapeHtml(u.name)}</div>
-                <div style="font-size:.75rem;color:var(--muted);">${escapeHtml(u.login)} • Permissão: ${u.canEdit ? "Editor" : "Visualizador"}</div>
-              </div>
-              <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                <button onclick="adminToggleUser('${escapeHtml(u.login)}')" class="btn-secondary" style="height:32px;font-size:.7rem;">${u.active ? "Bloquear" : "Ativar"}</button>
-                <button onclick="adminResetPinPrompt('${escapeHtml(u.login)}')" class="btn-secondary" style="height:32px;font-size:.7rem;">Reset PIN</button>
-              </div>
-            </div>
-          `;
-        });
-
-        document.getElementById("admin-user-list").innerHTML = h;
+        renderAdminUsers(res.users || []);
 
         const cRes = await api({ action: "getCatalogo" });
-        saveCatalogLocal(cRes.catalog || []);
+        saveCatalogLocal(Array.isArray(cRes.catalog) ? cRes.catalog : []);
         renderCatalogEditor(cRes.catalog || []);
 
         const db = loadDB();
         renderAdminFuncs(db.funcionarios || []);
       } catch (e) {
-        alert("Erro admin: " + e.message);
+        alert("Erro ao carregar dados administrativos: " + e.message);
       }
     }
 
-    async function adminCreateUser() {
-      const user = getCurrentUser();
-      const name = document.getElementById("new-user-name").value.trim();
-      const login = document.getElementById("new-user-login").value.trim();
-      const pin = document.getElementById("new-user-pin").value.trim();
+    function renderAdminUsers(users) {
+      const host = document.getElementById("admin-user-list");
 
-      if (!name || !login || !/^\d{6}$/.test(pin)) {
-        alert("Preencha nome, login e PIN com 6 dígitos.");
+      if (!users.length) {
+        host.innerHTML = `<p class="muted">Nenhum usuário cadastrado.</p>`;
         return;
       }
 
-      try {
-        await api({
-          action: "createUser",
-          devLogin: user.login,
-          devPin: user.pin,
-          name: name,
-          login: login,
-          pin: pin
-        });
+      host.innerHTML = users.map(u => `
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 0; border-bottom:1px solid var(--line2); flex-wrap:wrap;">
+          <div>
+            <div style="font-weight:700;">${escapeHtml(u.name || "")}</div>
+            <div style="font-size:.8rem; color:var(--muted);">${escapeHtml(u.login || "")}</div>
+            <div style="font-size:.75rem; color:var(--muted); margin-top:4px;">
+              ${u.canEdit ? "Editor" : "Visualizador"} · ${u.active ? "Ativo" : "Bloqueado"}
+            </div>
+          </div>
 
-        alert("Usuário criado com sucesso.");
-        adminLoadData();
-      } catch (e) {
-        alert("Erro ao criar usuário: " + e.message);
-      }
+          <div class="inline-actions">
+            <button class="btn-secondary" onclick="adminToggleUser('${escapeHtml(u.login)}')">${u.active ? "Bloquear" : "Ativar"}</button>
+            <button class="btn-secondary" onclick="adminResetPinPrompt('${escapeHtml(u.login)}')">Reset PIN</button>
+            <button class="btn-danger" onclick="adminRemoveUser('${escapeHtml(u.login)}')">Excluir</button>
+          </div>
+        </div>
+      `).join("");
     }
 
-    async function adminToggleUser(login) {
-      const user = getCurrentUser();
+<script>
+async function adminCreateUser() {
+  const user = getCurrentUser();
+  const name = document.getElementById("new-user-name").value.trim();
+  const login = document.getElementById("new-user-login").value.trim();
+  const pin = document.getElementById("new-user-pin").value.trim();
 
-      try {
-        await api({
-          action: "toggleUser",
-          devLogin: user.login,
-          devPin: user.pin,
-          login: login
-        });
+  if (!user || !user.isDev) {
+    alert("Apenas administrador pode cadastrar usuários.");
+    return;
+  }
 
-        adminLoadData();
-      } catch (e) {
-        alert("Erro ao alterar usuário: " + e.message);
-      }
-    }
+  if (!name || !login || !pin) {
+    alert("Preencha nome, login e PIN.");
+    return;
+  }
 
-    async function adminResetPinPrompt(login) {
-      const user = getCurrentUser();
-      const pin = prompt("Novo PIN de 6 dígitos para " + login + ":");
+  if (!/^\d{6}$/.test(pin)) {
+    alert("O PIN deve ter 6 dígitos.");
+    return;
+  }
 
-      if (!pin) return;
-      if (!/^\d{6}$/.test(pin)) {
-        alert("PIN inválido.");
-        return;
-      }
+  try {
+    await api({
+      action: "createUser",
+      name: name,
+      login: login,
+      pin: pin,
+      devLogin: user.login,
+      devPin: user.pin
+    });
 
-      try {
-        await api({
-          action: "resetPin",
-          devLogin: user.login,
-          devPin: user.pin,
-          login: login,
-          pin: pin
-        });
+    alert("Usuário cadastrado com sucesso.");
+    document.getElementById("new-user-name").value = "";
+    document.getElementById("new-user-login").value = "";
+    document.getElementById("new-user-pin").value = "";
+    await adminLoadData();
+  } catch (e) {
+    alert("Erro ao criar usuário: " + e.message);
+  }
+}
 
-        alert("PIN atualizado.");
-      } catch (e) {
-        alert("Erro ao resetar PIN: " + e.message);
-      }
-    }
+async function adminToggleUser(login) {
+  const user = getCurrentUser();
+
+  if (!user || !user.isDev) {
+    alert("Apenas administrador pode alterar usuários.");
+    return;
+  }
+
+  try {
+    await api({
+      action: "toggleUser",
+      login: login,
+      devLogin: user.login,
+      devPin: user.pin
+    });
+
+    await adminLoadData();
+  } catch (e) {
+    alert("Erro ao alterar usuário: " + e.message);
+  }
+}
+
+async function adminResetPinPrompt(login) {
+  const user = getCurrentUser();
+
+  if (!user || !user.isDev) {
+    alert("Apenas administrador pode redefinir PIN.");
+    return;
+  }
+
+  const novoPin = prompt("Informe o novo PIN de 6 dígitos para " + login + ":");
+  if (!novoPin) return;
+
+  if (!/^\d{6}$/.test(String(novoPin).trim())) {
+    alert("PIN inválido.");
+    return;
+  }
+
+  try {
+    await api({
+      action: "resetPin",
+      login: login,
+      pin: String(novoPin).trim(),
+      devLogin: user.login,
+      devPin: user.pin
+    });
+
+    alert("PIN redefinido com sucesso.");
+  } catch (e) {
+    alert("Erro ao redefinir PIN: " + e.message);
+  }
+}
+
+async function adminRemoveUser(login) {
+  const user = getCurrentUser();
+
+  if (!user || !user.isDev) {
+    alert("Apenas administrador pode excluir usuários.");
+    return;
+  }
+
+  if (!confirm("Deseja realmente excluir este usuário?\n\n" + login)) return;
+
+  try {
+    await api({
+      action: "removeUser",
+      login: login,
+      devLogin: user.login,
+      devPin: user.pin
+    });
+
+    alert("Usuário excluído com sucesso.");
+    await adminLoadData();
+  } catch (e) {
+    alert("Erro ao excluir usuário: " + e.message);
+  }
+}
+</script>
+
 
     function renderCatalogEditor(catalog) {
-      let h = "";
+      const host = document.getElementById("catalog-editor-list");
 
-      catalog.forEach(c => {
-        h += `
-          <div class="grid-3" style="margin-bottom:10px; background:var(--panel2); padding:10px; border-radius:8px;">
-            <input type="text" class="form-control cat-name" value="${escapeHtml(c.categoria)}" placeholder="Categoria">
-            <input type="text" class="form-control cat-tams" value="${escapeHtml((c.tamanhos || []).join(","))}" placeholder="Tamanhos: P,M,G">
-            <select class="form-control cat-ativo">
-              <option value="1" ${c.ativo ? "selected" : ""}>Ativo</option>
-              <option value="0" ${!c.ativo ? "selected" : ""}>Inativo</option>
-            </select>
-          </div>
-        `;
-      });
+      if (!catalog.length) {
+        host.innerHTML = "";
+        return;
+      }
 
-      document.getElementById("catalog-editor-list").innerHTML = h;
+      host.innerHTML = catalog.map((c, idx) => `
+        <div class="grid-3" data-cat-row="${idx}" style="margin-bottom:10px; background:var(--panel2); padding:10px; border-radius:8px;">
+          <input type="text" class="form-control cat-name" value="${escapeHtml(c.categoria || "")}" placeholder="Categoria">
+          <input type="text" class="form-control cat-tams" value="${escapeHtml((c.tamanhos || []).join(","))}" placeholder="Tamanhos P,M,G">
+          <select class="form-control cat-ativo">
+            <option value="1" ${c.ativo ? "selected" : ""}>Ativo</option>
+            <option value="0" ${!c.ativo ? "selected" : ""}>Inativo</option>
+          </select>
+        </div>
+      `).join("");
     }
 
     function addCatalogRow() {
+      const host = document.getElementById("catalog-editor-list");
       const div = document.createElement("div");
       div.className = "grid-3";
       div.style.marginBottom = "10px";
       div.style.background = "var(--panel2)";
       div.style.padding = "10px";
       div.style.borderRadius = "8px";
-
       div.innerHTML = `
         <input type="text" class="form-control cat-name" placeholder="Categoria">
-        <input type="text" class="form-control cat-tams" placeholder="Tamanhos: P,M,G">
+        <input type="text" class="form-control cat-tams" placeholder="Tamanhos P,M,G">
         <select class="form-control cat-ativo">
           <option value="1">Ativo</option>
           <option value="0">Inativo</option>
         </select>
       `;
-
-      document.getElementById("catalog-editor-list").appendChild(div);
+      host.appendChild(div);
     }
 
     async function saveCatalog() {
-      const rows = document.querySelectorAll("#catalog-editor-list .grid-3");
+      const rows = document.querySelectorAll("#catalog-editor-list > div");
       const catalog = [];
 
       rows.forEach(r => {
         const categoria = r.querySelector(".cat-name").value.trim();
-        const tamanhos = r.querySelector(".cat-tams").value.split(",").map(s => s.trim()).filter(Boolean);
+        const tamanhos = r.querySelector(".cat-tams").value
+          .split(",")
+          .map(s => s.trim())
+          .filter(Boolean);
         const ativo = r.querySelector(".cat-ativo").value === "1";
 
         if (categoria) {
           catalog.push({
             itemId: makeId(),
-            categoria: categoria,
-            tamanhos: tamanhos,
-            ativo: ativo
+            categoria,
+            tamanhos,
+            ativo
           });
         }
       });
 
       try {
-        await sendKind("catalogo", { catalog: catalog });
+        await sendKind("catalogo", { catalog });
         saveCatalogLocal(catalog);
         populateSelects();
-        alert("Catálogo atualizado.");
+        alert("Catálogo atualizado com sucesso.");
       } catch (e) {
         alert("Erro ao salvar catálogo: " + e.message);
       }
     }
 
     function renderAdminFuncs(funcs) {
-      let h = "";
+      const tbody = document.querySelector("#table-admin-funcs tbody");
+      const rows = (funcs || []).slice().sort((a, b) => String(a.nome).localeCompare(String(b.nome)));
 
-      [...funcs]
-        .filter(f => f.nome)
-        .sort((a, b) => a.nome.localeCompare(b.nome))
-        .forEach(f => {
-          h += `
-            <tr>
-              <td>${escapeHtml(f.nome)}</td>
-              <td><span class="status-badge ${f.ativo ? "ok" : "err"}">${f.ativo ? "Ativo" : "Inativo"}</span></td>
-            </tr>
-          `;
-        });
+      if (!rows.length) {
+        tbody.innerHTML = `<tr><td colspan="3" class="muted">Nenhum funcionário cadastrado.</td></tr>`;
+        return;
+      }
 
-      document.querySelector("#table-admin-funcs tbody").innerHTML = h;
+      tbody.innerHTML = rows.map(f => `
+        <tr>
+          <td>${escapeHtml(f.nome || "")}</td>
+          <td>
+            <span class="status-badge ${f.ativo ? "ok" : "err"}">
+              ${f.ativo ? "Ativo" : "Inativo"}
+            </span>
+          </td>
+          <td>
+            <div class="inline-actions">
+              <button class="btn-secondary" onclick="adminToggleFunc('${escapeHtml(f.id || "")}')">Alternar</button>
+              <button class="btn-danger" onclick="adminRemoveFunc('${escapeHtml(f.id || "")}','${escapeHtml(f.nome || "")}')">Excluir</button>
+            </div>
+          </td>
+        </tr>
+      `).join("");
     }
 
     async function salvarFuncionario() {
@@ -1354,48 +1965,92 @@
 
       try {
         await sendKind("funcionario", {
-          nome: nome,
+          id: makeId(),
+          nome,
           ativo: true,
           evento: "CADASTRO_MANUAL"
         });
 
         const db = loadDB();
-        db.funcionarios.push({ nome: nome, ativo: true });
+        db.funcionarios.push({
+          id: makeId(),
+          nome,
+          ativo: true
+        });
         saveDB(db);
 
         document.getElementById("new-func-nome").value = "";
         populateSelects();
         renderAdminFuncs(db.funcionarios);
-
-        alert("Funcionário cadastrado.");
+        alert("Funcionário cadastrado com sucesso.");
       } catch (e) {
         alert("Erro ao cadastrar funcionário: " + e.message);
       }
     }
+    async function adminToggleFunc(id) {
+      const db = loadDB();
+      const idx = (db.funcionarios || []).findIndex(f => String(f.id || "") === String(id || ""));
 
-    function exportStock() {
-      const rows = [...document.querySelectorAll("#table-stock tr")].map(tr =>
-        [...tr.children].map(td => td.innerText.replace(/\n/g, " ").trim()).join("\t")
-      ).join("\n");
+      if (idx < 0) {
+        alert("Funcionário não encontrado.");
+        return;
+      }
 
-      const blob = new Blob([rows], { type: "application/vnd.ms-excel;charset=utf-8;" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "estoque.xls";
-      a.click();
+      db.funcionarios[idx].ativo = !db.funcionarios[idx].ativo;
+      saveDB(db);
+
+      renderAdminFuncs(db.funcionarios);
+      populateSelects();
+      alert("Status do funcionário alterado localmente. Na próxima sincronização, o backend deve refletir esta mudança.");
+    }
+
+    async function adminRemoveFunc(id, nome) {
+      if (!confirm("Deseja realmente excluir este funcionário?\n\n" + nome)) return;
+
+      try {
+        const user = getCurrentUser();
+        if (!user) throw new Error("Sessão inválida.");
+
+        await api({
+          action: "removeFuncionario",
+          id: id,
+          actorLogin: user.login,
+          actorPin: user.pin
+        });
+
+        const db = loadDB();
+        db.funcionarios = (db.funcionarios || []).filter(f => String(f.id || "") !== String(id || ""));
+        saveDB(db);
+
+        populateSelects();
+        renderAdminFuncs(db.funcionarios);
+        alert("Funcionário excluído com sucesso.");
+      } catch (e) {
+        alert("Erro ao excluir funcionário: " + e.message);
+      }
     }
 
     document.addEventListener("DOMContentLoaded", function() {
       const btn = document.getElementById("btn-do-login");
       if (btn) btn.addEventListener("click", doLogin);
 
-      document.getElementById("mov-data").value = todayISO();
+      const termoFunc = document.getElementById("termo-funcionario");
+      if (termoFunc) {
+        termoFunc.addEventListener("change", function() {
+          prepararTermoRecebimento(false);
+        });
+      }
+    });
+
+    window.onload = function() {
+      resetMovimentoForm();
       initEntrega();
+      initRelatorios();
 
       if (requireLogin()) {
         autoSyncAfterLogin();
       }
-    });
+    };
   </script>
 </body>
 </html>
